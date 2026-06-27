@@ -47,7 +47,7 @@ function ScrutinsPage() {
   const slice = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const setF = (patch: Partial<{ q: string; sort: "all" | "adopte" | "rejete"; page: number }>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch, page: patch.page ?? 1 }) });
+    navigate({ search: (prev: z.infer<typeof searchSchema>) => ({ ...prev, ...patch, page: patch.page ?? 1 }) });
 
   return (
     <div className="container-app py-12">
