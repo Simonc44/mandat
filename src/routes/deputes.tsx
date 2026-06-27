@@ -62,7 +62,7 @@ function DeputesPage() {
   const slice = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const setFilter = (patch: Partial<{ q: string; groupe: string; dept: string; page: number }>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch, page: patch.page ?? 1 }) });
+    navigate({ search: (prev: z.infer<typeof searchSchema>) => ({ ...prev, ...patch, page: patch.page ?? 1 }) });
 
   return (
     <div className="container-app py-12">
