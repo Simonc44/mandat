@@ -1,0 +1,58 @@
+{
+  "name": "Mandat — Transparence citoyenne",
+  "short_name": "Mandat",
+  "description": "Le moteur de recherche citoyen des votes à l'Assemblée nationale. Qui a voté quoi, et pourquoi.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9f9fc",
+  "theme_color": "#5B4FCF",
+  "orientation": "portrait-primary",
+  "lang": "fr-FR",
+  "categories": ["government", "news", "education"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Derniers scrutins",
+      "short_name": "Scrutins",
+      "description": "Voir les derniers votes de l'Assemblée nationale",
+      "url": "/scrutins",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Chercher un député",
+      "short_name": "Député·es",
+      "description": "Chercher un·e élu·e",
+      "url": "/deputes",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Mandat — Page d'accueil"
+    }
+  ],
+  "prefer_related_applications": false
+}

@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Bloquer l'exploration des filtres de recherche complexes pour économiser le budget de crawl
+Disallow: /recherche?*
+Disallow: /recherche/
+
+# Spécifier le sitemap officiel
+Sitemap: https://mandat-fr.vercel.app/sitemap.xml

@@ -58,7 +58,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.04 285);
 
-  --primary: oklch(0.48 0.18 285);            /* #5B4FCF-ish */
+  --primary: oklch(0.48 0.18 285);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.94 0.02 285);
   --secondary-foreground: oklch(0.22 0.05 285);
@@ -74,10 +74,10 @@
   --ring: oklch(0.48 0.18 285);
 
   /* Vote colors */
-  --pour: oklch(0.62 0.16 155);        /* green */
-  --contre: oklch(0.6 0.22 27);         /* red */
-  --abstention: oklch(0.7 0.14 80);     /* amber */
-  --absent: oklch(0.62 0.02 285);       /* grey */
+  --pour: oklch(0.62 0.16 155);
+  --contre: oklch(0.6 0.22 27);
+  --abstention: oklch(0.7 0.14 80);
+  --absent: oklch(0.62 0.02 285);
 }
 
 .dark {
@@ -105,9 +105,18 @@
   --ring: oklch(0.72 0.16 285);
 }
 
+/* ============================================================
+   BASE
+   ============================================================ */
+
 @layer base {
-  * { border-color: var(--color-border); }
-  html { -webkit-font-smoothing: antialiased; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -120,9 +129,259 @@
   }
 }
 
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+
 @utility container-app {
   width: 100%;
   margin-inline: auto;
   padding-inline: 1.25rem;
   max-width: 1200px;
+}
+
+/* ============================================================
+   ANIMATIONS "WOW" STYLE APPLE
+   ============================================================ */
+
+/* Barre de progression de navigation */
+@keyframes progress-bar {
+  0% { transform: translateX(-100%); opacity: 1; }
+  50% { transform: translateX(0%); opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+/* Apparition progressive des éléments (fade + slide-up) */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade simple */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Shimmer pour les skeletons */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Scale doux au survol des cartes */
+@keyframes card-hover-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 0%, transparent); }
+  100% { box-shadow: 0 0 0 4px color-mix(in oklch, var(--primary) 8%, transparent); }
+}
+
+/* Classes utilitaires */
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out both;
+}
+
+/* Délais d'animation en cascade pour les listes */
+.animate-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.animate-stagger > *:nth-child(2) { animation-delay: 60ms; }
+.animate-stagger > *:nth-child(3) { animation-delay: 120ms; }
+.animate-stagger > *:nth-child(4) { animation-delay: 180ms; }
+.animate-stagger > *:nth-child(5) { animation-delay: 240ms; }
+.animate-stagger > *:nth-child(6) { animation-delay: 300ms; }
+.animate-stagger > *:nth-child(n+7) { animation-delay: 360ms; }
+
+/* ============================================================
+   SKELETON LOADING
+   ============================================================ */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-muted) 25%,
+    color-mix(in oklch, var(--color-muted) 60%, var(--color-surface)) 50%,
+    var(--color-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ============================================================
+   CARTES DÉPUTÉ·ES — Micro-interactions
+   ============================================================ */
+
+.depute-card {
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 150ms ease;
+  will-change: transform, box-shadow;
+}
+
+.depute-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 16px -4px color-mix(in oklch, var(--color-primary) 12%, transparent),
+    0 1px 4px -1px color-mix(in oklch, var(--color-ink) 8%, transparent);
+}
+
+.depute-card:active {
+  transform: translateY(0px);
+  transition-duration: 80ms;
+}
+
+/* Photo de député avec zoom au survol */
+.depute-card .depute-photo {
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+}
+
+.depute-card:hover .depute-photo {
+  transform: scale(1.06);
+}
+
+/* ============================================================
+   SCRUTIN CARDS — Effet de bordure gauche colorée au survol
+   ============================================================ */
+
+.scrutin-card {
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 120ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.scrutin-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.scrutin-card:hover::before {
+  transform: scaleY(1);
+}
+
+.scrutin-card:hover {
+  transform: translateX(3px);
+}
+
+/* ============================================================
+   BARRE DE RÉSULTATS — Animation de remplissage
+   ============================================================ */
+
+.result-bar-segment {
+  transition: width 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================
+   SEARCH BAR — Apparition progressive
+   ============================================================ */
+
+.search-container {
+  animation: fade-up 0.5s ease-out 0.1s both;
+}
+
+/* Dropdown des résultats de recherche */
+.search-dropdown {
+  animation: fade-up 0.2s ease-out both;
+  transform-origin: top center;
+}
+
+/* ============================================================
+   PAGE TRANSITIONS — TanStack Router
+   ============================================================ */
+
+.page-enter {
+  animation: fade-up 0.3s ease-out both;
+}
+
+/* ============================================================
+   HERO — Gradient animé
+   ============================================================ */
+
+@keyframes hero-gradient {
+  0%, 100% { opacity: 0.06; }
+  50% { opacity: 0.09; }
+}
+
+.hero-gradient {
+  animation: hero-gradient 6s ease-in-out infinite;
+}
+
+/* ============================================================
+   STAT BOXES — Compteur animé (effet de focus)
+   ============================================================ */
+
+.stat-value {
+  transition: color 300ms ease, transform 200ms ease;
+}
+
+.stat-box:hover .stat-value {
+  color: var(--color-primary);
+  transform: scale(1.05);
+}
+
+/* ============================================================
+   BOUTON PRIMAIRE
+   ============================================================ */
+
+button[class*="bg-primary"],
+a[class*="bg-primary"] {
+  transition:
+    opacity 150ms ease,
+    transform 100ms ease,
+    box-shadow 150ms ease;
+}
+
+button[class*="bg-primary"]:hover,
+a[class*="bg-primary"]:hover {
+  box-shadow: 0 4px 12px -2px color-mix(in oklch, var(--color-primary) 30%, transparent);
+}
+
+button[class*="bg-primary"]:active,
+a[class*="bg-primary"]:active {
+  transform: scale(0.97);
+}
+
+/* ============================================================
+   FOCUS VISIBLE — Accessibilité
+   ============================================================ */
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ============================================================
+   REDUCED MOTION — Respect des préférences système
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -1,9 +1,11 @@
+// routes/__root.tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -13,23 +15,220 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header, Footer } from "../components/Header";
 
+// ============================================================================
+// CONSTANTES SEO
+// ============================================================================
+
+const SITE_URL = "https://mandat-fr.vercel.app";
+const SITE_NAME = "Mandat";
+const SITE_DESCRIPTION =
+  "Le moteur de recherche citoyen des votes à l'Assemblée nationale. Qui a voté quoi ? Pourquoi ? Transparence sans étiquette politique.";
+const KEYWORDS = [
+  "votes",
+  "Assemblée nationale",
+  "scrutin",
+  "députés",
+  "transparence",
+  "politique",
+  "opendata",
+  "AN",
+  "élu",
+  "mandat",
+];
+
+// ============================================================================
+// TYPES SEO
+// ============================================================================
+
+interface SeoConfig {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  ogType?: "website" | "article" | "profile";
+  keywords?: string[];
+  author?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  twitterHandle?: string;
+  breadcrumbs?: Array<{
+    name: string;
+    url: string;
+  }>;
+}
+
+interface HeadMeta {
+  title?: string;
+  name?: string;
+  property?: string;
+  content?: string;
+  charSet?: string;
+  httpEquiv?: string;
+}
+
+interface HeadLink {
+  rel: string;
+  href?: string;
+  hrefLang?: string;
+  type?: string;
+  crossOrigin?: "anonymous";
+}
+
+// ============================================================================
+// FONCTION UTILITAIRE SEO
+// ============================================================================
+
+/**
+ * Crée les métadonnées SEO complètes pour une page
+ */
+function createSeoMeta(config: SeoConfig) {
+  const canonical = config.canonical || SITE_URL;
+  const ogImage = config.ogImage || `${SITE_URL}/og-image.png`;
+  const keywords = config.keywords || KEYWORDS;
+
+  const meta: HeadMeta[] = [
+    /* --- SEO DE BASE --- */
+    { charSet: "utf-8" },
+    { name: "viewport", content: "width=device-width, initial-scale=1" },
+    { title: config.title },
+    { name: "description", content: config.description },
+    { name: "author", content: config.author || SITE_NAME },
+    { name: "robots", content: "index, follow" },
+    { name: "theme-color", content: "#ffffff" },
+    { name: "keywords", content: keywords.join(", ") },
+    { httpEquiv: "x-ua-compatible", content: "IE=edge" },
+
+    /* --- OPEN GRAPH (Facebook, LinkedIn, Discord, WhatsApp) --- */
+    { property: "og:site_name", content: SITE_NAME },
+    { property: "og:type", content: config.ogType || "website" },
+    { property: "og:url", content: canonical },
+    { property: "og:title", content: config.title },
+    { property: "og:description", content: config.description },
+    { property: "og:locale", content: "fr_FR" },
+    { property: "og:image", content: ogImage },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:image:type", content: "image/png" },
+
+    /* --- TWITTER CARDS --- */
+    { name: "twitter:card", content: "summary_large_image" },
+    {
+      name: "twitter:site",
+      content: config.twitterHandle || "@MandatFr",
+    },
+    { name: "twitter:title", content: config.title },
+    { name: "twitter:description", content: config.description },
+    { name: "twitter:image", content: ogImage },
+
+    /* --- ARTICLE METADATA (si applicable) --- */
+    ...(config.publishedTime
+      ? [{ property: "article:published_time", content: config.publishedTime }]
+      : []),
+    ...(config.modifiedTime
+      ? [{ property: "article:modified_time", content: config.modifiedTime }]
+      : []),
+  ];
+
+  return meta;
+}
+
+/**
+ * Crée le JSON-LD structuré pour breadcrumbs
+ */
+function createBreadcrumbSchema(breadcrumbs: Array<{ name: string; url: string }>) {
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbs.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  });
+}
+
+/**
+ * Crée le JSON-LD pour une personne (député)
+ */
+function createPersonSchema(deputy: any) {
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: deputy.name,
+    givenName: deputy.firstName,
+    familyName: deputy.lastName,
+    image: deputy.imageUrl,
+    jobTitle: "Député",
+    affiliation: {
+      "@type": "PoliticalParty",
+      name: deputy.party,
+    },
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: deputy.region,
+    },
+    url: `${SITE_URL}/deputy/${deputy.slug}`,
+    sameAs: deputy.website ? [deputy.website] : undefined,
+  });
+}
+
+/**
+ * Crée le JSON-LD pour un scrutin/vote
+ */
+function createVoteEventSchema(vote: any) {
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: vote.title,
+    description: vote.summary,
+    startDate: vote.date,
+    url: `${SITE_URL}/vote/${vote.id}`,
+    location: {
+      "@type": "Place",
+      name: "Assemblée nationale française",
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "FR",
+      },
+    },
+  });
+}
+
+// ============================================================================
+// COMPOSANTS 404 ET ERROR
+// ============================================================================
+
 function NotFoundComponent() {
   return (
     <div className="container-app py-24 text-center">
       <h1 className="font-display text-6xl mb-3">404</h1>
-      <p className="text-muted-foreground mb-6">Cette page n'existe pas ou a été déplacée.</p>
-      <Link to="/" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+      <p className="text-muted-foreground mb-6">
+        Cette page n'existe pas ou a été déplacée.
+      </p>
+      <Link
+        to="/"
+        className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+      >
         Retour à l'accueil
       </Link>
     </div>
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({
+  error,
+  reset,
+}: {
+  error: Error;
+  reset: () => void;
+}) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportLovableError(error, {
+      boundary: "tanstack_root_error_component",
+    });
   }, [error]);
   return (
     <div className="container-app py-24 text-center">
@@ -39,12 +238,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
       </p>
       <div className="flex justify-center gap-2">
         <button
-          onClick={() => { router.invalidate(); reset(); }}
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
         >
           Réessayer
         </button>
-        <a href="/" className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-accent">
+        <a
+          href="/"
+          className="rounded-md border border-border bg-background px-4 py-2 text-sm hover:bg-accent"
+        >
           Accueil
         </a>
       </div>
@@ -52,35 +257,38 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+// ============================================================================
+// ROUTE ROOT
+// ============================================================================
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Mandat — Qui a voté quoi, et pourquoi" },
-      {
-        name: "description",
-        content:
-          "Mandat rend lisibles les votes des député·es français. Cherchez un texte, un élu, un groupe. Transparence citoyenne, sans étiquette politique.",
-      },
-      { name: "author", content: "Mandat" },
-      { property: "og:title", content: "Mandat — Qui a voté quoi, et pourquoi" },
-      {
-        property: "og:description",
-        content:
-          "Le moteur de recherche citoyen des votes à l'Assemblée nationale.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
+    meta: createSeoMeta({
+      title: `${SITE_NAME} — Qui a voté quoi, et pourquoi`,
+      description: SITE_DESCRIPTION,
+      keywords: KEYWORDS,
+    }),
     links: [
+      /* --- OPTIMISATION TECHNIQUE & DESIGN --- */
+      { rel: "canonical", href: SITE_URL },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "apple-touch-icon", href: "/favicon.svg" },
+      { rel: "manifest", href: "/manifest.json" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap",
+      },
+      {
+        rel: "alternate",
+        hrefLang: "fr-FR",
+        href: SITE_URL,
       },
     ],
   }),
@@ -90,11 +298,62 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+// ============================================================================
+// SHELLS & COMPONENTS
+// ============================================================================
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
       <head>
         <HeadContent />
+
+        {/* JSON-LD: Organization & WebSite */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "@id": `${SITE_URL}/#website`,
+              url: SITE_URL,
+              name: SITE_NAME,
+              description: SITE_DESCRIPTION,
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: `${SITE_URL}/recherche?query={search_term_string}`,
+                },
+                query_input: "required name=search_term_string",
+              },
+              inLanguage: "fr-FR",
+            }),
+          }}
+        />
+
+        {/* JSON-LD: Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "@id": `${SITE_URL}/#organization`,
+              name: SITE_NAME,
+              url: SITE_URL,
+              logo: `${SITE_URL}/logo.svg`,
+              description: SITE_DESCRIPTION,
+              sameAs: ["https://twitter.com/MandatFr"],
+              foundingDate: "2024",
+              foundingLocation: "France",
+              areaServed: "FR",
+            }),
+          }}
+        />
+
+        {/* Preload critiques */}
+        <link rel="preload" as="image" href="/og-image.png" />
       </head>
       <body>
         {children}
@@ -106,6 +365,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const location = useLocation();
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen flex flex-col">
@@ -118,3 +379,18 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
+
+// ============================================================================
+// EXPORT DES UTILITAIRES POUR LES ROUTES ENFANTS
+// ============================================================================
+
+export {
+  createSeoMeta,
+  createBreadcrumbSchema,
+  createPersonSchema,
+  createVoteEventSchema,
+  SITE_URL,
+  SITE_NAME,
+  SITE_DESCRIPTION,
+  KEYWORDS,
+};

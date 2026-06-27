@@ -1,0 +1,15 @@
+#  __  __                 _       _   
+# |  \/  |               | |     | |  
+# | \  / | __ _ _ __   __| | __ _| |_ 
+# | |\/| |/ _` | '_ \ / _` |/ _` | __|
+# | |  | | (_| | | | | (_| | (_| | |_ 
+# |_|  |_|\__,_|_| |_|\__,_|\__,_|\__|
+#
+# Transparence citoyenne, sécurité maximale.
+
+Contact: mailto:simon.chusseau@gmail.com
+Expires: 2027-06-27T09:00:00.000Z
+Preferred-Languages: fr
+Canonical: https://mandat-fr.vercel.app/.well-known/security.txt
+
+# Merci de nous aider à protéger les données citoyennes !
