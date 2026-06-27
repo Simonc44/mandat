@@ -9,38 +9,128 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ScrutinsRouteImport } from './routes/scrutins'
+import { Route as RechercheRouteImport } from './routes/recherche'
+import { Route as DeputesRouteImport } from './routes/deputes'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ScrutinNumeroRouteImport } from './routes/scrutin.$numero'
+import { Route as DeputeSlugRouteImport } from './routes/depute.$slug'
 
+const ScrutinsRoute = ScrutinsRouteImport.update({
+  id: '/scrutins',
+  path: '/scrutins',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RechercheRoute = RechercheRouteImport.update({
+  id: '/recherche',
+  path: '/recherche',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeputesRoute = DeputesRouteImport.update({
+  id: '/deputes',
+  path: '/deputes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ScrutinNumeroRoute = ScrutinNumeroRouteImport.update({
+  id: '/scrutin/$numero',
+  path: '/scrutin/$numero',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeputeSlugRoute = DeputeSlugRouteImport.update({
+  id: '/depute/$slug',
+  path: '/depute/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/deputes': typeof DeputesRoute
+  '/recherche': typeof RechercheRoute
+  '/scrutins': typeof ScrutinsRoute
+  '/depute/$slug': typeof DeputeSlugRoute
+  '/scrutin/$numero': typeof ScrutinNumeroRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/deputes': typeof DeputesRoute
+  '/recherche': typeof RechercheRoute
+  '/scrutins': typeof ScrutinsRoute
+  '/depute/$slug': typeof DeputeSlugRoute
+  '/scrutin/$numero': typeof ScrutinNumeroRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/deputes': typeof DeputesRoute
+  '/recherche': typeof RechercheRoute
+  '/scrutins': typeof ScrutinsRoute
+  '/depute/$slug': typeof DeputeSlugRoute
+  '/scrutin/$numero': typeof ScrutinNumeroRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/deputes'
+    | '/recherche'
+    | '/scrutins'
+    | '/depute/$slug'
+    | '/scrutin/$numero'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/deputes'
+    | '/recherche'
+    | '/scrutins'
+    | '/depute/$slug'
+    | '/scrutin/$numero'
+  id:
+    | '__root__'
+    | '/'
+    | '/deputes'
+    | '/recherche'
+    | '/scrutins'
+    | '/depute/$slug'
+    | '/scrutin/$numero'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DeputesRoute: typeof DeputesRoute
+  RechercheRoute: typeof RechercheRoute
+  ScrutinsRoute: typeof ScrutinsRoute
+  DeputeSlugRoute: typeof DeputeSlugRoute
+  ScrutinNumeroRoute: typeof ScrutinNumeroRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/scrutins': {
+      id: '/scrutins'
+      path: '/scrutins'
+      fullPath: '/scrutins'
+      preLoaderRoute: typeof ScrutinsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recherche': {
+      id: '/recherche'
+      path: '/recherche'
+      fullPath: '/recherche'
+      preLoaderRoute: typeof RechercheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deputes': {
+      id: '/deputes'
+      path: '/deputes'
+      fullPath: '/deputes'
+      preLoaderRoute: typeof DeputesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +138,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/scrutin/$numero': {
+      id: '/scrutin/$numero'
+      path: '/scrutin/$numero'
+      fullPath: '/scrutin/$numero'
+      preLoaderRoute: typeof ScrutinNumeroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/depute/$slug': {
+      id: '/depute/$slug'
+      path: '/depute/$slug'
+      fullPath: '/depute/$slug'
+      preLoaderRoute: typeof DeputeSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DeputesRoute: DeputesRoute,
+  RechercheRoute: RechercheRoute,
+  ScrutinsRoute: ScrutinsRoute,
+  DeputeSlugRoute: DeputeSlugRoute,
+  ScrutinNumeroRoute: ScrutinNumeroRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
