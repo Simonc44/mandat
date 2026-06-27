@@ -5,7 +5,11 @@ export function Header() {
     <header className="border-b border-border bg-surface/80 backdrop-blur sticky top-0 z-40">
       <div className="container-app flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-2.5 group">
-          <span className="grid place-items-center w-9 h-9 rounded-lg bg-primary text-primary-foreground font-display text-lg font-semibold">M</span>
+          <img 
+            src="/favicon.svg" 
+            alt="Logo Mandat" 
+            className="w-9 h-9 object-contain" 
+           />
           <span className="flex flex-col leading-none">
             <span className="font-display text-lg font-semibold tracking-tight">Mandat</span>
             <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Transparence citoyenne</span>
