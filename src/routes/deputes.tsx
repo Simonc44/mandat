@@ -1,10 +1,13 @@
+// routes/deputes.tsx — Liquid Glass + filtres + pagination
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import { allDeputesQuery, normalize, GROUPES } from "@/lib/api";
-import { DeputeCard } from "@/components/DeputeCard";
+import { allDeputesQuery, normalize, sanitizeSearchInput, GROUPES } from "@/lib/api";
+import { DeputeCard, DeputeCardSkeletonGrid } from "@/components/DeputeCard";
+import { createSeoMeta, SITE_URL } from "./__root";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -15,12 +18,12 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/deputes")({
   head: () => ({
-    meta: [
-      { title: "Les 577 député·es — Mandat" },
-      { name: "description", content: "Cherchez et filtrez les député·es à l'Assemblée nationale par groupe, département ou nom." },
-      { property: "og:title", content: "Les député·es — Mandat" },
-      { property: "og:description", content: "Cherchez et filtrez les député·es par groupe, département ou nom." },
-    ],
+    meta: createSeoMeta({
+      title: "Les 577 député·es — Mandat",
+      description:
+        "Cherchez et filtrez les député·es à l'Assemblée nationale par groupe politique, département ou nom. 17e législature.",
+      canonical: `${SITE_URL}/deputes`,
+    }),
   }),
   validateSearch: zodValidator(searchSchema),
   loader: ({ context }) => context.queryClient.ensureQueryData(allDeputesQuery),
@@ -36,15 +39,19 @@ function DeputesPage() {
   const [search, setSearch] = useState(q);
 
   const groupes = useMemo(() => {
-    const set = new Map<string, number>();
-    deputes.forEach((d) => set.set(d.groupe_sigle, (set.get(d.groupe_sigle) ?? 0) + 1));
-    return Array.from(set.entries()).sort((a, b) => b[1] - a[1]);
+    const map = new Map<string, number>();
+    deputes.forEach((d) => {
+      if (d.groupe_sigle) map.set(d.groupe_sigle, (map.get(d.groupe_sigle) ?? 0) + 1);
+    });
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
   }, [deputes]);
 
   const departments = useMemo(() => {
-    const set = new Map<string, string>();
-    deputes.forEach((d) => set.set(d.num_deptmt, d.nom_circo));
-    return Array.from(set.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    const map = new Map<string, string>();
+    deputes.forEach((d) => {
+      if (d.num_deptmt) map.set(d.num_deptmt, d.nom_circo);
+    });
+    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
   }, [deputes]);
 
   const filtered = useMemo(() => {
@@ -52,7 +59,13 @@ function DeputesPage() {
     return deputes.filter((d) => {
       if (groupe && d.groupe_sigle !== groupe) return false;
       if (dept && d.num_deptmt !== dept) return false;
-      if (n && !normalize(`${d.prenom} ${d.nom_de_famille} ${d.nom_circo}`).includes(n)) return false;
+      if (
+        n &&
+        !normalize(
+          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.num_deptmt}`
+        ).includes(n)
+      )
+        return false;
       return true;
     });
   }, [deputes, q, groupe, dept]);
@@ -61,105 +74,199 @@ function DeputesPage() {
   const safePage = Math.min(page, totalPages);
   const slice = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const setFilter = (patch: Partial<{ q: string; groupe: string; dept: string; page: number }>) =>
-    navigate({ search: (prev: z.infer<typeof searchSchema>) => ({ ...prev, ...patch, page: patch.page ?? 1 }) });
+  const setFilter = (
+    patch: Partial<{ q: string; groupe: string; dept: string; page: number }>
+  ) =>
+    navigate({
+      search: (prev: z.infer<typeof searchSchema>) => ({
+        ...prev,
+        ...patch,
+        page: patch.page ?? 1,
+      }),
+    });
+
+  const hasFilters = !!(q || groupe || dept);
 
   return (
     <div className="container-app py-12">
-      <header className="mb-8 flex items-end justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="font-display text-4xl md:text-5xl mb-2">Député·es</h1>
-          <p className="text-muted-foreground">
-            {filtered.length.toLocaleString("fr-FR")} résultats sur {deputes.length} député·es de la XVIe législature.
-          </p>
-        </div>
-      </header>
+      {/* Header */}
+      <div className="mb-8 animate-fade-up">
+        <h1 className="font-display text-4xl md:text-5xl mb-2">Député·es</h1>
+        <p className="text-muted-foreground">
+          {filtered.length.toLocaleString("fr-FR")} résultat
+          {filtered.length > 1 ? "s" : ""} sur{" "}
+          {deputes.length} député·es · XVIIe législature
+        </p>
+      </div>
 
-      {/* Search + filters */}
-      <div className="space-y-4 mb-8">
+      {/* Recherche */}
+      <div className="space-y-4 mb-8 animate-fade-up" style={{ animationDelay: "60ms" }}>
         <form
-          onSubmit={(e) => { e.preventDefault(); setFilter({ q: search }); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            setFilter({ q: sanitizeSearchInput(search) });
+          }}
           className="flex gap-2"
+          role="search"
         >
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Nom, prénom, circonscription, code postal de la ville…"
-            className="flex-1 px-4 py-3 rounded-lg bg-surface border border-border focus:border-primary focus:outline-none"
-          />
-          <button className="px-5 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
+          <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
+            <svg className="w-4 h-4 text-muted-foreground shrink-0 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" strokeLinecap="round" />
+            </svg>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Nom, prénom, circonscription…"
+              className="flex-1 py-3 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
+              maxLength={150}
+              autoComplete="off"
+            />
+          </div>
+          <button
+            type="submit"
+            className="btn-primary px-5 py-3 rounded-2xl text-sm font-medium"
+          >
             Chercher
           </button>
-          {(q || groupe || dept) && (
+          {hasFilters && (
             <button
               type="button"
-              onClick={() => { setSearch(""); navigate({ search: { q: "", groupe: "", dept: "", page: 1 } }); }}
-              className="px-4 py-3 rounded-lg border border-border text-sm hover:bg-secondary"
+              onClick={() => {
+                setSearch("");
+                navigate({
+                  search: { q: "", groupe: "", dept: "", page: 1 },
+                });
+              }}
+              className="px-4 py-3 rounded-2xl glass border border-border/50 text-sm hover:border-primary/30 transition-colors"
             >
-              Réinitialiser
+              ✕ Réinit.
             </button>
           )}
         </form>
 
-        <div className="flex flex-wrap gap-2">
+        {/* Filtres groupes */}
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label="Filtrer par groupe"
+        >
           <button
             onClick={() => setFilter({ groupe: "" })}
-            className={chipClass(!groupe)}
+            aria-pressed={!groupe}
+            className={chipCls(!groupe)}
           >
-            Tous les groupes
+            Tous
           </button>
-          {groupes.slice(0, 10).map(([sig, count]) => (
+          {groupes.map(([sig, count]) => (
             <button
               key={sig}
               onClick={() => setFilter({ groupe: sig })}
-              className={chipClass(groupe === sig)}
+              aria-pressed={groupe === sig}
+              className={chipCls(groupe === sig)}
               title={GROUPES[sig]?.nom ?? sig}
             >
-              {sig || "NI"} <span className="opacity-60">· {count}</span>
+              <span
+                className="w-2 h-2 rounded-full shrink-0"
+                style={{
+                  backgroundColor:
+                    GROUPES[sig]?.couleur ?? "oklch(0.55 0.02 285)",
+                }}
+                aria-hidden="true"
+              />
+              {sig || "NI"}
+              <span className="opacity-50 text-[10px]">· {count}</span>
             </button>
           ))}
         </div>
 
+        {/* Filtre département */}
         <div>
+          <label htmlFor="dept-select" className="sr-only">
+            Filtrer par département
+          </label>
           <select
+            id="dept-select"
             value={dept}
             onChange={(e) => setFilter({ dept: e.target.value })}
-            className="px-3 py-2 rounded-lg bg-surface border border-border text-sm"
+            className="px-3 py-2.5 rounded-xl glass border border-border/50 text-sm bg-transparent focus:outline-none focus:border-primary/50"
           >
             <option value="">Tous les départements</option>
             {departments.map(([num, nom]) => (
-              <option key={num} value={num}>{num} — {nom}</option>
+              <option key={num} value={num}>
+                {num} — {nom}
+              </option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Grid */}
+      {/* Résultats */}
       {slice.length === 0 ? (
-        <p className="text-muted-foreground py-12 text-center">Aucun député·e ne correspond à ces critères.</p>
+        <div className="py-16 text-center glass rounded-3xl border border-border/50">
+          <span className="text-4xl block mb-3" aria-hidden="true">🔍</span>
+          <p className="text-muted-foreground">Aucun·e député·e ne correspond à ces critères.</p>
+          {hasFilters && (
+            <button
+              onClick={() => {
+                setSearch("");
+                navigate({ search: { q: "", groupe: "", dept: "", page: 1 } });
+              }}
+              className="mt-4 text-sm text-primary hover:underline"
+            >
+              Réinitialiser les filtres
+            </button>
+          )}
+        </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {slice.map((d) => <DeputeCard key={d.id} d={d} />)}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-stagger">
+          {slice.map((d, i) => (
+            <DeputeCard key={d.id || d.slug} d={d} index={i} />
+          ))}
         </div>
       )}
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <nav className="mt-10 flex items-center justify-center gap-2">
+        <nav
+          className="mt-10 flex items-center justify-center gap-2"
+          aria-label="Pagination"
+        >
           <button
             onClick={() => setFilter({ page: Math.max(1, safePage - 1) })}
             disabled={safePage <= 1}
-            className="px-3 py-2 rounded-md border border-border text-sm disabled:opacity-40 hover:bg-secondary"
+            className="px-4 py-2 rounded-xl glass border border-border/50 text-sm disabled:opacity-40 hover:border-primary/30 transition-colors"
           >
             ← Préc.
           </button>
-          <span className="text-sm text-muted-foreground px-3">
-            Page <strong className="text-foreground">{safePage}</strong> / {totalPages}
-          </span>
+
+          {/* Pages numérotées */}
+          <div className="flex items-center gap-1">
+            {buildPageRange(safePage, totalPages).map((p, i) =>
+              p === "…" ? (
+                <span key={`ellipsis-${i}`} className="px-2 text-muted-foreground text-sm">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={p}
+                  onClick={() => setFilter({ page: p as number })}
+                  aria-current={safePage === p ? "page" : undefined}
+                  className={`w-9 h-9 rounded-xl text-sm font-medium transition-all ${
+                    safePage === p
+                      ? "btn-primary"
+                      : "glass border border-border/40 hover:border-primary/30"
+                  }`}
+                >
+                  {p}
+                </button>
+              )
+            )}
+          </div>
+
           <button
             onClick={() => setFilter({ page: Math.min(totalPages, safePage + 1) })}
             disabled={safePage >= totalPages}
-            className="px-3 py-2 rounded-md border border-border text-sm disabled:opacity-40 hover:bg-secondary"
+            className="px-4 py-2 rounded-xl glass border border-border/50 text-sm disabled:opacity-40 hover:border-primary/30 transition-colors"
           >
             Suiv. →
           </button>
@@ -169,10 +276,20 @@ function DeputesPage() {
   );
 }
 
-function chipClass(active: boolean) {
-  return `px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+function chipCls(active: boolean) {
+  return `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${
     active
-      ? "bg-primary text-primary-foreground border-primary"
-      : "bg-surface border-border text-foreground/80 hover:border-primary/40"
+      ? "btn-primary border-transparent"
+      : "glass border-border/50 text-foreground/70 hover:text-foreground hover:border-primary/25"
   }`;
+}
+
+function buildPageRange(current: number, total: number): (number | "…")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: (number | "…")[] = [1];
+  if (current > 3) pages.push("…");
+  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) pages.push(p);
+  if (current < total - 2) pages.push("…");
+  pages.push(total);
+  return pages;
 }

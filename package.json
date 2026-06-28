@@ -9,7 +9,10 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "fetch-data": "node scripts/fetch-data-17.mjs",
+    "sitemap": "node scripts/generate-sitemap.mjs",
+    "prepare-data": "node scripts/fetch-data-17.mjs && node scripts/generate-sitemap.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

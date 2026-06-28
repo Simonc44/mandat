@@ -1,10 +1,17 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
 
-# Bloquer l'exploration des filtres de recherche complexes pour économiser le budget de crawl
-Disallow: /recherche?*
-Disallow: /recherche/
+# Ressources statiques et données
+Allow: /deputes-17.json
+Allow: /scrutins-17.json
 
-# Spécifier le sitemap officiel
+# Désautorisations
+Disallow: /api/
+Disallow: /_build/
+Disallow: /.well-known/
+
+# Sitemap
 Sitemap: https://mandat-fr.vercel.app/sitemap.xml
+
+# Crawl-delay pour bots agressifs
+Crawl-delay: 2
