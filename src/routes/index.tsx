@@ -10,8 +10,11 @@ import {
   sanitizeSearchInput,
   type Depute,
   type Scrutin,
+  photoUrl,
 } from "@/lib/api";
 import { GroupBadge } from "@/components/GroupBadge";
+import { ScrollScene } from "@/components/ScrollScene";
+import { Unlock, Scale, ShieldCheck } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
 
 export const Route = createFileRoute("/")({
@@ -95,7 +98,7 @@ function Home() {
 
             {/* H1 */}
             <h1
-              className="font-display text-5xl md:text-7xl leading-[0.92] mb-6 animate-fade-up"
+              className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.92] mb-6 animate-fade-up tracking-tight"
               style={{ animationDelay: "80ms" }}
             >
               Qui a voté quoi —
@@ -147,36 +150,39 @@ function Home() {
       </section>
 
       {/* ── DERNIERS SCRUTINS ── */}
-      <section className="container-app pb-20">
-        <div className="flex items-end justify-between mb-6 mt-2">
-          <h2 className="font-display text-3xl">Derniers scrutins</h2>
-          <Link
-            to="/scrutins"
-            className="text-sm text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 group"
-          >
-            Tout voir
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="transition-transform group-hover:translate-x-0.5"
-              aria-hidden="true"
+      <section className="container-app pb-24 pt-4">
+        <ScrollScene variant="rise">
+          <div className="flex items-end justify-between mb-8 mt-2" data-rise>
+            <div>
+              <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-2 font-medium">
+                En direct de l'hémicycle
+              </div>
+              <h2 className="font-display text-3xl md:text-5xl leading-[1.05] tracking-tight">
+                Derniers scrutins.
+              </h2>
+            </div>
+            <Link
+              to="/scrutins"
+              className="text-sm text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 group"
             >
-              <path d="m9 18 6-6-6-6" />
-            </svg>
-          </Link>
-        </div>
+              Tout voir
+              <svg
+                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                className="transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              ><path d="m9 18 6-6-6-6" /></svg>
+            </Link>
+          </div>
+        </ScrollScene>
 
-        <div className="grid md:grid-cols-2 gap-3 animate-stagger">
+        <ScrollScene variant="tilt" className="grid md:grid-cols-2 gap-4">
           {latest.map((s, i) => (
-            <ScrutinCard key={s.numero} s={s} index={i} />
+            <div key={s.numero} data-tilt className="will-change-transform">
+              <ScrutinCard s={s} index={i} />
+            </div>
           ))}
-        </div>
+        </ScrollScene>
       </section>
 
       {/* ── SECTION CONFIANCE ── */}
@@ -316,17 +322,17 @@ function ResultMiniBar({ s }: { s: Scrutin }) {
 function TrustSection() {
   const points = [
     {
-      icon: "🔓",
+      Icon: Unlock,
       title: "100 % opendata",
       desc: "Sources officielles AN, API CLAIR et CIVIX. Aucune donnée inventée.",
     },
     {
-      icon: "⚖️",
+      Icon: Scale,
       title: "Zéro biais politique",
       desc: "Pas de score idéologique, pas de classement. Les faits bruts.",
     },
     {
-      icon: "🔒",
+      Icon: ShieldCheck,
       title: "Vie privée respectée",
       desc: "Aucun cookie publicitaire. Aucun tracker. Conformité RGPD.",
     },
@@ -334,31 +340,39 @@ function TrustSection() {
 
   return (
     <section className="border-t border-border/40">
-      <div className="container-app py-16">
-        <h2 className="font-display text-2xl mb-8 text-center">
-          La transparence, sans compromis
-        </h2>
-        <div className="grid md:grid-cols-3 gap-4 animate-stagger">
-          {points.map((p, i) => (
+      <div className="container-app py-20">
+        <ScrollScene variant="rise">
+          <h2 className="font-display text-3xl md:text-5xl mb-12 text-center leading-[1.05]" data-rise>
+            La transparence,<br /><span className="text-gradient italic">sans compromis.</span>
+          </h2>
+        </ScrollScene>
+        <ScrollScene variant="tilt" className="grid md:grid-cols-3 gap-5">
+          {points.map(({ Icon, title, desc }, i) => (
             <div
               key={i}
-              className="card-glass rounded-3xl p-6 flex gap-4 animate-fade-up"
-              style={{ animationDelay: `${i * 100}ms` }}
+              data-tilt
+              className="card-glass rounded-3xl p-7 will-change-transform"
             >
-              <span className="text-2xl shrink-0" aria-hidden="true">
-                {p.icon}
-              </span>
-              <div>
-                <h3 className="font-semibold text-foreground mb-1.5">
-                  {p.title}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {p.desc}
-                </p>
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
+                style={{
+                  background:
+                    "linear-gradient(135deg, oklch(0.50 0.20 285 / 14%), oklch(0.42 0.22 260 / 22%))",
+                  color: "oklch(0.50 0.20 285)",
+                }}
+                aria-hidden="true"
+              >
+                <Icon className="w-6 h-6" strokeWidth={1.75} />
               </div>
+              <h3 className="font-display text-xl text-foreground mb-2 tracking-tight">
+                {title}
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {desc}
+              </p>
             </div>
           ))}
-        </div>
+        </ScrollScene>
       </div>
     </section>
   );
@@ -541,7 +555,7 @@ function SearchBar({
 
 function DeputeAvatarSmall({ d }: { d: Depute }) {
   const [err, setErr] = useState(false);
-  const src = d.photo_url ?? (d.id_an ? `https://www2.assemblee-nationale.fr/static/tribun/17/photos/${d.id_an}.jpg` : "");
+  const src = d.id_an ? photoUrl(d.id_an, 17) : "";
 
   if (!src || err) {
     return (

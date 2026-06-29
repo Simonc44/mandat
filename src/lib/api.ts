@@ -194,8 +194,10 @@ export function normalize(s: string): string {
 // ─── PHOTO DÉPUTÉ ────────────────────────────────────────────────────────────
 
 export function photoUrl(idAn: string, leg: 16 | 17 = 17): string {
-  if (!/^PA\d{3,10}$/.test(idAn)) return "";
-  return `https://www2.assemblee-nationale.fr/static/tribun/${leg}/photos/${idAn}.jpg`;
+  // AN expects the numeric portion only (e.g. PA793214 → 793214)
+  const m = /^PA(\d{3,10})$/.exec(idAn);
+  if (!m) return "";
+  return `https://www2.assemblee-nationale.fr/static/tribun/${leg}/photos/${m[1]}.jpg`;
 }
 
 // ─── FETCH SÉCURISÉ ──────────────────────────────────────────────────────────

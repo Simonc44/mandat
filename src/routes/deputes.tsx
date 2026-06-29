@@ -7,6 +7,7 @@ import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { allDeputesQuery, normalize, sanitizeSearchInput, GROUPES } from "@/lib/api";
 import { DeputeCard, DeputeCardSkeletonGrid } from "@/components/DeputeCard";
+import { SearchX } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
 
 const searchSchema = z.object({
@@ -203,7 +204,7 @@ function DeputesPage() {
       {/* Résultats */}
       {slice.length === 0 ? (
         <div className="py-16 text-center glass rounded-3xl border border-border/50">
-          <span className="text-4xl block mb-3" aria-hidden="true">🔍</span>
+          <SearchX className="w-10 h-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.5} aria-hidden="true" />
           <p className="text-muted-foreground">Aucun·e député·e ne correspond à ces critères.</p>
           {hasFilters && (
             <button
