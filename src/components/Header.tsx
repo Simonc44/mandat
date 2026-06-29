@@ -262,26 +262,25 @@ function AffiliationWidget() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// VISIT COUNTER — Privacy-first
+// VISIT COUNTER — Persistant via Turso, incrément 1×/visiteur
 // ═══════════════════════════════════════════════════════════
 
-const VISIT_THRESHOLD = 5_000;
-
 function VisitCounter() {
-  const [data, setData] = useState<{ count: number } | null>(null);
+  const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/api/visits")
+    // POST incrémente côté serveur (cookie httpOnly garantit 1×/visiteur)
+    fetch("/api/visits", { method: "POST" })
       .then((r) => r.json())
       .then((d: { count: number }) => {
-        if (d.count >= VISIT_THRESHOLD) setData(d);
+        if (typeof d.count === "number" && d.count > 0) setCount(d.count);
       })
       .catch(() => {
-        /* silencieux en dev */
+        /* silencieux */
       });
   }, []);
 
-  if (!data) return null;
+  if (count === null) return null;
 
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -290,7 +289,7 @@ function VisitCounter() {
         style={{ animation: "pulse-glow 2s ease-in-out infinite" }}
         aria-hidden="true"
       />
-      {data.count.toLocaleString("fr-FR")} visiteurs uniques
+      {count.toLocaleString("fr-FR")} {count > 1 ? "visiteurs" : "visiteur"}
     </span>
   );
 }
@@ -376,11 +375,6 @@ export function Footer() {
             </a>
           </nav>
 
-          {/* Affiliation + Support */}
-          <div className="md:ml-auto space-y-4 flex flex-col items-start md:items-end">
-            <SupportWidget />
-            <AffiliationWidget />
-          </div>
         </div>
 
         {/* Bas de footer */}
