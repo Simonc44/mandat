@@ -25,6 +25,8 @@ export async function ensureSchema(): Promise<void> {
       )
     `);
     await c.execute(`INSERT OR IGNORE INTO visits (id, count) VALUES (1, 0)`);
+    // Tables deputes / scrutins créées par scripts/migrate-to-turso.mjs.
+    // Pas de CREATE ici pour ne pas allonger le cold-start des routes.
   })().catch((e) => {
     _initPromise = null;
     throw e;

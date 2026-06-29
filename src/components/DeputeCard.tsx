@@ -10,11 +10,9 @@ export function DeputeCard({ d, index = 0 }: { d: Depute; index?: number }) {
   const [imgError, setImgError] = useState(false);
   const [imgError16, setImgError16] = useState(false);
 
-  // Tente photo 17e, puis 16e si disponible via photo_url custom, puis initiales
-  const photoSrc = d.photo_url ?? (d.id_an ? photoUrl(d.id_an) : "");
-  const photo16Src = d.id_an
-    ? `https://www2.assemblee-nationale.fr/static/tribun/16/photos/${d.id_an}.jpg`
-    : "";
+  // Tente photo 17e, puis 16e si disponible, puis initiales
+  const photoSrc = d.id_an ? photoUrl(d.id_an, 17) : "";
+  const photo16Src = d.id_an ? photoUrl(d.id_an, 16) : "";
 
   const initials = `${d.prenom?.[0] ?? ""}${d.nom_de_famille?.[0] ?? ""}`.toUpperCase();
 

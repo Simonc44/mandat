@@ -10,6 +10,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Landmark, AlertTriangle, Home, RotateCcw } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -146,8 +147,8 @@ export function createVoteEventSchema(vote: any) {
 function NotFoundComponent() {
   return (
     <div className="container-app py-24 text-center animate-fade-up">
-      <div className="text-6xl mb-4" aria-hidden="true">🏛️</div>
-      <h1 className="font-display text-6xl mb-3">404</h1>
+      <Landmark className="w-14 h-14 mx-auto mb-4 text-primary/60" strokeWidth={1.4} aria-hidden="true" />
+      <h1 className="font-display text-6xl mb-3 tracking-tight">404</h1>
       <p className="text-muted-foreground mb-8">
         Cette page n'existe pas ou a été déplacée.
       </p>
@@ -155,7 +156,7 @@ function NotFoundComponent() {
         to="/"
         className="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-medium"
       >
-        ← Retour à l'accueil
+        <Home className="w-4 h-4" aria-hidden="true" /> Retour à l'accueil
       </Link>
     </div>
   );
@@ -169,17 +170,17 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
   return (
     <div className="container-app py-24 text-center animate-fade-up">
-      <div className="text-5xl mb-4" aria-hidden="true">⚠️</div>
-      <h1 className="font-display text-3xl mb-3">Cette page n'a pas chargé</h1>
+      <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-destructive/70" strokeWidth={1.5} aria-hidden="true" />
+      <h1 className="font-display text-3xl mb-3 tracking-tight">Cette page n'a pas chargé</h1>
       <p className="text-sm text-muted-foreground mb-8">
         Les données n'ont pas pu être récupérées. Vérifiez votre connexion.
       </p>
       <div className="flex justify-center gap-3">
         <button
           onClick={() => { router.invalidate(); reset(); }}
-          className="btn-primary px-5 py-2.5 rounded-2xl text-sm font-medium"
+          className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-medium"
         >
-          Réessayer
+          <RotateCcw className="w-4 h-4" aria-hidden="true" /> Réessayer
         </button>
         <a
           href="/"
