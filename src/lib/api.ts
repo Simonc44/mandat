@@ -17,6 +17,7 @@
 // ══════════════════════════════════════════════════════════════════════
 
 import { queryOptions } from "@tanstack/react-query";
+import { getDeputesFromDb, getScrutinsFromDb } from "./data.functions";
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 export const LEGISLATURE = 17;
@@ -360,6 +361,24 @@ export const allDeputesQuery = queryOptions({
   queryKey: ["deputes", "all", 17],
   staleTime: 1000 * 60 * 60 * 6,
   queryFn: async (): Promise<Depute[]> => {
+    // ⓪ Turso (source canonique, peuplée par scripts/migrate-to-turso.mjs)
+    try {
+      const rows = await getDeputesFromDb();
+      if (Array.isArray(rows) && rows.length > 0) {
+        return rows.map((d) => ({
+          ...d,
+          nom: sanitizeText(d.nom, 200),
+          nom_de_famille: sanitizeText(d.nom_de_famille, 100),
+          prenom: sanitizeText(d.prenom, 100),
+          nom_circo: sanitizeText(d.nom_circo, 150),
+          profession: sanitizeText(d.profession, 200),
+          groupe_sigle: sanitizeText(d.groupe_sigle, 20),
+          slug: sanitizeSlug(d.slug),
+          photo_url: d.id_an ? photoUrl(d.id_an, 17) : undefined,
+        }));
+      }
+    } catch { /* fallback */ }
+
     // ① Fichier local (généré par parse-local-data.mjs)
     try {
       const data = await fetchLocal<Depute[]>("/deputes-17.json");
@@ -429,6 +448,21 @@ export const scrutinsQuery = queryOptions({
   queryKey: ["scrutins", 17],
   staleTime: 1000 * 60 * 30,
   queryFn: async (): Promise<Scrutin[]> => {
+    // ⓪ Turso (source canonique)
+    try {
+      const rows = await getScrutinsFromDb();
+      if (Array.isArray(rows) && rows.length > 0) {
+        return rows.map((s) => ({
+          ...s,
+          titre: sanitizeText(s.titre, MAX_TITLE),
+          sort: sanitizeText(s.sort, 100),
+          type: sanitizeText(s.type, 100),
+          dossier: sanitizeText(s.dossier ?? "", 200),
+          demandeur: sanitizeText(s.demandeur ?? "", 200),
+        }));
+      }
+    } catch { /* fallback */ }
+
     // ① Fichier local
     try {
       const data = await fetchLocal<Scrutin[]>("/scrutins-17.json");
