@@ -181,49 +181,6 @@ export function CookieBanner() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// AFFILIATION — Pour aller plus loin
-// ═══════════════════════════════════════════════════════════
-
-function AffiliationWidget() {
-  return (
-    <div className="glass rounded-2xl p-4 max-w-xs">
-      <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3 font-medium">
-        📚 Pour aller plus loin
-      </p>
-      <p className="text-sm font-semibold text-foreground leading-snug mb-0.5">
-        L'Assemblée nationale
-      </p>
-      <p className="text-xs text-muted-foreground mb-3">Documentation française</p>
-      <a
-        href={RECYCLIVRE_LINK}
-        target="_blank"
-        rel="noreferrer noopener"
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors group"
-        aria-label="Trouver ce livre d'occasion sur RecycLivre"
-      >
-        <span>Trouver d'occasion sur RecycLivre</span>
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-          aria-hidden="true"
-        >
-          <path d="M7 17L17 7M17 7H7M17 7v10" />
-        </svg>
-      </a>
-      <p className="text-[10px] text-muted-foreground mt-1">
-        Lien affilié éthique — achat d'occasion
-      </p>
-    </div>
-  );
-}
 
 // ═══════════════════════════════════════════════════════════
 // VISIT COUNTER — Persistant via Turso, incrément 1×/visiteur
