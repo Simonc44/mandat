@@ -219,9 +219,6 @@ function VisitCounter() {
 // FOOTER
 // ═══════════════════════════════════════════════════════════
 
-// Nécessaire pour le JSX de l'import React dans HeartIcon
-import type React from "react";
-
 export function Footer() {
   return (
     <footer className="mt-24 border-t border-border/50">
