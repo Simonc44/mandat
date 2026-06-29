@@ -10,9 +10,10 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "parse-data": "node scripts/parse-local-data.mjs",
     "fetch-data": "node scripts/fetch-data-17.mjs",
     "sitemap": "node scripts/generate-sitemap.mjs",
-    "prepare-data": "node scripts/fetch-data-17.mjs && node scripts/generate-sitemap.mjs"
+    "prepare-data": "node scripts/parse-local-data.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
