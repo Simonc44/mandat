@@ -15,6 +15,7 @@ import { Route as DeputesRouteImport } from './routes/deputes'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ScrutinNumeroRouteImport } from './routes/scrutin.$numero'
 import { Route as DeputeSlugRouteImport } from './routes/depute.$slug'
+import { Route as ApiVisitsRouteImport } from './routes/api/visits'
 
 const ScrutinsRoute = ScrutinsRouteImport.update({
   id: '/scrutins',
@@ -46,12 +47,18 @@ const DeputeSlugRoute = DeputeSlugRouteImport.update({
   path: '/depute/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiVisitsRoute = ApiVisitsRouteImport.update({
+  id: '/api/visits',
+  path: '/api/visits',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/deputes': typeof DeputesRoute
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
+  '/api/visits': typeof ApiVisitsRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/deputes': typeof DeputesRoute
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
+  '/api/visits': typeof ApiVisitsRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/deputes': typeof DeputesRoute
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
+  '/api/visits': typeof ApiVisitsRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/deputes'
     | '/recherche'
     | '/scrutins'
+    | '/api/visits'
     | '/depute/$slug'
     | '/scrutin/$numero'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/deputes'
     | '/recherche'
     | '/scrutins'
+    | '/api/visits'
     | '/depute/$slug'
     | '/scrutin/$numero'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/deputes'
     | '/recherche'
     | '/scrutins'
+    | '/api/visits'
     | '/depute/$slug'
     | '/scrutin/$numero'
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   DeputesRoute: typeof DeputesRoute
   RechercheRoute: typeof RechercheRoute
   ScrutinsRoute: typeof ScrutinsRoute
+  ApiVisitsRoute: typeof ApiVisitsRoute
   DeputeSlugRoute: typeof DeputeSlugRoute
   ScrutinNumeroRoute: typeof ScrutinNumeroRoute
 }
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeputeSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/visits': {
+      id: '/api/visits'
+      path: '/api/visits'
+      fullPath: '/api/visits'
+      preLoaderRoute: typeof ApiVisitsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -160,19 +180,10 @@ const rootRouteChildren: RootRouteChildren = {
   DeputesRoute: DeputesRoute,
   RechercheRoute: RechercheRoute,
   ScrutinsRoute: ScrutinsRoute,
+  ApiVisitsRoute: ApiVisitsRoute,
   DeputeSlugRoute: DeputeSlugRoute,
   ScrutinNumeroRoute: ScrutinNumeroRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

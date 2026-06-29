@@ -4,9 +4,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 
-const STRIPE_LINK = "https://buy.stripe.com/VOTRE_LIEN_STRIPE"; // ← Remplacez par votre vrai lien
-const RECYCLIVRE_LINK =
-  "https://www.recyclivre.com/products/1244049-l-assemblee-nationale";
 
 // ═══════════════════════════════════════════════════════════
 // HEADER STICKY — Liquid Glass
@@ -90,40 +87,7 @@ export function Header() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// SUPPORT WIDGET — Stripe
-// ═══════════════════════════════════════════════════════════
 
-function SupportWidget() {
-  return (
-    <a
-      href={STRIPE_LINK}
-      target="_blank"
-      rel="noreferrer noopener"
-      aria-label="Soutenir le projet Mandat"
-      className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm transition-all"
-    >
-      <HeartIcon />
-      Soutenir le projet
-    </a>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      className="animate-float"
-      style={{ "--duration": "2s" } as React.CSSProperties}
-    >
-      <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" />
-    </svg>
-  );
-}
 
 // ═══════════════════════════════════════════════════════════
 // COOKIE BANNER RGPD — Liquid Glass
@@ -217,71 +181,27 @@ export function CookieBanner() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// AFFILIATION — Pour aller plus loin
-// ═══════════════════════════════════════════════════════════
-
-function AffiliationWidget() {
-  return (
-    <div className="glass rounded-2xl p-4 max-w-xs">
-      <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3 font-medium">
-        📚 Pour aller plus loin
-      </p>
-      <p className="text-sm font-semibold text-foreground leading-snug mb-0.5">
-        L'Assemblée nationale
-      </p>
-      <p className="text-xs text-muted-foreground mb-3">Documentation française</p>
-      <a
-        href={RECYCLIVRE_LINK}
-        target="_blank"
-        rel="noreferrer noopener"
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors group"
-        aria-label="Trouver ce livre d'occasion sur RecycLivre"
-      >
-        <span>Trouver d'occasion sur RecycLivre</span>
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-          aria-hidden="true"
-        >
-          <path d="M7 17L17 7M17 7H7M17 7v10" />
-        </svg>
-      </a>
-      <p className="text-[10px] text-muted-foreground mt-1">
-        Lien affilié éthique — achat d'occasion
-      </p>
-    </div>
-  );
-}
 
 // ═══════════════════════════════════════════════════════════
-// VISIT COUNTER — Privacy-first
+// VISIT COUNTER — Persistant via Turso, incrément 1×/visiteur
 // ═══════════════════════════════════════════════════════════
-
-const VISIT_THRESHOLD = 5_000;
 
 function VisitCounter() {
-  const [data, setData] = useState<{ count: number } | null>(null);
+  const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/api/visits")
+    // POST incrémente côté serveur (cookie httpOnly garantit 1×/visiteur)
+    fetch("/api/visits", { method: "POST" })
       .then((r) => r.json())
       .then((d: { count: number }) => {
-        if (d.count >= VISIT_THRESHOLD) setData(d);
+        if (typeof d.count === "number" && d.count > 0) setCount(d.count);
       })
       .catch(() => {
-        /* silencieux en dev */
+        /* silencieux */
       });
   }, []);
 
-  if (!data) return null;
+  if (count === null) return null;
 
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -290,7 +210,7 @@ function VisitCounter() {
         style={{ animation: "pulse-glow 2s ease-in-out infinite" }}
         aria-hidden="true"
       />
-      {data.count.toLocaleString("fr-FR")} visiteurs uniques
+      {count.toLocaleString("fr-FR")} {count > 1 ? "visiteurs" : "visiteur"}
     </span>
   );
 }
@@ -298,9 +218,6 @@ function VisitCounter() {
 // ═══════════════════════════════════════════════════════════
 // FOOTER
 // ═══════════════════════════════════════════════════════════
-
-// Nécessaire pour le JSX de l'import React dans HeartIcon
-import type React from "react";
 
 export function Footer() {
   return (
@@ -376,11 +293,6 @@ export function Footer() {
             </a>
           </nav>
 
-          {/* Affiliation + Support */}
-          <div className="md:ml-auto space-y-4 flex flex-col items-start md:items-end">
-            <SupportWidget />
-            <AffiliationWidget />
-          </div>
         </div>
 
         {/* Bas de footer */}
