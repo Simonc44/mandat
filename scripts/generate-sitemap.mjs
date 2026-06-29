@@ -39,11 +39,13 @@ if (existsSync(deputesPath)) {
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-  </url>`
+  </url>`,
     )
     .join("\n");
 } else {
-  console.warn("   ⚠️  deputes-17.json absent — lancez fetch-data-17.mjs d'abord");
+  console.warn(
+    "   ⚠️  deputes-17.json absent — lancez fetch-data-17.mjs d'abord",
+  );
 }
 
 // ── Scrutins ─────────────────────────────────────────────────
@@ -61,11 +63,13 @@ if (existsSync(scrutinsPath)) {
     <lastmod>${s.date || today}</lastmod>
     <changefreq>never</changefreq>
     <priority>0.6</priority>
-  </url>`
+  </url>`,
     )
     .join("\n");
 } else {
-  console.warn("   ⚠️  scrutins-17.json absent — lancez fetch-data-17.mjs d'abord");
+  console.warn(
+    "   ⚠️  scrutins-17.json absent — lancez fetch-data-17.mjs d'abord",
+  );
 }
 
 // ── Assemblage ───────────────────────────────────────────────
@@ -76,7 +80,7 @@ const staticUrls = staticPages
     <lastmod>${today}</lastmod>
     <changefreq>${p.changefreq}</changefreq>
     <priority>${p.priority}</priority>
-  </url>`
+  </url>`,
   )
   .join("\n");
 

@@ -15,15 +15,16 @@ const CORS = {
 async function readCount(): Promise<number> {
   const { tursoClient, ensureSchema } = await import("@/lib/turso.server");
   await ensureSchema();
-  const r = await tursoClient().execute("SELECT count FROM visits WHERE id = 1");
+  const r = await tursoClient().execute(
+    "SELECT count FROM visits WHERE id = 1",
+  );
   return Number(r.rows[0]?.count ?? 0);
 }
 
 export const Route = createFileRoute("/api/visits")({
   server: {
     handlers: {
-      OPTIONS: async () =>
-        new Response(null, { status: 204, headers: CORS }),
+      OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
 
       GET: async () => {
         try {
@@ -35,14 +36,18 @@ export const Route = createFileRoute("/api/visits")({
         } catch (e) {
           return new Response(
             JSON.stringify({ count: 0, error: (e as Error).message }),
-            { status: 200, headers: { "Content-Type": "application/json", ...CORS } },
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json", ...CORS },
+            },
           );
         }
       },
 
       POST: async () => {
         try {
-          const { tursoClient, ensureSchema } = await import("@/lib/turso.server");
+          const { tursoClient, ensureSchema } =
+            await import("@/lib/turso.server");
           await ensureSchema();
           const c = tursoClient();
           const already = getCookie("mandat_v");
@@ -67,7 +72,10 @@ export const Route = createFileRoute("/api/visits")({
         } catch (e) {
           return new Response(
             JSON.stringify({ count: 0, error: (e as Error).message }),
-            { status: 200, headers: { "Content-Type": "application/json", ...CORS } },
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json", ...CORS },
+            },
           );
         }
       },

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ScrutinsRouteImport } from './routes/scrutins'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as DeputesRouteImport } from './routes/deputes'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ScrutinNumeroRouteImport } from './routes/scrutin.$numero'
 import { Route as DeputeSlugRouteImport } from './routes/depute.$slug'
@@ -30,6 +31,11 @@ const RechercheRoute = RechercheRouteImport.update({
 const DeputesRoute = DeputesRouteImport.update({
   id: '/deputes',
   path: '/deputes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -55,6 +61,7 @@ const ApiVisitsRoute = ApiVisitsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/confidentialite'
     | '/deputes'
     | '/recherche'
     | '/scrutins'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/confidentialite'
     | '/deputes'
     | '/recherche'
     | '/scrutins'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/confidentialite'
     | '/deputes'
     | '/recherche'
     | '/scrutins'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
   DeputesRoute: typeof DeputesRoute
   RechercheRoute: typeof RechercheRoute
   ScrutinsRoute: typeof ScrutinsRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/deputes'
       fullPath: '/deputes'
       preLoaderRoute: typeof DeputesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
   DeputesRoute: DeputesRoute,
   RechercheRoute: RechercheRoute,
   ScrutinsRoute: ScrutinsRoute,
@@ -187,3 +208,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

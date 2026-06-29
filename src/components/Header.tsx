@@ -4,7 +4,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 
-
 // ═══════════════════════════════════════════════════════════
 // HEADER STICKY — Liquid Glass
 // ═══════════════════════════════════════════════════════════
@@ -87,8 +86,6 @@ export function Header() {
   );
 }
 
-
-
 // ═══════════════════════════════════════════════════════════
 // COOKIE BANNER RGPD — Liquid Glass
 // ═══════════════════════════════════════════════════════════
@@ -124,16 +121,21 @@ export function CookieBanner() {
       <div className="glass-strong rounded-3xl p-5 space-y-4">
         {/* Icon + Titre */}
         <div className="flex items-start gap-3">
-          <span className="text-2xl" aria-hidden="true">🔒</span>
+          <span className="text-2xl" aria-hidden="true">
+            🔒
+          </span>
           <div>
             <h3 className="font-semibold text-foreground text-sm">
               Respect de votre vie privée
             </h3>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
               Mandat n'utilise{" "}
-              <strong className="text-foreground">aucun cookie publicitaire</strong> ni
-              tracker tiers. Seuls des cookies techniques essentiels au fonctionnement
-              du site sont utilisés. Aucune donnée personnelle n'est vendue.
+              <strong className="text-foreground">
+                aucun cookie publicitaire
+              </strong>{" "}
+              ni tracker tiers. Seuls des cookies techniques essentiels au
+              fonctionnement du site sont utilisés. Aucune donnée personnelle
+              n'est vendue.
             </p>
           </div>
         </div>
@@ -141,15 +143,24 @@ export function CookieBanner() {
         {/* Détails */}
         <div className="rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground space-y-1">
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500" aria-hidden="true" />
+            <span
+              className="w-1.5 h-1.5 rounded-full bg-green-500"
+              aria-hidden="true"
+            />
             Cookies essentiels (préférences, session)
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" aria-hidden="true" />
+            <span
+              className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"
+              aria-hidden="true"
+            />
             Aucun cookie publicitaire ou de tracking
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" aria-hidden="true" />
+            <span
+              className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"
+              aria-hidden="true"
+            />
             Analytics anonymes uniquement (si activé)
           </div>
         </div>
@@ -172,15 +183,14 @@ export function CookieBanner() {
 
         <p className="text-[10px] text-muted-foreground text-center">
           Conformément au RGPD ·{" "}
-          <a href="#" className="underline hover:text-primary">
+          <Link to="/confidentialite" className="underline hover:text-primary">
             Politique de confidentialité
-          </a>
+          </Link>
         </p>
       </div>
     </div>
   );
 }
-
 
 // ═══════════════════════════════════════════════════════════
 // VISIT COUNTER — Persistant via Turso, incrément 1×/visiteur
@@ -267,10 +277,16 @@ export function Footer() {
             >
               Recherche
             </Link>
+            <Link
+              to="/confidentialite"
+              className="text-muted-foreground hover:text-primary transition-colors py-1"
+            >
+              Confidentialité
+            </Link>
             <a
               href="https://data.assemblee-nationale.fr"
               target="_blank"
-              rel="noreferrer"
+              rel="noreferrer noopener"
               className="text-muted-foreground hover:text-primary transition-colors py-1"
             >
               Données AN ↗
@@ -278,7 +294,7 @@ export function Footer() {
             <a
               href="https://clair-production.up.railway.app/docs"
               target="_blank"
-              rel="noreferrer"
+              rel="noreferrer noopener"
               className="text-muted-foreground hover:text-primary transition-colors py-1"
             >
               API CLAIR ↗
@@ -286,13 +302,12 @@ export function Footer() {
             <a
               href="https://www.civix.fr"
               target="_blank"
-              rel="noreferrer"
+              rel="noreferrer noopener"
               className="text-muted-foreground hover:text-primary transition-colors py-1"
             >
               API CIVIX ↗
             </a>
           </nav>
-
         </div>
 
         {/* Bas de footer */}
@@ -305,7 +320,7 @@ export function Footer() {
               <a
                 href="https://clair-production.up.railway.app"
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
                 className="hover:text-primary underline"
               >
                 CLAIR
@@ -314,7 +329,7 @@ export function Footer() {
               <a
                 href="https://www.civix.fr"
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
                 className="hover:text-primary underline"
               >
                 CIVIX
@@ -323,7 +338,7 @@ export function Footer() {
               <a
                 href="https://data.assemblee-nationale.fr"
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
                 className="hover:text-primary underline"
               >
                 AN Open Data

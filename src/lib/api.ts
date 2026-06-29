@@ -23,7 +23,7 @@ import { getDeputesFromDb, getScrutinsFromDb } from "./data.functions";
 export const LEGISLATURE = 17;
 const CLAIR = "https://clair-production.up.railway.app";
 const CIVIX = "https://www.civix.fr";
-const NOS   = "https://www.nosdeputes.fr";
+const NOS = "https://www.nosdeputes.fr";
 
 const ALLOWED_ORIGINS = new Set([
   "clair-production.up.railway.app",
@@ -33,8 +33,8 @@ const ALLOWED_ORIGINS = new Set([
   "data.assemblee-nationale.fr",
 ]);
 
-const MAX_TEXT   = 1000;
-const MAX_TITLE  = 500;
+const MAX_TEXT = 1000;
+const MAX_TITLE = 500;
 const MAX_SEARCH = 150;
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
@@ -98,11 +98,7 @@ export type Scrutin = {
 };
 
 export type VotePosition =
-  | "pour"
-  | "contre"
-  | "abstention"
-  | "nonVotant"
-  | "nonVotantVolontaire";
+  "pour" | "contre" | "abstention" | "nonVotant" | "nonVotantVolontaire";
 
 export type VoteNominatif = {
   id: string;
@@ -209,7 +205,9 @@ function validateUrl(url: string): boolean {
     if (u.protocol !== "https:") return false;
     if (!ALLOWED_ORIGINS.has(u.hostname)) return false;
     return true;
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 async function fetchJson<T>(url: string, timeoutMs = 15_000): Promise<T> {
@@ -230,7 +228,8 @@ async function fetchJson<T>(url: string, timeoutMs = 15_000): Promise<T> {
     return JSON.parse(text) as T;
   } catch (e) {
     clearTimeout(t);
-    if (e instanceof Error && e.name === "AbortError") throw new Error(`Timeout ${timeoutMs}ms`);
+    if (e instanceof Error && e.name === "AbortError")
+      throw new Error(`Timeout ${timeoutMs}ms`);
     throw e;
   }
 }
@@ -271,15 +270,21 @@ function parsePosInt(v: unknown): number {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeExternalDepute(d: any): Depute {
   if (!d || typeof d !== "object") throw new Error("Député invalide");
-  const idAn   = sanitizeSlug(d.uid ?? d.id_an ?? d.id ?? "");
+  const idAn = sanitizeSlug(d.uid ?? d.id_an ?? d.id ?? "");
   const prenom = sanitizeText(d.prenom ?? d.first_name ?? "", 100);
-  const nom    = sanitizeText(d.nom ?? d.nom_de_famille ?? d.last_name ?? "", 100);
-  const groupeObj = (d.groupe && typeof d.groupe === "object") ? d.groupe : null;
+  const nom = sanitizeText(d.nom ?? d.nom_de_famille ?? d.last_name ?? "", 100);
+  const groupeObj = d.groupe && typeof d.groupe === "object" ? d.groupe : null;
   const groupeSigle = sanitizeText(
-    groupeObj?.sigle ?? groupeObj?.abreviation ?? groupeObj?.acronyme ?? d.groupe_sigle ?? "NI", 20
+    groupeObj?.sigle ??
+      groupeObj?.abreviation ??
+      groupeObj?.acronyme ??
+      d.groupe_sigle ??
+      "NI",
+    20,
   );
   const twitterRaw = String(d.twitter ?? d.compte_twitter ?? "");
-  const twitter = twitterRaw.replace(/[^a-zA-Z0-9_]/g, "").slice(0, 50) || undefined;
+  const twitter =
+    twitterRaw.replace(/[^a-zA-Z0-9_]/g, "").slice(0, 50) || undefined;
 
   return {
     id: idAn,
@@ -287,19 +292,35 @@ function normalizeExternalDepute(d: any): Depute {
     nom: `${prenom} ${nom}`.trim(),
     nom_de_famille: nom,
     prenom,
-    sexe: (d.sexe === "F" || d.civilite === "Mme") ? "F" : "H",
+    sexe: d.sexe === "F" || d.civilite === "Mme" ? "F" : "H",
     date_naissance: sanitizeText(d.date_naissance ?? d.dateNais ?? "", 20),
     lieu_naissance: sanitizeText(d.lieu_naissance ?? d.villeNais ?? "", 100),
-    num_deptmt: sanitizeText(String(d.num_deptmt ?? d.departement?.code ?? "").replace(/[^0-9A-Z]/g, ""), 10),
-    nom_circo: sanitizeText(d.nom_circo ?? d.circonscription?.libelle ?? d.circonscription ?? "", 150),
-    num_circo: Math.abs(parsePosInt(d.num_circo ?? d.circonscription?.numero ?? 0)),
+    num_deptmt: sanitizeText(
+      String(d.num_deptmt ?? d.departement?.code ?? "").replace(
+        /[^0-9A-Z]/g,
+        "",
+      ),
+      10,
+    ),
+    nom_circo: sanitizeText(
+      d.nom_circo ?? d.circonscription?.libelle ?? d.circonscription ?? "",
+      150,
+    ),
+    num_circo: Math.abs(
+      parsePosInt(d.num_circo ?? d.circonscription?.numero ?? 0),
+    ),
     mandat_debut: sanitizeText(d.mandat_debut ?? d.date_debut ?? "", 30),
     mandat_fin: d.mandat_fin ? sanitizeText(String(d.mandat_fin), 30) : null,
     ancien_depute: d.ancien_depute ? 1 : 0,
     groupe_sigle: groupeSigle,
-    parti_ratt_financier: sanitizeText(d.parti_ratt_financier ?? groupeObj?.libelle ?? groupeSigle, 100),
+    parti_ratt_financier: sanitizeText(
+      d.parti_ratt_financier ?? groupeObj?.libelle ?? groupeSigle,
+      100,
+    ),
     profession: sanitizeText(d.profession ?? "", 200),
-    url_an: idAn ? `https://www.assemblee-nationale.fr/dyn/deputes/${idAn}` : "",
+    url_an: idAn
+      ? `https://www.assemblee-nationale.fr/dyn/deputes/${idAn}`
+      : "",
     slug: sanitizeSlug(d.slug ?? slugify(prenom, nom)),
     photo_url: undefined,
     twitter,
@@ -309,28 +330,52 @@ function normalizeExternalDepute(d: any): Depute {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeExternalScrutin(s: any): Scrutin {
   if (!s || typeof s !== "object") throw new Error("Scrutin invalide");
-  const synth   = (s.synthese ?? s.syntheseVote ?? {}) as Record<string, unknown>;
-  const decomp  = (synth.decompteVoix ?? synth.decompteNominatif ?? synth) as Record<string, unknown>;
-  const pours   = parsePosInt(s.nombre_pours ?? s.pour ?? decomp?.pour ?? synth?.pour);
-  const contres = parsePosInt(s.nombre_contres ?? s.contre ?? decomp?.contre ?? synth?.contre);
-  const abst    = parsePosInt(s.nombre_abstentions ?? s.abstention ?? decomp?.abstentions ?? synth?.abstentions);
-  const votants = parsePosInt(s.nombre_votants ?? s.votants ?? synth?.nombreVotants) || (pours + contres + abst);
-  const sortRaw = String(s.sort?.code ?? s.sort?.libelle ?? s.sort ?? s.resultat ?? "");
-  const isAdopte = /adopt/i.test(sortRaw);
-  const numero  = sanitizeNumero(String(s.numero ?? s.id ?? s.uid ?? ""));
+  const synth = (s.synthese ?? s.syntheseVote ?? {}) as Record<string, unknown>;
+  const decomp = (synth.decompteVoix ??
+    synth.decompteNominatif ??
+    synth) as Record<string, unknown>;
+  const pours = parsePosInt(
+    s.nombre_pours ?? s.pour ?? decomp?.pour ?? synth?.pour,
+  );
+  const contres = parsePosInt(
+    s.nombre_contres ?? s.contre ?? decomp?.contre ?? synth?.contre,
+  );
+  const abst = parsePosInt(
+    s.nombre_abstentions ??
+      s.abstention ??
+      decomp?.abstentions ??
+      synth?.abstentions,
+  );
+  const votants =
+    parsePosInt(s.nombre_votants ?? s.votants ?? synth?.nombreVotants) ||
+    pours + contres + abst;
+  const sortRaw = String(
+    s.sort?.code ?? s.sort?.libelle ?? s.sort ?? s.resultat ?? "",
+  );
+  const isAdopte = /adopt/i.test(sortRaw) && !/non/i.test(sortRaw);
+  const numero = sanitizeNumero(String(s.numero ?? s.id ?? s.uid ?? ""));
   const rawTags = Array.isArray(s.tags) ? s.tags : [];
-  const tags = rawTags.slice(0, 10).map((t: unknown) => sanitizeText(String(t ?? ""), 50)).filter(Boolean);
+  const tags = rawTags
+    .slice(0, 10)
+    .map((t: unknown) => sanitizeText(String(t ?? ""), 50))
+    .filter(Boolean);
 
   return {
     numero,
     uid: String(s.uid ?? s.id ?? numero),
     date: sanitizeText(s.date ?? s.dateScrutin ?? s.date_scrutin ?? "", 30),
     legislature: Math.max(1, Math.min(20, parsePosInt(s.legislature ?? 17))),
-    type: sanitizeText(s.type ?? s.typeVote?.libelleTypeVote ?? "Scrutin public", 100),
+    type: sanitizeText(
+      s.type ?? s.typeVote?.libelleTypeVote ?? "Scrutin public",
+      100,
+    ),
     sort: isAdopte ? "adopté" : "rejeté",
     isAdopte,
     titre: sanitizeText(s.titre ?? s.title ?? s.objet ?? "", MAX_TITLE),
-    dossier: sanitizeText(s.dossier ?? s.objet?.dossierLegislatif?.libelle ?? "", 200),
+    dossier: sanitizeText(
+      s.dossier ?? s.objet?.dossierLegislatif?.libelle ?? "",
+      200,
+    ),
     description: sanitizeText(s.description ?? s.resume ?? "", 500),
     demandeur: sanitizeText(s.demandeur?.texte ?? s.demandeur ?? "", 200),
     nombre_votants: String(votants),
@@ -344,11 +389,14 @@ function normalizeExternalScrutin(s: any): Scrutin {
 }
 
 function normalizePosition(raw: unknown): VotePosition {
-  const s = String(raw ?? "").toLowerCase().replace(/[^a-z]/g, "");
-  if (s === "pour" || s === "for")                                return "pour";
-  if (s === "contre" || s === "against")                         return "contre";
-  if (s === "abstention" || s === "abstain" || s === "abstenu") return "abstention";
-  if (s === "nonvotantvolontaire")                               return "nonVotantVolontaire";
+  const s = String(raw ?? "")
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+  if (s === "pour" || s === "for") return "pour";
+  if (s === "contre" || s === "against") return "contre";
+  if (s === "abstention" || s === "abstain" || s === "abstenu")
+    return "abstention";
+  if (s === "nonvotantvolontaire") return "nonVotantVolontaire";
   return "nonVotant";
 }
 
@@ -377,13 +425,15 @@ export const allDeputesQuery = queryOptions({
           photo_url: d.id_an ? photoUrl(d.id_an, 17) : undefined,
         }));
       }
-    } catch { /* fallback */ }
+    } catch {
+      /* fallback */
+    }
 
     // ① Fichier local (généré par parse-local-data.mjs)
     try {
       const data = await fetchLocal<Depute[]>("/deputes-17.json");
       if (Array.isArray(data) && data.length > 0) {
-        return data.map(d => ({
+        return data.map((d) => ({
           ...d,
           nom: sanitizeText(d.nom, 200),
           nom_de_famille: sanitizeText(d.nom_de_famille, 100),
@@ -396,7 +446,9 @@ export const allDeputesQuery = queryOptions({
           photo_url: d.id_an ? photoUrl(d.id_an, 17) : undefined,
         }));
       }
-    } catch { /* fallback */ }
+    } catch {
+      /* fallback */
+    }
 
     // ② CLAIR
     try {
@@ -404,12 +456,17 @@ export const allDeputesQuery = queryOptions({
       let page = 1;
       while (true) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = await fetchJson<any>(`${CLAIR}/api/v1/deputes/?page=${page}&page_size=100`);
+        const data = await fetchJson<any>(
+          `${CLAIR}/api/v1/deputes/?page=${page}&page_size=100`,
+        );
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const items: any[] = data?.results ?? data?.items ?? (Array.isArray(data) ? data : []);
+        const items: any[] =
+          data?.results ?? data?.items ?? (Array.isArray(data) ? data : []);
         if (!items.length) break;
         for (const item of items) {
-          try { results.push(normalizeExternalDepute(item)); } catch {}
+          try {
+            results.push(normalizeExternalDepute(item));
+          } catch {}
         }
         const total = parsePosInt(data?.count ?? data?.total ?? results.length);
         if (results.length >= total || items.length < 100) break;
@@ -421,21 +478,32 @@ export const allDeputesQuery = queryOptions({
     // ③ CIVIX
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data = await fetchJson<any>(`${CIVIX}/api/v1/search?search=&page=1&page_size=577`);
+      const data = await fetchJson<any>(
+        `${CIVIX}/api/v1/search?search=&page=1&page_size=577`,
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const items: any[] = data?.results ?? data?.deputes ?? (Array.isArray(data) ? data : []);
+      const items: any[] =
+        data?.results ?? data?.deputes ?? (Array.isArray(data) ? data : []);
       if (items.length) {
         const r: Depute[] = [];
-        for (const i of items) { try { r.push(normalizeExternalDepute(i)); } catch {} }
+        for (const i of items) {
+          try {
+            r.push(normalizeExternalDepute(i));
+          } catch {}
+        }
         if (r.length) return r;
       }
     } catch {}
 
     // ④ nosdeputes.fr 16e (fallback ultime)
-    const d = await fetchJson<{ deputes: { depute: Depute }[] }>(`${NOS}/deputes/json`);
+    const d = await fetchJson<{ deputes: { depute: Depute }[] }>(
+      `${NOS}/deputes/json`,
+    );
     const r: Depute[] = [];
     for (const x of d.deputes) {
-      try { r.push(normalizeExternalDepute(x.depute)); } catch {}
+      try {
+        r.push(normalizeExternalDepute(x.depute));
+      } catch {}
     }
     return r;
   },
@@ -461,21 +529,25 @@ export const scrutinsQuery = queryOptions({
           demandeur: sanitizeText(s.demandeur ?? "", 200),
         }));
       }
-    } catch { /* fallback */ }
+    } catch {
+      /* fallback */
+    }
 
     // ① Fichier local
     try {
       const data = await fetchLocal<Scrutin[]>("/scrutins-17.json");
       if (Array.isArray(data) && data.length > 0) {
-        return data.map(s => ({
-          ...s,
-          numero: sanitizeNumero(s.numero) || s.numero,
-          titre: sanitizeText(s.titre, MAX_TITLE),
-          sort: sanitizeText(s.sort, 100),
-          type: sanitizeText(s.type, 100),
-          dossier: sanitizeText(s.dossier ?? "", 200),
-          demandeur: sanitizeText(s.demandeur ?? "", 200),
-        })).sort((a, b) => b.date.localeCompare(a.date));
+        return data
+          .map((s) => ({
+            ...s,
+            numero: sanitizeNumero(s.numero) || s.numero,
+            titre: sanitizeText(s.titre, MAX_TITLE),
+            sort: sanitizeText(s.sort, 100),
+            type: sanitizeText(s.type, 100),
+            dossier: sanitizeText(s.dossier ?? "", 200),
+            demandeur: sanitizeText(s.demandeur ?? "", 200),
+          }))
+          .sort((a, b) => b.date.localeCompare(a.date));
       }
     } catch {}
 
@@ -485,35 +557,57 @@ export const scrutinsQuery = queryOptions({
       let page = 1;
       while (true) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = await fetchJson<any>(`${CLAIR}/api/v1/scrutins/?page=${page}&page_size=100`);
+        const data = await fetchJson<any>(
+          `${CLAIR}/api/v1/scrutins/?page=${page}&page_size=100`,
+        );
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const items: any[] = data?.results ?? data?.items ?? (Array.isArray(data) ? data : []);
+        const items: any[] =
+          data?.results ?? data?.items ?? (Array.isArray(data) ? data : []);
         if (!items.length) break;
-        for (const item of items) { try { results.push(normalizeExternalScrutin(item)); } catch {} }
+        for (const item of items) {
+          try {
+            results.push(normalizeExternalScrutin(item));
+          } catch {}
+        }
         const total = parsePosInt(data?.count ?? data?.total ?? results.length);
-        if (results.length >= Math.min(total, 10000) || items.length < 100) break;
+        if (results.length >= Math.min(total, 10000) || items.length < 100)
+          break;
         if (++page > 100) break;
       }
-      if (results.length) return results.sort((a, b) => b.date.localeCompare(a.date));
+      if (results.length)
+        return results.sort((a, b) => b.date.localeCompare(a.date));
     } catch {}
 
     // ③ CIVIX
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data = await fetchJson<any>(`${CIVIX}/api/v1/scrutins?legislature=17&page=1&page_size=200`);
+      const data = await fetchJson<any>(
+        `${CIVIX}/api/v1/scrutins?legislature=17&page=1&page_size=200`,
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const items: any[] = data?.results ?? data?.scrutins ?? (Array.isArray(data) ? data : []);
+      const items: any[] =
+        data?.results ?? data?.scrutins ?? (Array.isArray(data) ? data : []);
       if (items.length) {
         const r: Scrutin[] = [];
-        for (const i of items) { try { r.push(normalizeExternalScrutin(i)); } catch {} }
+        for (const i of items) {
+          try {
+            r.push(normalizeExternalScrutin(i));
+          } catch {}
+        }
         if (r.length) return r.sort((a, b) => b.date.localeCompare(a.date));
       }
     } catch {}
 
     // ④ nosdeputes.fr
-    const d = await fetchJson<{ scrutins: { scrutin: Scrutin }[] }>(`${NOS}/16/scrutins/json`);
+    const d = await fetchJson<{ scrutins: { scrutin: Scrutin }[] }>(
+      `${NOS}/16/scrutins/json`,
+    );
     const r: Scrutin[] = [];
-    for (const x of d.scrutins) { try { r.push(normalizeExternalScrutin(x.scrutin)); } catch {} }
+    for (const x of d.scrutins) {
+      try {
+        r.push(normalizeExternalScrutin(x.scrutin));
+      } catch {}
+    }
     return r.sort((a, b) => b.date.localeCompare(a.date));
   },
 });
@@ -527,22 +621,35 @@ export const scrutinDetailQuery = (numeroRaw: string) => {
   return queryOptions({
     queryKey: ["scrutin-detail", 17, numero],
     staleTime: 1000 * 60 * 60,
-    queryFn: async (): Promise<{ meta: Scrutin; votes: VoteEntry[]; votesNominatifs: VotesScrutin | null }> => {
+    queryFn: async (): Promise<{
+      meta: Scrutin;
+      votes: VoteEntry[];
+      votesNominatifs: VotesScrutin | null;
+    }> => {
       // ① Fichiers locaux combinés
       try {
         const [scrutins, votesIndex] = await Promise.all([
           fetchLocal<Scrutin[]>("/scrutins-17.json").catch(() => null),
-          fetchLocal<Record<string, VotesScrutin>>("/votes-17.json").catch(() => null),
+          fetchLocal<Record<string, VotesScrutin>>("/votes-17.json").catch(
+            () => null,
+          ),
         ]);
 
-        const meta = scrutins?.find(s => s.numero === numero || s.uid === numero);
-        const votesNominatifs = votesIndex ? (votesIndex[numero] ?? null) : null;
+        const meta = scrutins?.find(
+          (s) => s.numero === numero || s.uid === numero,
+        );
+        const votesNominatifs = votesIndex
+          ? (votesIndex[numero] ?? null)
+          : null;
 
         if (meta) {
           // Construire VoteEntry[] depuis VotesScrutin
           const votes: VoteEntry[] = [];
           if (votesNominatifs) {
-            const addVotes = (list: VoteNominatif[], position: VotePosition) => {
+            const addVotes = (
+              list: VoteNominatif[],
+              position: VotePosition,
+            ) => {
               for (const v of list) {
                 votes.push({
                   scrutin: meta,
@@ -570,12 +677,16 @@ export const scrutinDetailQuery = (numeroRaw: string) => {
       // ② CLAIR
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const raw = await fetchJson<any>(`${CLAIR}/api/v1/scrutins/${encodeURIComponent(numero)}`);
+        const raw = await fetchJson<any>(
+          `${CLAIR}/api/v1/scrutins/${encodeURIComponent(numero)}`,
+        );
         const meta = normalizeExternalScrutin(raw);
         let votesRaw: unknown[] = [];
         try {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const vd = await fetchJson<any>(`${CLAIR}/api/v1/scrutins/${encodeURIComponent(numero)}/votes`);
+          const vd = await fetchJson<any>(
+            `${CLAIR}/api/v1/scrutins/${encodeURIComponent(numero)}/votes`,
+          );
           votesRaw = vd?.results ?? vd?.votes ?? (Array.isArray(vd) ? vd : []);
         } catch {}
         const votes = buildVoteEntries(meta, votesRaw);
@@ -586,7 +697,9 @@ export const scrutinDetailQuery = (numeroRaw: string) => {
       try {
         const uid = numero.startsWith("VTANR") ? numero : `VTANR5L17V${numero}`;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const raw = await fetchJson<any>(`${CIVIX}/api/v1/scrutins/detail?uid=${encodeURIComponent(uid)}`);
+        const raw = await fetchJson<any>(
+          `${CIVIX}/api/v1/scrutins/detail?uid=${encodeURIComponent(uid)}`,
+        );
         const meta = normalizeExternalScrutin(raw);
         const votes = buildVoteEntries(meta, []);
         return { meta, votes, votesNominatifs: null };
@@ -594,7 +707,9 @@ export const scrutinDetailQuery = (numeroRaw: string) => {
 
       // ④ nosdeputes.fr — fallback ultime
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const d = await fetchJson<{ votes: { vote: any }[] }>(`${NOS}/16/scrutin/${encodeURIComponent(numero)}/json`);
+      const d = await fetchJson<{ votes: { vote: any }[] }>(
+        `${NOS}/16/scrutin/${encodeURIComponent(numero)}/json`,
+      );
       const allVotes: VoteEntry[] = [];
       for (const x of d.votes ?? []) {
         try {
@@ -602,24 +717,42 @@ export const scrutinDetailQuery = (numeroRaw: string) => {
           const scrutinMeta = normalizeExternalScrutin(v.scrutin ?? v);
           allVotes.push({
             scrutin: scrutinMeta,
-            parlementaire_groupe_acronyme: sanitizeText(v.parlementaire_groupe_acronyme ?? "NI", 20),
+            parlementaire_groupe_acronyme: sanitizeText(
+              v.parlementaire_groupe_acronyme ?? "NI",
+              20,
+            ),
             parlementaire_slug: sanitizeSlug(v.parlementaire_slug ?? ""),
             parlementaire_nom: sanitizeText(v.parlementaire_nom ?? "", 100),
-            parlementaire_prenom: sanitizeText(v.parlementaire_prenom ?? "", 100),
+            parlementaire_prenom: sanitizeText(
+              v.parlementaire_prenom ?? "",
+              100,
+            ),
             position: normalizePosition(v.position ?? "nonVotant"),
-            position_groupe: normalizePosition(v.position_groupe ?? "nonVotant"),
+            position_groupe: normalizePosition(
+              v.position_groupe ?? "nonVotant",
+            ),
             par_delegation: null,
             mise_au_point_position: null,
           });
         } catch {}
       }
       const firstMeta = allVotes[0]?.scrutin ?? {
-        numero, date: "", type: "Scrutin public", sort: "Non renseigné",
-        isAdopte: false, titre: `Scrutin n°${numero}`,
+        numero,
+        date: "",
+        type: "Scrutin public",
+        sort: "Non renseigné",
+        isAdopte: false,
+        titre: `Scrutin n°${numero}`,
         nombre_votants: String(allVotes.length),
-        nombre_pours: String(allVotes.filter(v => v.position === "pour").length),
-        nombre_contres: String(allVotes.filter(v => v.position === "contre").length),
-        nombre_abstentions: String(allVotes.filter(v => v.position === "abstention").length),
+        nombre_pours: String(
+          allVotes.filter((v) => v.position === "pour").length,
+        ),
+        nombre_contres: String(
+          allVotes.filter((v) => v.position === "contre").length,
+        ),
+        nombre_abstentions: String(
+          allVotes.filter((v) => v.position === "abstention").length,
+        ),
         url_institution: `https://www.assemblee-nationale.fr/dyn/17/scrutins/${numero}`,
       };
       return { meta: firstMeta, votes: allVotes, votesNominatifs: null };
@@ -640,33 +773,42 @@ export const deputeDetailQuery = (slugRaw: string) => {
       // ① Depuis la liste locale
       try {
         const data = await fetchLocal<Depute[]>("/deputes-17.json");
-        const found = Array.isArray(data) ? data.find(d => sanitizeSlug(d.slug) === slug) : null;
-        if (found) return {
-          ...found,
-          nom: sanitizeText(found.nom, 200),
-          nom_de_famille: sanitizeText(found.nom_de_famille, 100),
-          prenom: sanitizeText(found.prenom, 100),
-          slug: sanitizeSlug(found.slug),
-          photo_url: found.id_an ? photoUrl(found.id_an, 17) : undefined,
-        };
+        const found = Array.isArray(data)
+          ? data.find((d) => sanitizeSlug(d.slug) === slug)
+          : null;
+        if (found)
+          return {
+            ...found,
+            nom: sanitizeText(found.nom, 200),
+            nom_de_famille: sanitizeText(found.nom_de_famille, 100),
+            prenom: sanitizeText(found.prenom, 100),
+            slug: sanitizeSlug(found.slug),
+            photo_url: found.id_an ? photoUrl(found.id_an, 17) : undefined,
+          };
       } catch {}
 
       // ② CLAIR
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const raw = await fetchJson<any>(`${CLAIR}/api/v1/deputes/${encodeURIComponent(slug)}`);
+        const raw = await fetchJson<any>(
+          `${CLAIR}/api/v1/deputes/${encodeURIComponent(slug)}`,
+        );
         return normalizeExternalDepute(raw);
       } catch {}
 
       // ③ CIVIX
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const raw = await fetchJson<any>(`${CIVIX}/api/v1/deputes/${encodeURIComponent(slug)}`);
+        const raw = await fetchJson<any>(
+          `${CIVIX}/api/v1/deputes/${encodeURIComponent(slug)}`,
+        );
         return normalizeExternalDepute(raw);
       } catch {}
 
       // ④ nosdeputes.fr
-      const d = await fetchJson<{ depute: Depute }>(`${NOS}/${encodeURIComponent(slug)}/json`);
+      const d = await fetchJson<{ depute: Depute }>(
+        `${NOS}/${encodeURIComponent(slug)}/json`,
+      );
       return normalizeExternalDepute(d.depute);
     },
   });
@@ -686,12 +828,18 @@ export const deputeVotesQuery = (slugRaw: string, idAn?: string) => {
       if (idAn && /^PA\d{3,10}$/.test(idAn)) {
         try {
           type LocalVote = {
-            numero: string; position: string; date: string;
-            titre: string; sort: string; isAdopte: boolean;
+            numero: string;
+            position: string;
+            date: string;
+            titre: string;
+            sort: string;
+            isAdopte: boolean;
           };
-          const data = await fetchLocal<LocalVote[]>(`/votes-depute/${idAn}.json`);
+          const data = await fetchLocal<LocalVote[]>(
+            `/votes-depute/${idAn}.json`,
+          );
           if (Array.isArray(data) && data.length > 0) {
-            return data.map(v => ({
+            return data.map((v) => ({
               scrutin: {
                 numero: sanitizeNumero(v.numero) || v.numero,
                 date: sanitizeText(v.date, 30),
@@ -699,7 +847,10 @@ export const deputeVotesQuery = (slugRaw: string, idAn?: string) => {
                 sort: sanitizeText(v.sort, 100),
                 isAdopte: !!v.isAdopte,
                 titre: sanitizeText(v.titre, MAX_TITLE),
-                nombre_votants: "", nombre_pours: "", nombre_contres: "", nombre_abstentions: "",
+                nombre_votants: "",
+                nombre_pours: "",
+                nombre_contres: "",
+                nombre_abstentions: "",
                 url_institution: `https://www.assemblee-nationale.fr/dyn/17/scrutins/${v.numero}`,
               },
               parlementaire_groupe_acronyme: "",
@@ -716,33 +867,46 @@ export const deputeVotesQuery = (slugRaw: string, idAn?: string) => {
       // ② CLAIR
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = await fetchJson<any>(`${CLAIR}/api/v1/deputes/${encodeURIComponent(slug)}/votes`);
+        const data = await fetchJson<any>(
+          `${CLAIR}/api/v1/deputes/${encodeURIComponent(slug)}/votes`,
+        );
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const items: any[] = data?.results ?? data?.votes ?? (Array.isArray(data) ? data : []);
+        const items: any[] =
+          data?.results ?? data?.votes ?? (Array.isArray(data) ? data : []);
         return buildVoteEntries(null, items, slug);
       } catch {}
 
       // ③ CIVIX
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = await fetchJson<any>(`${CIVIX}/api/v1/deputes/${encodeURIComponent(slug)}/votes`);
+        const data = await fetchJson<any>(
+          `${CIVIX}/api/v1/deputes/${encodeURIComponent(slug)}/votes`,
+        );
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const items: any[] = data?.results ?? data?.votes ?? (Array.isArray(data) ? data : []);
+        const items: any[] =
+          data?.results ?? data?.votes ?? (Array.isArray(data) ? data : []);
         return buildVoteEntries(null, items, slug);
       } catch {}
 
       // ④ nosdeputes.fr
-      const d = await fetchJson<{ votes: { vote: VoteEntry }[] }>(`${NOS}/${encodeURIComponent(slug)}/votes/json`);
+      const d = await fetchJson<{ votes: { vote: VoteEntry }[] }>(
+        `${NOS}/${encodeURIComponent(slug)}/votes/json`,
+      );
       const r: VoteEntry[] = [];
       for (const x of d.votes ?? []) {
         try {
           const v = x.vote ?? x;
           r.push({
             scrutin: normalizeExternalScrutin(v.scrutin ?? v),
-            parlementaire_groupe_acronyme: sanitizeText(v.parlementaire_groupe_acronyme ?? "NI", 20),
+            parlementaire_groupe_acronyme: sanitizeText(
+              v.parlementaire_groupe_acronyme ?? "NI",
+              20,
+            ),
             parlementaire_slug: slug,
             position: normalizePosition(v.position ?? "nonVotant"),
-            position_groupe: normalizePosition(v.position_groupe ?? "nonVotant"),
+            position_groupe: normalizePosition(
+              v.position_groupe ?? "nonVotant",
+            ),
             par_delegation: null,
             mise_au_point_position: null,
           });
@@ -755,20 +919,40 @@ export const deputeVotesQuery = (slugRaw: string, idAn?: string) => {
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildVoteEntries(meta: Scrutin | null, rawItems: any[], fallbackSlug?: string): VoteEntry[] {
+function buildVoteEntries(
+  meta: Scrutin | null,
+  rawItems: any[],
+  fallbackSlug?: string,
+): VoteEntry[] {
   const out: VoteEntry[] = [];
   for (const v of rawItems) {
     try {
       const scrutin = meta ?? normalizeExternalScrutin(v.scrutin ?? v);
       out.push({
         scrutin,
-        parlementaire_groupe_acronyme: sanitizeText(v.groupe?.sigle ?? v.groupe_sigle ?? v.groupe ?? "NI", 20),
-        parlementaire_slug: sanitizeSlug(v.slug ?? v.parlementaire_slug ?? v.parlementaire?.slug ?? fallbackSlug ?? ""),
-        parlementaire_nom: sanitizeText(v.nom ?? v.parlementaire?.nom ?? "", 100),
-        parlementaire_prenom: sanitizeText(v.prenom ?? v.parlementaire?.prenom ?? "", 100),
+        parlementaire_groupe_acronyme: sanitizeText(
+          v.groupe?.sigle ?? v.groupe_sigle ?? v.groupe ?? "NI",
+          20,
+        ),
+        parlementaire_slug: sanitizeSlug(
+          v.slug ??
+            v.parlementaire_slug ??
+            v.parlementaire?.slug ??
+            fallbackSlug ??
+            "",
+        ),
+        parlementaire_nom: sanitizeText(
+          v.nom ?? v.parlementaire?.nom ?? "",
+          100,
+        ),
+        parlementaire_prenom: sanitizeText(
+          v.prenom ?? v.parlementaire?.prenom ?? "",
+          100,
+        ),
         position: normalizePosition(v.position ?? v.vote ?? "nonVotant"),
-        position_groupe: normalizePosition(v.position_groupe ?? v.position ?? "nonVotant"),
+        position_groupe: normalizePosition(
+          v.position_groupe ?? v.position ?? "nonVotant",
+        ),
         par_delegation: null,
         mise_au_point_position: null,
       });
@@ -781,17 +965,22 @@ function buildVoteEntries(meta: Scrutin | null, rawItems: any[], fallbackSlug?: 
 
 export function positionLabel(p: VotePosition): string {
   const m: Record<VotePosition, string> = {
-    pour: "Pour", contre: "Contre", abstention: "Abstention",
-    nonVotant: "Absent", nonVotantVolontaire: "Absent",
+    pour: "Pour",
+    contre: "Contre",
+    abstention: "Abstention",
+    nonVotant: "Absent",
+    nonVotantVolontaire: "Absent",
   };
   return m[p] ?? "Inconnu";
 }
 
 export function positionColor(p: VotePosition): string {
   const m: Record<VotePosition, string> = {
-    pour: "var(--color-pour)", contre: "var(--color-contre)",
+    pour: "var(--color-pour)",
+    contre: "var(--color-contre)",
     abstention: "var(--color-abstention)",
-    nonVotant: "var(--color-absent)", nonVotantVolontaire: "var(--color-absent)",
+    nonVotant: "var(--color-absent)",
+    nonVotantVolontaire: "var(--color-absent)",
   };
   return m[p] ?? "var(--color-absent)";
 }
@@ -799,29 +988,46 @@ export function positionColor(p: VotePosition): string {
 // ─── GROUPES POLITIQUES 17e ──────────────────────────────────────────────────
 
 export const GROUPES: Record<string, { nom: string; couleur: string }> = {
-  RN:          { nom: "Rassemblement National",                           couleur: "oklch(0.42 0.16 252)" },
-  NFP:         { nom: "Nouveau Front Populaire",                          couleur: "oklch(0.52 0.20 15)"  },
-  LFI:         { nom: "La France insoumise",                              couleur: "oklch(0.52 0.22 27)"  },
-  "LFI-NFP":   { nom: "La France Insoumise — NFP",                        couleur: "oklch(0.52 0.22 27)"  },
-  "LFI-NUPES": { nom: "La France insoumise — NUPES",                      couleur: "oklch(0.52 0.22 27)"  },
-  SOC:         { nom: "Socialistes et apparentés",                         couleur: "oklch(0.55 0.2 0)"    },
-  ECO:         { nom: "Écologistes",                                       couleur: "oklch(0.55 0.18 145)" },
-  ECOLO:       { nom: "Écologistes",                                       couleur: "oklch(0.55 0.18 145)" },
-  GDR:         { nom: "Gauche démocrate et républicaine",                  couleur: "oklch(0.5 0.18 15)"   },
-  "GDR-NUPES": { nom: "GDR — NUPES",                                      couleur: "oklch(0.5 0.18 15)"   },
-  EPR:         { nom: "Ensemble pour la République",                       couleur: "oklch(0.60 0.16 220)" },
-  RE:          { nom: "Renaissance",                                       couleur: "oklch(0.65 0.18 60)"  },
-  REN:         { nom: "Renaissance",                                       couleur: "oklch(0.65 0.18 60)"  },
-  DEM:         { nom: "Démocrate — MoDem",                                 couleur: "oklch(0.65 0.16 215)" },
-  HOR:         { nom: "Horizons & indépendants",                          couleur: "oklch(0.65 0.13 230)" },
-  DR:          { nom: "Droite Républicaine",                               couleur: "oklch(0.42 0.18 250)" },
-  LR:          { nom: "Les Républicains",                                  couleur: "oklch(0.42 0.18 250)" },
-  LIOT:        { nom: "Libertés, Indépendants, Outre-mer et Territoires",  couleur: "oklch(0.6 0.1 80)"   },
-  UDR:         { nom: "Union des Droites pour la République",              couleur: "oklch(0.38 0.17 265)" },
-  NI:          { nom: "Non inscrits",                                      couleur: "oklch(0.55 0.02 285)" },
+  RN: { nom: "Rassemblement National", couleur: "oklch(0.42 0.16 252)" },
+  NFP: { nom: "Nouveau Front Populaire", couleur: "oklch(0.52 0.20 15)" },
+  LFI: { nom: "La France insoumise", couleur: "oklch(0.52 0.22 27)" },
+  "LFI-NFP": {
+    nom: "La France Insoumise — NFP",
+    couleur: "oklch(0.52 0.22 27)",
+  },
+  "LFI-NUPES": {
+    nom: "La France insoumise — NUPES",
+    couleur: "oklch(0.52 0.22 27)",
+  },
+  SOC: { nom: "Socialistes et apparentés", couleur: "oklch(0.55 0.2 0)" },
+  ECO: { nom: "Écologistes", couleur: "oklch(0.55 0.18 145)" },
+  ECOLO: { nom: "Écologistes", couleur: "oklch(0.55 0.18 145)" },
+  GDR: {
+    nom: "Gauche démocrate et républicaine",
+    couleur: "oklch(0.5 0.18 15)",
+  },
+  "GDR-NUPES": { nom: "GDR — NUPES", couleur: "oklch(0.5 0.18 15)" },
+  EPR: { nom: "Ensemble pour la République", couleur: "oklch(0.60 0.16 220)" },
+  RE: { nom: "Renaissance", couleur: "oklch(0.65 0.18 60)" },
+  REN: { nom: "Renaissance", couleur: "oklch(0.65 0.18 60)" },
+  DEM: { nom: "Démocrate — MoDem", couleur: "oklch(0.65 0.16 215)" },
+  HOR: { nom: "Horizons & indépendants", couleur: "oklch(0.65 0.13 230)" },
+  DR: { nom: "Droite Républicaine", couleur: "oklch(0.42 0.18 250)" },
+  LR: { nom: "Les Républicains", couleur: "oklch(0.42 0.18 250)" },
+  LIOT: {
+    nom: "Libertés, Indépendants, Outre-mer et Territoires",
+    couleur: "oklch(0.6 0.1 80)",
+  },
+  UDR: {
+    nom: "Union des Droites pour la République",
+    couleur: "oklch(0.38 0.17 265)",
+  },
+  NI: { nom: "Non inscrits", couleur: "oklch(0.55 0.02 285)" },
 };
 
 export function groupeMeta(sigle: string): { nom: string; couleur: string } {
   const safe = sanitizeText(sigle ?? "", 20);
-  return GROUPES[safe] ?? { nom: safe || "NI", couleur: "oklch(0.55 0.02 285)" };
+  return (
+    GROUPES[safe] ?? { nom: safe || "NI", couleur: "oklch(0.55 0.02 285)" }
+  );
 }

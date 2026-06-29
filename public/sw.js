@@ -32,10 +32,10 @@ self.addEventListener("install", (event) => {
         STATIC_ASSETS.map((url) =>
           cache.add(url).catch(() => {
             // Silencieux — la ressource sera mise en cache à la première visite
-          })
-        )
+          }),
+        ),
       );
-    })
+    }),
   );
   // Active immédiatement sans attendre la fermeture des onglets
   self.skipWaiting();
@@ -44,13 +44,15 @@ self.addEventListener("install", (event) => {
 // ── Activate ─────────────────────────────────────────────────
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== DATA_CACHE_NAME)
-          .map((name) => caches.delete(name))
-      )
-    )
+    caches
+      .keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames
+            .filter((name) => name !== CACHE_NAME && name !== DATA_CACHE_NAME)
+            .map((name) => caches.delete(name)),
+        ),
+      ),
   );
   self.clients.claim();
 });
@@ -62,7 +64,11 @@ self.addEventListener("fetch", (event) => {
 
   // Ignorer les requêtes non-GET et les API externes
   if (request.method !== "GET") return;
-  if (url.origin !== self.location.origin && !url.hostname.includes("fonts.googleapis.com")) return;
+  if (
+    url.origin !== self.location.origin &&
+    !url.hostname.includes("fonts.googleapis.com")
+  )
+    return;
 
   // Données JSON → Network-first (fraîcheur prioritaire)
   if (DATA_PATTERNS.some((p) => url.pathname.startsWith(p))) {
@@ -71,7 +77,10 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Google Fonts → Cache-first (ne changent pas)
-  if (url.hostname.includes("fonts.googleapis.com") || url.hostname.includes("fonts.gstatic.com")) {
+  if (
+    url.hostname.includes("fonts.googleapis.com") ||
+    url.hostname.includes("fonts.gstatic.com")
+  ) {
     event.respondWith(cacheFirst(request, CACHE_NAME));
     return;
   }

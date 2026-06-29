@@ -40,8 +40,9 @@ function Home() {
   const { data: scrutins } = useSuspenseQuery(scrutinsQuery);
 
   const latest = useMemo(
-    () => [...scrutins].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6),
-    [scrutins]
+    () =>
+      [...scrutins].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6),
+    [scrutins],
   );
 
   const stats = useMemo(() => {
@@ -58,30 +59,42 @@ function Home() {
       {/* ── HERO LIQUID GLASS ── */}
       <section className="relative overflow-hidden min-h-[80vh] flex items-center">
         {/* Orbes de fond animés */}
-        <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div
+          className="absolute inset-0 -z-10 pointer-events-none overflow-hidden"
+          aria-hidden="true"
+        >
           <div
             className="hero-orb w-[600px] h-[600px] -top-32 -left-32 opacity-30"
-            style={{
-              background: "radial-gradient(circle, oklch(0.50 0.20 285), transparent 70%)",
-              "--duration": "7s",
-              "--delay": "0s",
-            } as React.CSSProperties}
+            style={
+              {
+                background:
+                  "radial-gradient(circle, oklch(0.50 0.20 285), transparent 70%)",
+                "--duration": "7s",
+                "--delay": "0s",
+              } as React.CSSProperties
+            }
           />
           <div
             className="hero-orb w-[400px] h-[400px] top-1/3 right-0 opacity-20"
-            style={{
-              background: "radial-gradient(circle, oklch(0.55 0.18 215), transparent 70%)",
-              "--duration": "9s",
-              "--delay": "2s",
-            } as React.CSSProperties}
+            style={
+              {
+                background:
+                  "radial-gradient(circle, oklch(0.55 0.18 215), transparent 70%)",
+                "--duration": "9s",
+                "--delay": "2s",
+              } as React.CSSProperties
+            }
           />
           <div
             className="hero-orb w-[300px] h-[300px] bottom-0 left-1/3 opacity-15"
-            style={{
-              background: "radial-gradient(circle, oklch(0.60 0.16 165), transparent 70%)",
-              "--duration": "11s",
-              "--delay": "4s",
-            } as React.CSSProperties}
+            style={
+              {
+                background:
+                  "radial-gradient(circle, oklch(0.60 0.16 165), transparent 70%)",
+                "--duration": "11s",
+                "--delay": "4s",
+              } as React.CSSProperties
+            }
           />
         </div>
 
@@ -92,7 +105,10 @@ function Home() {
               className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-6 animate-fade-up"
               style={{ animationDelay: "0ms" }}
             >
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
+              <span
+                className="w-2 h-2 rounded-full bg-primary animate-pulse"
+                aria-hidden="true"
+              />
               17e législature · Session 2024–2029
             </div>
 
@@ -140,10 +156,7 @@ function Home() {
                 value={stats.scrutins.toLocaleString("fr-FR")}
                 label="Scrutins"
               />
-              <StatPill
-                value={stats.groupes.toString()}
-                label="Groupes"
-              />
+              <StatPill value={stats.groupes.toString()} label="Groupes" />
             </div>
           </div>
         </div>
@@ -167,11 +180,19 @@ function Home() {
             >
               Tout voir
               <svg
-                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="transition-transform group-hover:translate-x-0.5"
                 aria-hidden="true"
-              ><path d="m9 18 6-6-6-6" /></svg>
+              >
+                <path d="m9 18 6-6-6-6" />
+              </svg>
             </Link>
           </div>
         </ScrollScene>
@@ -342,8 +363,13 @@ function TrustSection() {
     <section className="border-t border-border/40">
       <div className="container-app py-20">
         <ScrollScene variant="rise">
-          <h2 className="font-display text-3xl md:text-5xl mb-12 text-center leading-[1.05]" data-rise>
-            La transparence,<br /><span className="text-gradient italic">sans compromis.</span>
+          <h2
+            className="font-display text-3xl md:text-5xl mb-12 text-center leading-[1.05]"
+            data-rise
+          >
+            La transparence,
+            <br />
+            <span className="text-gradient italic">sans compromis.</span>
           </h2>
         </ScrollScene>
         <ScrollScene variant="tilt" className="grid md:grid-cols-3 gap-5">
@@ -400,8 +426,8 @@ function SearchBar({
     const ds = deputes
       .filter((d) =>
         normalize(
-          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.groupe_sigle}`
-        ).includes(n)
+          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.groupe_sigle}`,
+        ).includes(n),
       )
       .slice(0, 5);
     const ss = scrutins
@@ -538,9 +564,7 @@ function SearchBar({
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground pl-4">
-                    {s.date
-                      ? new Date(s.date).toLocaleDateString("fr-FR")
-                      : ""}{" "}
+                    {s.date ? new Date(s.date).toLocaleDateString("fr-FR") : ""}{" "}
                     {s.sort ? `· ${s.sort}` : ""}
                   </div>
                 </Link>
@@ -562,7 +586,8 @@ function DeputeAvatarSmall({ d }: { d: Depute }) {
       <div
         className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
         style={{
-          background: "linear-gradient(135deg, oklch(0.50 0.20 285 / 15%), oklch(0.42 0.22 215 / 20%))",
+          background:
+            "linear-gradient(135deg, oklch(0.50 0.20 285 / 15%), oklch(0.42 0.22 215 / 20%))",
           color: "oklch(0.50 0.20 285)",
         }}
         aria-hidden="true"

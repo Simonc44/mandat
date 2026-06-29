@@ -10,7 +10,11 @@ type Props = {
   className?: string;
 };
 
-export function ScrollScene({ children, variant = "rise", className = "" }: Props) {
+export function ScrollScene({
+  children,
+  variant = "rise",
+  className = "",
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -18,7 +22,9 @@ export function ScrollScene({ children, variant = "rise", className = "" }: Prop
     const el = ref.current;
     if (!el) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     const isDesktop = window.matchMedia("(min-width: 768px)").matches;
     if (reduced) return;
 
@@ -62,20 +68,27 @@ export function ScrollScene({ children, variant = "rise", className = "" }: Prop
                 duration: 1.1,
                 ease: "power3.out",
                 scrollTrigger: { trigger: card, start: "top 90%", once: true },
-              }
+              },
             );
           });
         }
 
         if (variant === "parallax") {
-          el.querySelectorAll<HTMLElement>("[data-parallax]").forEach((node) => {
-            const speed = Number(node.dataset.parallax || "0.3");
-            gsap.to(node, {
-              yPercent: -speed * 100,
-              ease: "none",
-              scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 1 },
-            });
-          });
+          el.querySelectorAll<HTMLElement>("[data-parallax]").forEach(
+            (node) => {
+              const speed = Number(node.dataset.parallax || "0.3");
+              gsap.to(node, {
+                yPercent: -speed * 100,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: el,
+                  start: "top bottom",
+                  end: "bottom top",
+                  scrub: 1,
+                },
+              });
+            },
+          );
         }
 
         if (variant === "depth") {
@@ -89,8 +102,13 @@ export function ScrollScene({ children, variant = "rise", className = "" }: Prop
               opacity: 1,
               duration: 1.4,
               ease: "power3.out",
-              scrollTrigger: { trigger: el, start: "top 80%", end: "top 30%", scrub: 0.8 },
-            }
+              scrollTrigger: {
+                trigger: el,
+                start: "top 80%",
+                end: "top 30%",
+                scrub: 0.8,
+              },
+            },
           );
           el.style.transformStyle = "preserve-3d";
           el.style.perspective = "1500px";
