@@ -5,7 +5,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import { scrutinsQuery, normalize, sanitizeSearchInput, type Scrutin } from "@/lib/api";
+import {
+  scrutinsQuery,
+  normalize,
+  sanitizeSearchInput,
+  type Scrutin,
+} from "@/lib/api";
 import { createSeoMeta, SITE_URL } from "./__root";
 
 const searchSchema = z.object({
@@ -49,10 +54,17 @@ function ScrutinsPage() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const slice = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const slice = filtered.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE,
+  );
 
   const setF = (
-    patch: Partial<{ q: string; sort: "all" | "adopte" | "rejete"; page: number }>
+    patch: Partial<{
+      q: string;
+      sort: "all" | "adopte" | "rejete";
+      page: number;
+    }>,
   ) =>
     navigate({
       search: (prev: z.infer<typeof searchSchema>) => ({
@@ -74,7 +86,10 @@ function ScrutinsPage() {
       </div>
 
       {/* Filtres */}
-      <div className="space-y-4 mb-8 animate-fade-up" style={{ animationDelay: "60ms" }}>
+      <div
+        className="space-y-4 mb-8 animate-fade-up"
+        style={{ animationDelay: "60ms" }}
+      >
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -84,8 +99,16 @@ function ScrutinsPage() {
           role="search"
         >
           <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
-            <svg className="w-4 h-4 text-muted-foreground shrink-0 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" strokeLinecap="round" />
+            <svg
+              className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" strokeLinecap="round" />
             </svg>
             <input
               value={search}
@@ -104,7 +127,11 @@ function ScrutinsPage() {
           </button>
         </form>
 
-        <div className="flex gap-2" role="group" aria-label="Filtrer par résultat">
+        <div
+          className="flex gap-2"
+          role="group"
+          aria-label="Filtrer par résultat"
+        >
           {(
             [
               ["all", "Tous"],
@@ -131,13 +158,18 @@ function ScrutinsPage() {
       {/* Liste */}
       {slice.length === 0 ? (
         <div className="py-16 text-center glass rounded-3xl border border-border/50">
-          <span className="text-4xl block mb-3" aria-hidden="true">📋</span>
+          <span className="text-4xl block mb-3" aria-hidden="true">
+            📋
+          </span>
           <p className="text-muted-foreground">
             Aucun scrutin ne correspond à ces critères.
           </p>
         </div>
       ) : (
-        <ul className="space-y-3 animate-stagger" aria-label="Liste des scrutins">
+        <ul
+          className="space-y-3 animate-stagger"
+          aria-label="Liste des scrutins"
+        >
           {slice.map((s, i) => (
             <ScrutinRow key={s.numero} s={s} index={i} />
           ))}
@@ -187,7 +219,10 @@ function ScrutinRow({ s, index }: { s: Scrutin; index: number }) {
   }, [index]);
 
   return (
-    <li className="animate-fade-up" style={{ animationDelay: `${Math.min(index * 40, 400)}ms` }}>
+    <li
+      className="animate-fade-up"
+      style={{ animationDelay: `${Math.min(index * 40, 400)}ms` }}
+    >
       <Link
         to="/scrutin/$numero"
         params={{ numero: s.numero }}
@@ -215,7 +250,9 @@ function ScrutinRow({ s, index }: { s: Scrutin; index: number }) {
               <span
                 className="px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider text-[10px]"
                 style={{
-                  color: isAdopted ? "var(--color-pour)" : "var(--color-contre)",
+                  color: isAdopted
+                    ? "var(--color-pour)"
+                    : "var(--color-contre)",
                   backgroundColor: isAdopted
                     ? "color-mix(in oklch, var(--color-pour) 12%, transparent)"
                     : "color-mix(in oklch, var(--color-contre) 12%, transparent)",
@@ -269,14 +306,16 @@ function ScrutinRow({ s, index }: { s: Scrutin; index: number }) {
                 style={{
                   width: mounted ? `${(c / total) * 100}%` : "0%",
                   backgroundColor: "var(--color-contre)",
-                  transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 80ms",
+                  transition:
+                    "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 80ms",
                 }}
               />
               <div
                 style={{
                   width: mounted ? `${(a / total) * 100}%` : "0%",
                   backgroundColor: "var(--color-abstention)",
-                  transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 160ms",
+                  transition:
+                    "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 160ms",
                 }}
               />
             </div>

@@ -14,7 +14,8 @@ export function DeputeCard({ d, index = 0 }: { d: Depute; index?: number }) {
   const photoSrc = d.id_an ? photoUrl(d.id_an, 17) : "";
   const photo16Src = d.id_an ? photoUrl(d.id_an, 16) : "";
 
-  const initials = `${d.prenom?.[0] ?? ""}${d.nom_de_famille?.[0] ?? ""}`.toUpperCase();
+  const initials =
+    `${d.prenom?.[0] ?? ""}${d.nom_de_famille?.[0] ?? ""}`.toUpperCase();
 
   return (
     <Link

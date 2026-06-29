@@ -17,7 +17,13 @@
  *   SCRUTINS_DIR = dossier contenant les VTANR*.json
  */
 
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from "fs";
+import {
+  readFileSync,
+  writeFileSync,
+  readdirSync,
+  existsSync,
+  mkdirSync,
+} from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -39,8 +45,12 @@ const SCRUTINS_DIR =
 
 // ─── Utilitaires sécurisés ────────────────────────────────────────────────────
 
-function log(msg) { console.log(`[${new Date().toISOString()}] ${msg}`); }
-function warn(msg) { console.warn(`[WARN] ${msg}`); }
+function log(msg) {
+  console.log(`[${new Date().toISOString()}] ${msg}`);
+}
+function warn(msg) {
+  console.warn(`[WARN] ${msg}`);
+}
 
 /** Sanitize un texte — supprime balises HTML et caractères dangereux */
 function sanitize(text) {
@@ -50,8 +60,11 @@ function sanitize(text) {
     .replace(/<[^>]*>/g, "")
     .replace(/javascript:/gi, "")
     .replace(/on\w+\s*=/gi, "")
-    .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#039;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 1000);
@@ -84,7 +97,7 @@ function buildOrganesMap() {
     warn(`Dossier organes introuvable : ${ORGANES_DIR}`);
     return map;
   }
-  const files = readdirSync(ORGANES_DIR).filter(f => f.endsWith(".json"));
+  const files = readdirSync(ORGANES_DIR).filter((f) => f.endsWith(".json"));
   for (const file of files) {
     const data = readJson(path.join(ORGANES_DIR, file));
     const organe = data?.organe;
@@ -104,32 +117,111 @@ function buildOrganesMap() {
 // ─── PARSE DEPUTÉS ────────────────────────────────────────────────────────────
 
 const DEPT_NOMS = {
-  "01":"Ain","02":"Aisne","03":"Allier","04":"Alpes-de-Haute-Provence",
-  "05":"Hautes-Alpes","06":"Alpes-Maritimes","07":"Ardèche","08":"Ardennes",
-  "09":"Ariège","10":"Aube","11":"Aude","12":"Aveyron","13":"Bouches-du-Rhône",
-  "14":"Calvados","15":"Cantal","16":"Charente","17":"Charente-Maritime",
-  "18":"Cher","19":"Corrèze","2A":"Corse-du-Sud","2B":"Haute-Corse",
-  "21":"Côte-d'Or","22":"Côtes-d'Armor","23":"Creuse","24":"Dordogne",
-  "25":"Doubs","26":"Drôme","27":"Eure","28":"Eure-et-Loir","29":"Finistère",
-  "30":"Gard","31":"Haute-Garonne","32":"Gers","33":"Gironde","34":"Hérault",
-  "35":"Ille-et-Vilaine","36":"Indre","37":"Indre-et-Loire","38":"Isère",
-  "39":"Jura","40":"Landes","41":"Loir-et-Cher","42":"Loire","43":"Haute-Loire",
-  "44":"Loire-Atlantique","45":"Loiret","46":"Lot","47":"Lot-et-Garonne",
-  "48":"Lozère","49":"Maine-et-Loire","50":"Manche","51":"Marne",
-  "52":"Haute-Marne","53":"Mayenne","54":"Meurthe-et-Moselle","55":"Meuse",
-  "56":"Morbihan","57":"Moselle","58":"Nièvre","59":"Nord","60":"Oise",
-  "61":"Orne","62":"Pas-de-Calais","63":"Puy-de-Dôme","64":"Pyrénées-Atlantiques",
-  "65":"Hautes-Pyrénées","66":"Pyrénées-Orientales","67":"Bas-Rhin",
-  "68":"Haut-Rhin","69":"Rhône","70":"Haute-Saône","71":"Saône-et-Loire",
-  "72":"Sarthe","73":"Savoie","74":"Haute-Savoie","75":"Paris",
-  "76":"Seine-Maritime","77":"Seine-et-Marne","78":"Yvelines",
-  "79":"Deux-Sèvres","80":"Somme","81":"Tarn","82":"Tarn-et-Garonne",
-  "83":"Var","84":"Vaucluse","85":"Vendée","86":"Vienne","87":"Haute-Vienne",
-  "88":"Vosges","89":"Yonne","90":"Territoire de Belfort","91":"Essonne",
-  "92":"Hauts-de-Seine","93":"Seine-Saint-Denis","94":"Val-de-Marne","95":"Val-d'Oise",
-  "971":"Guadeloupe","972":"Martinique","973":"Guyane","974":"La Réunion",
-  "976":"Mayotte","986":"Wallis-et-Futuna","987":"Polynésie française",
-  "988":"Nouvelle-Calédonie","ZX":"Français établis hors de France",
+  "01": "Ain",
+  "02": "Aisne",
+  "03": "Allier",
+  "04": "Alpes-de-Haute-Provence",
+  "05": "Hautes-Alpes",
+  "06": "Alpes-Maritimes",
+  "07": "Ardèche",
+  "08": "Ardennes",
+  "09": "Ariège",
+  10: "Aube",
+  11: "Aude",
+  12: "Aveyron",
+  13: "Bouches-du-Rhône",
+  14: "Calvados",
+  15: "Cantal",
+  16: "Charente",
+  17: "Charente-Maritime",
+  18: "Cher",
+  19: "Corrèze",
+  "2A": "Corse-du-Sud",
+  "2B": "Haute-Corse",
+  21: "Côte-d'Or",
+  22: "Côtes-d'Armor",
+  23: "Creuse",
+  24: "Dordogne",
+  25: "Doubs",
+  26: "Drôme",
+  27: "Eure",
+  28: "Eure-et-Loir",
+  29: "Finistère",
+  30: "Gard",
+  31: "Haute-Garonne",
+  32: "Gers",
+  33: "Gironde",
+  34: "Hérault",
+  35: "Ille-et-Vilaine",
+  36: "Indre",
+  37: "Indre-et-Loire",
+  38: "Isère",
+  39: "Jura",
+  40: "Landes",
+  41: "Loir-et-Cher",
+  42: "Loire",
+  43: "Haute-Loire",
+  44: "Loire-Atlantique",
+  45: "Loiret",
+  46: "Lot",
+  47: "Lot-et-Garonne",
+  48: "Lozère",
+  49: "Maine-et-Loire",
+  50: "Manche",
+  51: "Marne",
+  52: "Haute-Marne",
+  53: "Mayenne",
+  54: "Meurthe-et-Moselle",
+  55: "Meuse",
+  56: "Morbihan",
+  57: "Moselle",
+  58: "Nièvre",
+  59: "Nord",
+  60: "Oise",
+  61: "Orne",
+  62: "Pas-de-Calais",
+  63: "Puy-de-Dôme",
+  64: "Pyrénées-Atlantiques",
+  65: "Hautes-Pyrénées",
+  66: "Pyrénées-Orientales",
+  67: "Bas-Rhin",
+  68: "Haut-Rhin",
+  69: "Rhône",
+  70: "Haute-Saône",
+  71: "Saône-et-Loire",
+  72: "Sarthe",
+  73: "Savoie",
+  74: "Haute-Savoie",
+  75: "Paris",
+  76: "Seine-Maritime",
+  77: "Seine-et-Marne",
+  78: "Yvelines",
+  79: "Deux-Sèvres",
+  80: "Somme",
+  81: "Tarn",
+  82: "Tarn-et-Garonne",
+  83: "Var",
+  84: "Vaucluse",
+  85: "Vendée",
+  86: "Vienne",
+  87: "Haute-Vienne",
+  88: "Vosges",
+  89: "Yonne",
+  90: "Territoire de Belfort",
+  91: "Essonne",
+  92: "Hauts-de-Seine",
+  93: "Seine-Saint-Denis",
+  94: "Val-de-Marne",
+  95: "Val-d'Oise",
+  971: "Guadeloupe",
+  972: "Martinique",
+  973: "Guyane",
+  974: "La Réunion",
+  976: "Mayotte",
+  986: "Wallis-et-Futuna",
+  987: "Polynésie française",
+  988: "Nouvelle-Calédonie",
+  ZX: "Français établis hors de France",
 };
 
 function parseActeur(data, organesMap) {
@@ -235,13 +327,17 @@ function parseScrutin(data) {
   const contres = parseInt(decompte.contre ?? "0") || 0;
   const abstentions = parseInt(decompte.abstentions ?? "0") || 0;
   const nonVotants = parseInt(decompte.nonVotants ?? "0") || 0;
-  const nonVotantsVolontaires = parseInt(decompte.nonVotantsVolontaires ?? "0") || 0;
-  const votants = parseInt(synthese.nombreVotants ?? "0") || (pours + contres + abstentions);
+  const nonVotantsVolontaires =
+    parseInt(decompte.nonVotantsVolontaires ?? "0") || 0;
+  const votants =
+    parseInt(synthese.nombreVotants ?? "0") || pours + contres + abstentions;
 
   // Résultat (sort)
   const sortCode = sanitize(s.sort?.code ?? s.sort?.libelle ?? "");
   const sortLibelle = sanitize(s.sort?.libelle ?? sortCode);
-  const isAdopte = /adopt/i.test(sortCode) || /adopt/i.test(sortLibelle);
+  const isAdopte =
+    (/adopt/i.test(sortCode) && !/non/i.test(sortCode)) ||
+    (/adopt/i.test(sortLibelle) && !/non/i.test(sortLibelle));
   const sort = isAdopte ? "adopté" : "rejeté";
 
   // Titre
@@ -256,7 +352,11 @@ function parseScrutin(data) {
   // Votes par groupe (pour le détail)
   const groupes = [];
   const ventilation = s.ventilationVotes?.organe?.groupes?.groupe;
-  const groupesList = Array.isArray(ventilation) ? ventilation : (ventilation ? [ventilation] : []);
+  const groupesList = Array.isArray(ventilation)
+    ? ventilation
+    : ventilation
+      ? [ventilation]
+      : [];
 
   for (const g of groupesList) {
     if (!g) continue;
@@ -275,8 +375,15 @@ function parseScrutin(data) {
     const nominatif = g.vote?.decompteNominatif ?? {};
     const extractVotants = (node) => {
       if (!node) return [];
-      const list = Array.isArray(node.votant) ? node.votant : (node.votant ? [node.votant] : []);
-      return list.map(v => ({ acteurRef: v.acteurRef ?? "", parDelegation: v.parDelegation === "true" }));
+      const list = Array.isArray(node.votant)
+        ? node.votant
+        : node.votant
+          ? [node.votant]
+          : [];
+      return list.map((v) => ({
+        acteurRef: v.acteurRef ?? "",
+        parDelegation: v.parDelegation === "true",
+      }));
     };
     groupe.pours = extractVotants(nominatif.pours);
     groupe.contres = extractVotants(nominatif.contres);
@@ -324,7 +431,9 @@ async function main() {
   if (!existsSync(ACTEURS_DIR)) {
     throw new Error(`Dossier acteurs introuvable : ${ACTEURS_DIR}`);
   }
-  const acteursFiles = readdirSync(ACTEURS_DIR).filter(f => f.endsWith(".json"));
+  const acteursFiles = readdirSync(ACTEURS_DIR).filter((f) =>
+    f.endsWith(".json"),
+  );
   log(`   ${acteursFiles.length} fichiers acteurs trouvés`);
 
   const deputes = [];
@@ -333,16 +442,18 @@ async function main() {
     const d = parseActeur(data, organesMap);
     if (d) deputes.push(d);
   }
-  deputes.sort((a, b) => a.nom_de_famille.localeCompare(b.nom_de_famille, "fr"));
+  deputes.sort((a, b) =>
+    a.nom_de_famille.localeCompare(b.nom_de_famille, "fr"),
+  );
   log(`   ✅ ${deputes.length} député·es parsés`);
 
   // Construire une map id_an → député (pour les votes)
-  const deputeById = new Map(deputes.map(d => [d.id_an, d]));
+  const deputeById = new Map(deputes.map((d) => [d.id_an, d]));
 
   writeFileSync(
     path.join(PUBLIC, "deputes-17.json"),
     JSON.stringify(deputes, null, 0),
-    "utf-8"
+    "utf-8",
   );
   log(`   💾 Sauvegardé : public/deputes-17.json`);
 
@@ -351,8 +462,9 @@ async function main() {
   if (!existsSync(SCRUTINS_DIR)) {
     throw new Error(`Dossier scrutins introuvable : ${SCRUTINS_DIR}`);
   }
-  const scrutinsFiles = readdirSync(SCRUTINS_DIR)
-    .filter(f => f.startsWith("VTANR") && f.endsWith(".json"));
+  const scrutinsFiles = readdirSync(SCRUTINS_DIR).filter(
+    (f) => f.startsWith("VTANR") && f.endsWith(".json"),
+  );
   log(`   ${scrutinsFiles.length} fichiers scrutins trouvés`);
 
   const scrutins = [];
@@ -386,7 +498,7 @@ async function main() {
       nombre_abstentions: s.nombre_abstentions,
       url_institution: s.url_institution,
       // Stats par groupe (sans nominatif)
-      groupes: s.groupes.map(g => ({
+      groupes: s.groupes.map((g) => ({
         organeRef: g.organeRef,
         nombreMembres: g.nombreMembres,
         positionMajoritaire: g.positionMajoritaire,
@@ -399,35 +511,68 @@ async function main() {
     scrutins.push(scrutinLight);
 
     // Votes nominatifs : index par acteur et par scrutin
-    const votesNominatifs = { pours: [], contres: [], abstentions: [], nonVotants: [] };
+    const votesNominatifs = {
+      pours: [],
+      contres: [],
+      abstentions: [],
+      nonVotants: [],
+    };
     for (const g of s.groupes) {
       const ref = g.organeRef;
       for (const v of g.pours || []) {
         if (v.acteurRef) {
-          votesNominatifs.pours.push({ acteurRef: v.acteurRef, organeRef: ref, parDelegation: v.parDelegation });
+          votesNominatifs.pours.push({
+            acteurRef: v.acteurRef,
+            organeRef: ref,
+            parDelegation: v.parDelegation,
+          });
           if (!votesByActeur[v.acteurRef]) votesByActeur[v.acteurRef] = [];
-          votesByActeur[v.acteurRef].push({ numero: s.numero, position: "pour" });
+          votesByActeur[v.acteurRef].push({
+            numero: s.numero,
+            position: "pour",
+          });
         }
       }
       for (const v of g.contres || []) {
         if (v.acteurRef) {
-          votesNominatifs.contres.push({ acteurRef: v.acteurRef, organeRef: ref, parDelegation: v.parDelegation });
+          votesNominatifs.contres.push({
+            acteurRef: v.acteurRef,
+            organeRef: ref,
+            parDelegation: v.parDelegation,
+          });
           if (!votesByActeur[v.acteurRef]) votesByActeur[v.acteurRef] = [];
-          votesByActeur[v.acteurRef].push({ numero: s.numero, position: "contre" });
+          votesByActeur[v.acteurRef].push({
+            numero: s.numero,
+            position: "contre",
+          });
         }
       }
       for (const v of g.abs || []) {
         if (v.acteurRef) {
-          votesNominatifs.abstentions.push({ acteurRef: v.acteurRef, organeRef: ref, parDelegation: v.parDelegation });
+          votesNominatifs.abstentions.push({
+            acteurRef: v.acteurRef,
+            organeRef: ref,
+            parDelegation: v.parDelegation,
+          });
           if (!votesByActeur[v.acteurRef]) votesByActeur[v.acteurRef] = [];
-          votesByActeur[v.acteurRef].push({ numero: s.numero, position: "abstention" });
+          votesByActeur[v.acteurRef].push({
+            numero: s.numero,
+            position: "abstention",
+          });
         }
       }
       for (const v of g.nv || []) {
         if (v.acteurRef) {
-          votesNominatifs.nonVotants.push({ acteurRef: v.acteurRef, organeRef: ref, parDelegation: v.parDelegation });
+          votesNominatifs.nonVotants.push({
+            acteurRef: v.acteurRef,
+            organeRef: ref,
+            parDelegation: v.parDelegation,
+          });
           if (!votesByActeur[v.acteurRef]) votesByActeur[v.acteurRef] = [];
-          votesByActeur[v.acteurRef].push({ numero: s.numero, position: "nonVotant" });
+          votesByActeur[v.acteurRef].push({
+            numero: s.numero,
+            position: "nonVotant",
+          });
         }
       }
     }
@@ -443,7 +588,7 @@ async function main() {
   writeFileSync(
     path.join(PUBLIC, "scrutins-17.json"),
     JSON.stringify(scrutins, null, 0),
-    "utf-8"
+    "utf-8",
   );
   log(`   💾 Sauvegardé : public/scrutins-17.json`);
 
@@ -464,20 +609,24 @@ async function main() {
     };
 
     votesIndex[numero] = {
-      pours: votes.pours.map(v => resolveDep(v.acteurRef, v.organeRef)),
-      contres: votes.contres.map(v => resolveDep(v.acteurRef, v.organeRef)),
-      abstentions: votes.abstentions.map(v => resolveDep(v.acteurRef, v.organeRef)),
-      nonVotants: votes.nonVotants.map(v => resolveDep(v.acteurRef, v.organeRef)),
+      pours: votes.pours.map((v) => resolveDep(v.acteurRef, v.organeRef)),
+      contres: votes.contres.map((v) => resolveDep(v.acteurRef, v.organeRef)),
+      abstentions: votes.abstentions.map((v) =>
+        resolveDep(v.acteurRef, v.organeRef),
+      ),
+      nonVotants: votes.nonVotants.map((v) =>
+        resolveDep(v.acteurRef, v.organeRef),
+      ),
     };
   }
 
   writeFileSync(
     path.join(PUBLIC, "votes-17.json"),
     JSON.stringify(votesIndex, null, 0),
-    "utf-8"
+    "utf-8",
   );
-  const votesFileSize = Math.round(
-    JSON.stringify(votesIndex).length / 1024 / 1024 * 10) / 10;
+  const votesFileSize =
+    Math.round((JSON.stringify(votesIndex).length / 1024 / 1024) * 10) / 10;
   log(`   💾 Sauvegardé : public/votes-17.json (${votesFileSize} MB)`);
 
   // ── 5. VOTES PAR DÉPUTÉ (index inverse) ──
@@ -486,30 +635,34 @@ async function main() {
   const votesDeputeDir = path.join(PUBLIC, "votes-depute");
   mkdirSync(votesDeputeDir, { recursive: true });
 
-  const scrutinsMap = new Map(scrutins.map(s => [s.numero, s]));
+  const scrutinsMap = new Map(scrutins.map((s) => [s.numero, s]));
   let exportedDeputeVotes = 0;
 
   for (const [acteurRef, votesArr] of Object.entries(votesByActeur)) {
-    const entries = votesArr.map(v => {
-      const s = scrutinsMap.get(v.numero);
-      return {
-        numero: v.numero,
-        position: v.position,
-        date: s?.date ?? "",
-        titre: s?.titre ?? "",
-        sort: s?.sort ?? "",
-        isAdopte: s?.isAdopte ?? false,
-      };
-    }).sort((a, b) => b.date.localeCompare(a.date));
+    const entries = votesArr
+      .map((v) => {
+        const s = scrutinsMap.get(v.numero);
+        return {
+          numero: v.numero,
+          position: v.position,
+          date: s?.date ?? "",
+          titre: s?.titre ?? "",
+          sort: s?.sort ?? "",
+          isAdopte: s?.isAdopte ?? false,
+        };
+      })
+      .sort((a, b) => b.date.localeCompare(a.date));
 
     writeFileSync(
       path.join(votesDeputeDir, `${acteurRef}.json`),
       JSON.stringify(entries, null, 0),
-      "utf-8"
+      "utf-8",
     );
     exportedDeputeVotes++;
   }
-  log(`   ✅ ${exportedDeputeVotes} fichiers votes générés dans public/votes-depute/`);
+  log(
+    `   ✅ ${exportedDeputeVotes} fichiers votes générés dans public/votes-depute/`,
+  );
 
   // ── 6. SITEMAP ──
   log("\n🗺️  Génération du sitemap.xml...");
@@ -520,15 +673,26 @@ async function main() {
     { loc: "/deputes", changefreq: "weekly", priority: "0.9" },
     { loc: "/scrutins", changefreq: "daily", priority: "0.9" },
     { loc: "/recherche", changefreq: "monthly", priority: "0.5" },
-  ].map(p => `  <url>\n    <loc>${SITE_URL}${p.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${p.changefreq}</changefreq>\n    <priority>${p.priority}</priority>\n  </url>`).join("\n");
+  ]
+    .map(
+      (p) =>
+        `  <url>\n    <loc>${SITE_URL}${p.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${p.changefreq}</changefreq>\n    <priority>${p.priority}</priority>\n  </url>`,
+    )
+    .join("\n");
 
   const deputeUrls = deputes
-    .map(d => `  <url>\n    <loc>${SITE_URL}/depute/${encodeURIComponent(d.slug)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>`)
+    .map(
+      (d) =>
+        `  <url>\n    <loc>${SITE_URL}/depute/${encodeURIComponent(d.slug)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>`,
+    )
     .join("\n");
 
   const scrutinUrls = scrutins
     .slice(0, 5000)
-    .map(s => `  <url>\n    <loc>${SITE_URL}/scrutin/${encodeURIComponent(s.numero)}</loc>\n    <lastmod>${s.date || today}</lastmod>\n    <changefreq>never</changefreq>\n    <priority>0.6</priority>\n  </url>`)
+    .map(
+      (s) =>
+        `  <url>\n    <loc>${SITE_URL}/scrutin/${encodeURIComponent(s.numero)}</loc>\n    <lastmod>${s.date || today}</lastmod>\n    <changefreq>never</changefreq>\n    <priority>0.6</priority>\n  </url>`,
+    )
     .join("\n");
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n\n  <!-- Pages principales -->\n${staticUrls}\n\n  <!-- Profils député·es -->\n${deputeUrls}\n\n  <!-- Scrutins -->\n${scrutinUrls}\n\n</urlset>`;
@@ -541,10 +705,18 @@ async function main() {
   log("\n╔══════════════════════════════════════════════════╗");
   log("║  ✅ Pipeline terminé avec succès !               ║");
   log("╠══════════════════════════════════════════════════╣");
-  log(`║  👤 ${String(deputes.length).padEnd(6)} député·es → deputes-17.json       ║`);
-  log(`║  🗳️  ${String(scrutins.length).padEnd(6)} scrutins  → scrutins-17.json      ║`);
-  log(`║  📋 ${String(exportedDeputeVotes).padEnd(6)} fichiers → votes-depute/          ║`);
-  log(`║  🗺️  ${String(urlCount).padEnd(6)} URLs     → sitemap.xml            ║`);
+  log(
+    `║  👤 ${String(deputes.length).padEnd(6)} député·es → deputes-17.json       ║`,
+  );
+  log(
+    `║  🗳️  ${String(scrutins.length).padEnd(6)} scrutins  → scrutins-17.json      ║`,
+  );
+  log(
+    `║  📋 ${String(exportedDeputeVotes).padEnd(6)} fichiers → votes-depute/          ║`,
+  );
+  log(
+    `║  🗺️  ${String(urlCount).padEnd(6)} URLs     → sitemap.xml            ║`,
+  );
   log("╚══════════════════════════════════════════════════╝");
   log("\n  ➡️  Prochaine étape : bun dev");
 }
@@ -554,7 +726,7 @@ function resolveGroupeSigle(organeRef, organesMap) {
   return organesMap[organeRef].sigle || "NI";
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error("❌ Erreur fatale :", err);
   process.exit(1);
 });

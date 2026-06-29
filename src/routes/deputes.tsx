@@ -5,7 +5,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import { allDeputesQuery, normalize, sanitizeSearchInput, GROUPES } from "@/lib/api";
+import {
+  allDeputesQuery,
+  normalize,
+  sanitizeSearchInput,
+  GROUPES,
+} from "@/lib/api";
 import { DeputeCard, DeputeCardSkeletonGrid } from "@/components/DeputeCard";
 import { SearchX } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
@@ -42,7 +47,8 @@ function DeputesPage() {
   const groupes = useMemo(() => {
     const map = new Map<string, number>();
     deputes.forEach((d) => {
-      if (d.groupe_sigle) map.set(d.groupe_sigle, (map.get(d.groupe_sigle) ?? 0) + 1);
+      if (d.groupe_sigle)
+        map.set(d.groupe_sigle, (map.get(d.groupe_sigle) ?? 0) + 1);
     });
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
   }, [deputes]);
@@ -63,7 +69,7 @@ function DeputesPage() {
       if (
         n &&
         !normalize(
-          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.num_deptmt}`
+          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.num_deptmt}`,
         ).includes(n)
       )
         return false;
@@ -73,10 +79,13 @@ function DeputesPage() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const slice = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const slice = filtered.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE,
+  );
 
   const setFilter = (
-    patch: Partial<{ q: string; groupe: string; dept: string; page: number }>
+    patch: Partial<{ q: string; groupe: string; dept: string; page: number }>,
   ) =>
     navigate({
       search: (prev: z.infer<typeof searchSchema>) => ({
@@ -95,13 +104,16 @@ function DeputesPage() {
         <h1 className="font-display text-4xl md:text-5xl mb-2">Député·es</h1>
         <p className="text-muted-foreground">
           {filtered.length.toLocaleString("fr-FR")} résultat
-          {filtered.length > 1 ? "s" : ""} sur{" "}
-          {deputes.length} député·es · XVIIe législature
+          {filtered.length > 1 ? "s" : ""} sur {deputes.length} député·es ·
+          XVIIe législature
         </p>
       </div>
 
       {/* Recherche */}
-      <div className="space-y-4 mb-8 animate-fade-up" style={{ animationDelay: "60ms" }}>
+      <div
+        className="space-y-4 mb-8 animate-fade-up"
+        style={{ animationDelay: "60ms" }}
+      >
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -111,8 +123,16 @@ function DeputesPage() {
           role="search"
         >
           <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
-            <svg className="w-4 h-4 text-muted-foreground shrink-0 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" strokeLinecap="round" />
+            <svg
+              className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" strokeLinecap="round" />
             </svg>
             <input
               value={search}
@@ -204,8 +224,14 @@ function DeputesPage() {
       {/* Résultats */}
       {slice.length === 0 ? (
         <div className="py-16 text-center glass rounded-3xl border border-border/50">
-          <SearchX className="w-10 h-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.5} aria-hidden="true" />
-          <p className="text-muted-foreground">Aucun·e député·e ne correspond à ces critères.</p>
+          <SearchX
+            className="w-10 h-10 mx-auto mb-3 text-muted-foreground"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
+          <p className="text-muted-foreground">
+            Aucun·e député·e ne correspond à ces critères.
+          </p>
           {hasFilters && (
             <button
               onClick={() => {
@@ -244,7 +270,10 @@ function DeputesPage() {
           <div className="flex items-center gap-1">
             {buildPageRange(safePage, totalPages).map((p, i) =>
               p === "…" ? (
-                <span key={`ellipsis-${i}`} className="px-2 text-muted-foreground text-sm">
+                <span
+                  key={`ellipsis-${i}`}
+                  className="px-2 text-muted-foreground text-sm"
+                >
                   …
                 </span>
               ) : (
@@ -260,12 +289,14 @@ function DeputesPage() {
                 >
                   {p}
                 </button>
-              )
+              ),
             )}
           </div>
 
           <button
-            onClick={() => setFilter({ page: Math.min(totalPages, safePage + 1) })}
+            onClick={() =>
+              setFilter({ page: Math.min(totalPages, safePage + 1) })
+            }
             disabled={safePage >= totalPages}
             className="px-4 py-2 rounded-xl glass border border-border/50 text-sm disabled:opacity-40 hover:border-primary/30 transition-colors"
           >
@@ -289,7 +320,12 @@ function buildPageRange(current: number, total: number): (number | "…")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
   const pages: (number | "…")[] = [1];
   if (current > 3) pages.push("…");
-  for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) pages.push(p);
+  for (
+    let p = Math.max(2, current - 1);
+    p <= Math.min(total - 1, current + 1);
+    p++
+  )
+    pages.push(p);
   if (current < total - 2) pages.push("…");
   pages.push(total);
   return pages;

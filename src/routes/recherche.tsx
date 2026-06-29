@@ -5,7 +5,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import { allDeputesQuery, scrutinsQuery, normalize, sanitizeSearchInput } from "@/lib/api";
+import {
+  allDeputesQuery,
+  scrutinsQuery,
+  normalize,
+  sanitizeSearchInput,
+} from "@/lib/api";
 import { DeputeCard } from "@/components/DeputeCard";
 import { createSeoMeta, SITE_URL } from "./__root";
 
@@ -44,8 +49,8 @@ function SearchPage() {
     const ds = deputes
       .filter((d) =>
         normalize(
-          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.num_deptmt} ${d.groupe_sigle}`
-        ).includes(n)
+          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.num_deptmt} ${d.groupe_sigle}`,
+        ).includes(n),
       )
       .slice(0, 24);
     const ss = scrutins
@@ -81,8 +86,16 @@ function SearchPage() {
         role="search"
       >
         <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
-          <svg className="w-5 h-5 text-muted-foreground shrink-0 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" strokeLinecap="round" />
+          <svg
+            className="w-5 h-5 text-muted-foreground shrink-0 mr-3"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" strokeLinecap="round" />
           </svg>
           <input
             autoFocus
@@ -104,9 +117,17 @@ function SearchPage() {
               className="text-muted-foreground hover:text-foreground transition-colors ml-2"
               aria-label="Effacer la recherche"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <line x1="18" y1="6" x2="6" y2="18" strokeLinecap="round"/>
-                <line x1="6" y1="6" x2="18" y2="18" strokeLinecap="round"/>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" strokeLinecap="round" />
+                <line x1="6" y1="6" x2="18" y2="18" strokeLinecap="round" />
               </svg>
             </button>
           )}
@@ -122,7 +143,9 @@ function SearchPage() {
       {/* État vide */}
       {!q && (
         <div className="py-16 text-center animate-scale-in">
-          <div className="text-5xl mb-4" aria-hidden="true">🔍</div>
+          <div className="text-5xl mb-4" aria-hidden="true">
+            🔍
+          </div>
           <p className="text-muted-foreground text-lg mb-2">
             Que cherchez-vous ?
           </p>
@@ -142,7 +165,7 @@ function SearchPage() {
                 >
                   {term}
                 </button>
-              )
+              ),
             )}
           </div>
         </div>
@@ -151,7 +174,9 @@ function SearchPage() {
       {/* Aucun résultat */}
       {q && results && total === 0 && (
         <div className="py-16 text-center animate-scale-in">
-          <div className="text-5xl mb-4" aria-hidden="true">📭</div>
+          <div className="text-5xl mb-4" aria-hidden="true">
+            📭
+          </div>
           <p className="text-muted-foreground text-lg">
             Aucun résultat pour «{" "}
             <strong className="text-foreground">{q}</strong> »
@@ -167,7 +192,10 @@ function SearchPage() {
         <div className="space-y-12">
           {/* Député·es */}
           {results.ds.length > 0 && (
-            <section aria-labelledby="deputes-heading" className="animate-fade-up">
+            <section
+              aria-labelledby="deputes-heading"
+              className="animate-fade-up"
+            >
               <div className="flex items-end justify-between mb-4">
                 <h2 id="deputes-heading" className="font-display text-2xl">
                   Député·es{" "}
@@ -182,7 +210,18 @@ function SearchPage() {
                     className="text-sm text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 group"
                   >
                     Tous les résultats
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-transform group-hover:translate-x-0.5"
+                      aria-hidden="true"
+                    >
                       <path d="m9 18 6-6-6-6" />
                     </svg>
                   </Link>
@@ -198,7 +237,11 @@ function SearchPage() {
 
           {/* Scrutins */}
           {results.ss.length > 0 && (
-            <section aria-labelledby="scrutins-heading" className="animate-fade-up" style={{ animationDelay: "100ms" }}>
+            <section
+              aria-labelledby="scrutins-heading"
+              className="animate-fade-up"
+              style={{ animationDelay: "100ms" }}
+            >
               <div className="flex items-end justify-between mb-4">
                 <h2 id="scrutins-heading" className="font-display text-2xl">
                   Scrutins{" "}
@@ -213,14 +256,28 @@ function SearchPage() {
                     className="text-sm text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 group"
                   >
                     Tous les résultats
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-transform group-hover:translate-x-0.5"
+                      aria-hidden="true"
+                    >
                       <path d="m9 18 6-6-6-6" />
                     </svg>
                   </Link>
                 )}
               </div>
 
-              <ul className="space-y-2 animate-stagger" aria-label="Scrutins correspondants">
+              <ul
+                className="space-y-2 animate-stagger"
+                aria-label="Scrutins correspondants"
+              >
                 {results.ss.map((s, i) => {
                   const isAdopted = /adopt/i.test(s.sort);
                   return (

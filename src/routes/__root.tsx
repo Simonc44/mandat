@@ -15,6 +15,7 @@ import { Landmark, AlertTriangle, Home, RotateCcw } from "lucide-react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header, Footer, CookieBanner } from "../components/Header";
+import { PWAInstallPrompt } from "../components/PWAInstallPrompt";
 
 // ─── CONSTANTES ──────────────────────────────────────────────────────────────
 
@@ -27,14 +28,21 @@ export const KEYWORDS = [
   "Assemblée nationale",
   "scrutin",
   "députés",
-  "transparence",
-  "politique",
-  "opendata",
+  "député",
+  "élus",
+  "transparence politique",
+  "politique française",
+  "open data",
   "17e législature",
   "CLAIR",
   "CIVIX",
   "élu",
   "mandat",
+  "lois",
+  "amendements",
+  "qui a voté quoi",
+  "démocratie citoyenne",
+  "engagement civique",
 ];
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
@@ -64,9 +72,17 @@ export function createSeoMeta(config: SeoConfig) {
     { title: config.title },
     { name: "description", content: config.description },
     { name: "author", content: config.author ?? SITE_NAME },
-    { name: "robots", content: "index, follow" },
+    {
+      name: "robots",
+      content:
+        "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+    },
     { name: "theme-color", content: "#5B4FCF" },
     { name: "keywords", content: keywords.join(", ") },
+    { name: "application-name", content: SITE_NAME },
+    { name: "apple-mobile-web-app-title", content: SITE_NAME },
+    { name: "apple-mobile-web-app-capable", content: "yes" },
+    { name: "apple-mobile-web-app-status-bar-style", content: "default" },
 
     // Open Graph
     { property: "og:site_name", content: SITE_NAME },
@@ -96,7 +112,9 @@ export function createSeoMeta(config: SeoConfig) {
   ];
 }
 
-export function createBreadcrumbSchema(breadcrumbs: Array<{ name: string; url: string }>) {
+export function createBreadcrumbSchema(
+  breadcrumbs: Array<{ name: string; url: string }>,
+) {
   return JSON.stringify({
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -147,7 +165,11 @@ export function createVoteEventSchema(vote: any) {
 function NotFoundComponent() {
   return (
     <div className="container-app py-24 text-center animate-fade-up">
-      <Landmark className="w-14 h-14 mx-auto mb-4 text-primary/60" strokeWidth={1.4} aria-hidden="true" />
+      <Landmark
+        className="w-14 h-14 mx-auto mb-4 text-primary/60"
+        strokeWidth={1.4}
+        aria-hidden="true"
+      />
       <h1 className="font-display text-6xl mb-3 tracking-tight">404</h1>
       <p className="text-muted-foreground mb-8">
         Cette page n'existe pas ou a été déplacée.
@@ -170,14 +192,23 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
   return (
     <div className="container-app py-24 text-center animate-fade-up">
-      <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-destructive/70" strokeWidth={1.5} aria-hidden="true" />
-      <h1 className="font-display text-3xl mb-3 tracking-tight">Cette page n'a pas chargé</h1>
+      <AlertTriangle
+        className="w-12 h-12 mx-auto mb-4 text-destructive/70"
+        strokeWidth={1.5}
+        aria-hidden="true"
+      />
+      <h1 className="font-display text-3xl mb-3 tracking-tight">
+        Cette page n'a pas chargé
+      </h1>
       <p className="text-sm text-muted-foreground mb-8">
         Les données n'ont pas pu être récupérées. Vérifiez votre connexion.
       </p>
       <div className="flex justify-center gap-3">
         <button
-          onClick={() => { router.invalidate(); reset(); }}
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
           className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-medium"
         >
           <RotateCcw className="w-4 h-4" aria-hidden="true" /> Réessayer
@@ -195,32 +226,38 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 // ─── ROOT ROUTE ───────────────────────────────────────────────────────────────
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: createSeoMeta({
-      title: `${SITE_NAME} — Qui a voté quoi, et pourquoi`,
-      description: SITE_DESCRIPTION,
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
+  {
+    head: () => ({
+      meta: createSeoMeta({
+        title: `${SITE_NAME} — Qui a voté quoi, et pourquoi`,
+        description: SITE_DESCRIPTION,
+      }),
+      links: [
+        { rel: "canonical", href: SITE_URL },
+        { rel: "stylesheet", href: appCss },
+        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+        { rel: "apple-touch-icon", href: "/favicon.svg" },
+        { rel: "manifest", href: "/manifest.json" },
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        {
+          rel: "preconnect",
+          href: "https://fonts.gstatic.com",
+          crossOrigin: "anonymous",
+        },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700&family=Inter:wght@300;400;500;600;700&display=swap",
+        },
+        { rel: "alternate", hrefLang: "fr-FR", href: SITE_URL },
+      ],
     }),
-    links: [
-      { rel: "canonical", href: SITE_URL },
-      { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-      { rel: "apple-touch-icon", href: "/favicon.svg" },
-      { rel: "manifest", href: "/manifest.json" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700&family=Inter:wght@300;400;500;600;700&display=swap",
-      },
-      { rel: "alternate", hrefLang: "fr-FR", href: SITE_URL },
-    ],
-  }),
-  shellComponent: RootShell,
-  component: RootComponent,
-  notFoundComponent: NotFoundComponent,
-  errorComponent: ErrorComponent,
-});
+    shellComponent: RootShell,
+    component: RootComponent,
+    notFoundComponent: NotFoundComponent,
+    errorComponent: ErrorComponent,
+  },
+);
 
 // ─── SHELL & COMPONENT ───────────────────────────────────────────────────────
 
@@ -310,6 +347,8 @@ function RootComponent() {
         <Footer />
         {/* Cookie Banner RGPD */}
         <CookieBanner />
+        {/* Notification installation PWA */}
+        <PWAInstallPrompt />
       </div>
     </QueryClientProvider>
   );

@@ -9,14 +9,18 @@ import type { Depute, Scrutin } from "./api";
 export const getDeputesFromDb = createServerFn({ method: "GET" }).handler(
   async (): Promise<Depute[]> => {
     const c = tursoClient();
-    const r = await c.execute(`SELECT * FROM deputes ORDER BY nom_de_famille COLLATE NOCASE`);
+    const r = await c.execute(
+      `SELECT * FROM deputes ORDER BY nom_de_famille COLLATE NOCASE`,
+    );
     return r.rows.map((row): Depute => ({
       id: String(row.id ?? ""),
       id_an: String(row.id_an ?? ""),
       slug: String(row.slug ?? ""),
       prenom: String(row.prenom ?? ""),
       nom_de_famille: String(row.nom_de_famille ?? ""),
-      nom: String(row.nom ?? `${row.prenom ?? ""} ${row.nom_de_famille ?? ""}`.trim()),
+      nom: String(
+        row.nom ?? `${row.prenom ?? ""} ${row.nom_de_famille ?? ""}`.trim(),
+      ),
       sexe: (row.sexe === "F" ? "F" : "H") as "H" | "F",
       date_naissance: String(row.date_naissance ?? ""),
       lieu_naissance: String(row.lieu_naissance ?? ""),
@@ -33,7 +37,7 @@ export const getDeputesFromDb = createServerFn({ method: "GET" }).handler(
       url_an: String(row.url_an ?? ""),
       twitter: row.twitter ? String(row.twitter) : undefined,
     }));
-  }
+  },
 );
 
 export const getScrutinsFromDb = createServerFn({ method: "GET" }).handler(
@@ -42,7 +46,11 @@ export const getScrutinsFromDb = createServerFn({ method: "GET" }).handler(
     const r = await c.execute(`SELECT * FROM scrutins ORDER BY date DESC`);
     return r.rows.map((row): Scrutin => {
       let groupes: Scrutin["groupes"] = [];
-      try { if (row.groupes_json) groupes = JSON.parse(String(row.groupes_json)); } catch { /* ignore */ }
+      try {
+        if (row.groupes_json) groupes = JSON.parse(String(row.groupes_json));
+      } catch {
+        /* ignore */
+      }
       return {
         numero: String(row.numero ?? ""),
         uid: row.uid ? String(row.uid) : undefined,
@@ -62,5 +70,5 @@ export const getScrutinsFromDb = createServerFn({ method: "GET" }).handler(
         groupes,
       };
     });
-  }
+  },
 );
