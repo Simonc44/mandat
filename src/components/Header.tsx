@@ -4,9 +4,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 
-const STRIPE_LINK = "https://buy.stripe.com/VOTRE_LIEN_STRIPE"; // ← Remplacez par votre vrai lien
-const RECYCLIVRE_LINK =
-  "https://www.recyclivre.com/products/1244049-l-assemblee-nationale";
 
 // ═══════════════════════════════════════════════════════════
 // HEADER STICKY — Liquid Glass
@@ -90,40 +87,7 @@ export function Header() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// SUPPORT WIDGET — Stripe
-// ═══════════════════════════════════════════════════════════
 
-function SupportWidget() {
-  return (
-    <a
-      href={STRIPE_LINK}
-      target="_blank"
-      rel="noreferrer noopener"
-      aria-label="Soutenir le projet Mandat"
-      className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm transition-all"
-    >
-      <HeartIcon />
-      Soutenir le projet
-    </a>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      className="animate-float"
-      style={{ "--duration": "2s" } as React.CSSProperties}
-    >
-      <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" />
-    </svg>
-  );
-}
 
 // ═══════════════════════════════════════════════════════════
 // COOKIE BANNER RGPD — Liquid Glass
