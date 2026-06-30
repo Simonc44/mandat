@@ -14,6 +14,13 @@ import {
 } from "@/lib/api";
 
 import { DeputeCard, DeputeCardSkeletonGrid } from "@/components/DeputeCard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SearchX, Download, Map as MapIcon } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
 import { toPng } from "html-to-image";
@@ -205,23 +212,30 @@ function DeputesPage() {
         </div>
 
         {/* Filtre département */}
-        <div>
-          <label htmlFor="dept-select" className="sr-only">
-            Filtrer par département
-          </label>
-          <select
-            id="dept-select"
-            value={dept}
-            onChange={(e) => setFilter({ dept: e.target.value })}
-            className="px-4 py-2.5 rounded-full glass border border-border/50 text-sm bg-transparent focus:outline-none focus:border-primary/50"
+        <div className="w-full sm:w-72">
+          <Select
+            value={dept || "all"}
+            onValueChange={(v) => setFilter({ dept: v === "all" ? "" : v })}
           >
-            <option value="">Tous les départements</option>
-            {departments.map(([num, nom]) => (
-              <option key={num} value={num}>
-                {num} — {nom}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="h-auto py-2.5 px-6 rounded-full glass border-border/50 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+              <SelectValue placeholder="Tous les départements" />
+            </SelectTrigger>
+            <SelectContent className="glass-strong border-border/40 rounded-2xl overflow-hidden shadow-2xl">
+              <SelectItem value="all">Tous les départements</SelectItem>
+              {departments.map(([num, nom]) => (
+                <SelectItem
+                  key={num}
+                  value={num}
+                  className="rounded-xl mx-1 my-0.5"
+                >
+                  <span className="font-mono bg-muted/50 px-1.5 py-0.5 rounded text-[10px] mr-2">
+                    {num}
+                  </span>
+                  {nom}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

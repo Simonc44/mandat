@@ -14,6 +14,7 @@ import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as Legislature16RouteImport } from './routes/legislature-16'
 import { Route as DeputesRouteImport } from './routes/deputes'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
+import { Route as CommencerRouteImport } from './routes/commencer'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ScrutinNumeroRouteImport } from './routes/scrutin.$numero'
 import { Route as DeputeSlugRouteImport } from './routes/depute.$slug'
@@ -44,6 +45,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
   path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommencerRoute = CommencerRouteImport.update({
+  id: '/commencer',
+  path: '/commencer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -67,6 +73,7 @@ const ApiVisitsRoute = ApiVisitsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/commencer': typeof CommencerRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
   '/legislature-16': typeof Legislature16Route
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/commencer': typeof CommencerRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
   '/legislature-16': typeof Legislature16Route
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/commencer': typeof CommencerRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
   '/legislature-16': typeof Legislature16Route
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/commencer'
     | '/confidentialite'
     | '/deputes'
     | '/legislature-16'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/commencer'
     | '/confidentialite'
     | '/deputes'
     | '/legislature-16'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/commencer'
     | '/confidentialite'
     | '/deputes'
     | '/legislature-16'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CommencerRoute: typeof CommencerRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   DeputesRoute: typeof DeputesRoute
   Legislature16Route: typeof Legislature16Route
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/commencer': {
+      id: '/commencer'
+      path: '/commencer'
+      fullPath: '/commencer'
+      preLoaderRoute: typeof CommencerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -217,6 +237,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CommencerRoute: CommencerRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   DeputesRoute: DeputesRoute,
   Legislature16Route: Legislature16Route,

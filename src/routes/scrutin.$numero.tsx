@@ -689,13 +689,18 @@ function ResultCell({
         backgroundColor: `color-mix(in oklch, ${color} 6%, transparent)`,
       }}
     >
-      <div className="font-display text-3xl md:text-4xl mb-2 font-bold" style={{ color }}>
+      <div
+        className="font-display text-3xl md:text-4xl mb-2 font-bold"
+        style={{ color }}
+      >
         {value.toLocaleString("fr-FR")}
       </div>
       <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
         {label}
       </div>
-      <div className="text-xs font-medium text-muted-foreground mt-1">{pct}%</div>
+      <div className="text-xs font-medium text-muted-foreground mt-1">
+        {pct}%
+      </div>
     </div>
   );
 }

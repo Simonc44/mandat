@@ -57,7 +57,7 @@ function Home() {
   return (
     <div>
       {/* ── HERO LIQUID GLASS ── */}
-      <section className="relative min-h-[60vh] flex items-center">
+      <section className="relative z-20 min-h-[60vh] flex items-center">
         {/* Orbes de fond animés */}
         <div
           className="absolute inset-0 -z-10 pointer-events-none overflow-hidden"
@@ -147,7 +147,7 @@ function Home() {
       </section>
 
       {/* ── DERNIERS SCRUTINS (mis en avant) ── */}
-      <section className="container-app pb-16 pt-4">
+      <section className="container-app pb-16 pt-4 relative z-10 -mt-8 md:-mt-12">
         <ScrollScene variant="rise">
           <div className="flex items-end justify-between mb-8 mt-2" data-rise>
             <div>
