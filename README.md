@@ -2,11 +2,11 @@
 
 > **Qui a voté quoi, et pourquoi.** Le moteur de recherche citoyen des votes de l'Assemblée nationale — 17e législature.
 
-🔗 **Production** : https://mandat-fr.vercel.app
+**Production** : https://mandat-fr.vercel.app
 
 ---
 
-## 🚀 Installation & Développement
+## Installation & Développement
 
 Le projet utilise **TanStack Start** (React + Vite + TanStack Router) et **pnpm**.
 
@@ -32,7 +32,7 @@ pnpm dev
 
 ---
 
-## 🛠️ Stack Technique
+## Stack Technique
 
 - **Framework** : [TanStack Start](https://tanstack.com/start) (React 18)
 - **Routage & State** : [TanStack Router](https://tanstack.com/router)
@@ -43,7 +43,7 @@ pnpm dev
 
 ---
 
-## 💡 Logique interne
+## Logique interne
 
 ### Système de Fallback des Photos
 Pour garantir qu'aucun député ne se retrouve sans visage, Mandat utilise une cascade de 4 niveaux :
@@ -57,7 +57,7 @@ La visualisation par département utilise un cartogramme hexagonal compact. Chaq
 
 ---
 
-## ✅ Fonctionnalités clés
+## Fonctionnalités clés
 
 - **Recherche Instantanée** : Filtres croisés par groupe, département et nom.
 - **Transparence des Votes** : Détail nominatif de chaque scrutin avec recalcul automatique des totaux.
