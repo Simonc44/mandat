@@ -1,4 +1,7 @@
-# 🏛️ Mandat — Transparence citoyenne
+<h1>
+  <img src="https://mandat-fr.vercel.app/favicon.ico" alt="Logo" style={{ width: '24px', marginRight: '8px' }} />
+  Mandat — Transparence citoyenne
+</h1>
 
 > **Qui a voté quoi, et pourquoi.** Le moteur de recherche citoyen des votes de l'Assemblée nationale — 17e législature.
 
