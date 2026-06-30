@@ -23,7 +23,7 @@ export const getDeputes16 = createServerFn({ method: "GET" }).handler(
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 20_000);
     try {
-      const r = await fetch("https://2022-2024.nosdeputes.fr/deputes/json", {
+      const r = await fetch("https://www.nosdeputes.fr/deputes/json", {
         signal: ctrl.signal,
         headers: { Accept: "application/json" },
       });
@@ -39,10 +39,16 @@ export const getDeputes16 = createServerFn({ method: "GET" }).handler(
         if (!d) continue;
         const prenom = String(d.prenom ?? "").slice(0, 100);
         const nom = String(d.nom_de_famille ?? d.nom ?? "").slice(0, 100);
-        const slug = String(d.slug ?? "").replace(/[^a-z0-9-]/gi, "").slice(0, 100);
-        const groupeNom = String(d.groupe_sigle ?? d.parti_ratt_financier ?? "NI");
+        const slug = String(d.slug ?? "")
+          .replace(/[^a-z0-9-]/gi, "")
+          .slice(0, 100);
+        const groupeNom = String(
+          d.groupe_sigle ?? d.parti_ratt_financier ?? "NI",
+        );
         out.push({
-          id_an: String(d.id_an ?? "").replace(/[^A-Z0-9]/g, "").slice(0, 20),
+          id_an: String(d.id_an ?? "")
+            .replace(/[^A-Z0-9]/g, "")
+            .slice(0, 20),
           slug,
           nom: `${prenom} ${nom}`.trim(),
           prenom,
@@ -54,7 +60,7 @@ export const getDeputes16 = createServerFn({ method: "GET" }).handler(
           num_circo: parseInt(String(d.num_circo ?? "0"), 10) || 0,
           sexe: d.sexe === "F" ? "F" : "H",
           url_an: String(d.url_an ?? "").slice(0, 300),
-          photo: `https://2022-2024.nosdeputes.fr/depute/photo/${slug}/220`,
+          photo: `https://www.nosdeputes.fr/depute/photo/${slug}/220`,
         });
       }
       return out.sort((a, b) =>

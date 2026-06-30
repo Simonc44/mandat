@@ -76,69 +76,73 @@ function SearchPage() {
       </div>
 
       {/* Barre */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          navigate({ search: { q: sanitizeSearchInput(input.trim()) } });
-        }}
-        className="flex gap-2 mb-10 max-w-3xl animate-fade-up"
+      <div
+        className="sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 bg-background/95 backdrop-blur-md border-b border-border/20 mb-10 animate-fade-up"
         style={{ animationDelay: "60ms" }}
-        role="search"
       >
-        <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
-          <svg
-            className="w-5 h-5 text-muted-foreground shrink-0 mr-3"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="7" />
-            <path d="m20 20-3.5-3.5" strokeLinecap="round" />
-          </svg>
-          <input
-            autoFocus
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Nom d'un·e député·e, mot-clé d'un texte de loi…"
-            className="flex-1 py-4 bg-transparent outline-none placeholder:text-muted-foreground"
-            maxLength={150}
-            autoComplete="off"
-            spellCheck="false"
-          />
-          {input && (
-            <button
-              type="button"
-              onClick={() => {
-                setInput("");
-                navigate({ search: { q: "" } });
-              }}
-              className="text-muted-foreground hover:text-foreground transition-colors ml-2"
-              aria-label="Effacer la recherche"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                aria-hidden="true"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" strokeLinecap="round" />
-                <line x1="6" y1="6" x2="18" y2="18" strokeLinecap="round" />
-              </svg>
-            </button>
-          )}
-        </div>
-        <button
-          type="submit"
-          className="btn-primary px-6 py-3 rounded-2xl text-sm font-medium"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            navigate({ search: { q: sanitizeSearchInput(input.trim()) } });
+          }}
+          className="flex gap-2 max-w-3xl"
+          role="search"
         >
-          Rechercher
-        </button>
-      </form>
+          <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
+            <svg
+              className="w-5 h-5 text-muted-foreground shrink-0 mr-3"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" strokeLinecap="round" />
+            </svg>
+            <input
+              autoFocus
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Nom d'un·e député·e, mot-clé d'un texte de loi…"
+              className="flex-1 py-4 bg-transparent outline-none placeholder:text-muted-foreground"
+              maxLength={150}
+              autoComplete="off"
+              spellCheck="false"
+            />
+            {input && (
+              <button
+                type="button"
+                onClick={() => {
+                  setInput("");
+                  navigate({ search: { q: "" } });
+                }}
+                className="text-muted-foreground hover:text-foreground transition-colors ml-2"
+                aria-label="Effacer la recherche"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" strokeLinecap="round" />
+                  <line x1="6" y1="6" x2="18" y2="18" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
+          </div>
+          <button
+            type="submit"
+            className="btn-primary px-6 py-3 rounded-2xl text-sm font-medium"
+          >
+            Rechercher
+          </button>
+        </form>
+      </div>
 
       {/* État vide */}
       {!q && (

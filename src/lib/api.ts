@@ -261,7 +261,6 @@ function recomputeAdoption(s: Scrutin): Scrutin {
 
 // ─── NORMALISATION ───────────────────────────────────────────────────────────
 
-
 function slugify(prenom: string, nom: string): string {
   return `${prenom}-${nom}`
     .toLowerCase()
@@ -530,14 +529,16 @@ export const scrutinsQuery = queryOptions({
     try {
       const rows = await getScrutinsFromDb();
       if (Array.isArray(rows) && rows.length > 0) {
-        return rows.map((s) => recomputeAdoption({
-          ...s,
-          titre: sanitizeText(s.titre, MAX_TITLE),
-          sort: sanitizeText(s.sort, 100),
-          type: sanitizeText(s.type, 100),
-          dossier: sanitizeText(s.dossier ?? "", 200),
-          demandeur: sanitizeText(s.demandeur ?? "", 200),
-        }));
+        return rows.map((s) =>
+          recomputeAdoption({
+            ...s,
+            titre: sanitizeText(s.titre, MAX_TITLE),
+            sort: sanitizeText(s.sort, 100),
+            type: sanitizeText(s.type, 100),
+            dossier: sanitizeText(s.dossier ?? "", 200),
+            demandeur: sanitizeText(s.demandeur ?? "", 200),
+          }),
+        );
       }
     } catch {
       /* fallback */
@@ -548,19 +549,20 @@ export const scrutinsQuery = queryOptions({
       const data = await fetchLocal<Scrutin[]>("/scrutins-17.json");
       if (Array.isArray(data) && data.length > 0) {
         return data
-          .map((s) => recomputeAdoption({
-            ...s,
-            numero: sanitizeNumero(s.numero) || s.numero,
-            titre: sanitizeText(s.titre, MAX_TITLE),
-            sort: sanitizeText(s.sort, 100),
-            type: sanitizeText(s.type, 100),
-            dossier: sanitizeText(s.dossier ?? "", 200),
-            demandeur: sanitizeText(s.demandeur ?? "", 200),
-          }))
+          .map((s) =>
+            recomputeAdoption({
+              ...s,
+              numero: sanitizeNumero(s.numero) || s.numero,
+              titre: sanitizeText(s.titre, MAX_TITLE),
+              sort: sanitizeText(s.sort, 100),
+              type: sanitizeText(s.type, 100),
+              dossier: sanitizeText(s.dossier ?? "", 200),
+              demandeur: sanitizeText(s.demandeur ?? "", 200),
+            }),
+          )
           .sort((a, b) => b.date.localeCompare(a.date));
       }
     } catch {}
-
 
     // ② CLAIR
     try {

@@ -32,8 +32,7 @@ export const Route = createFileRoute("/legislature-16")({
     }),
   }),
   validateSearch: zodValidator(searchSchema),
-  loader: ({ context }) =>
-    context.queryClient.ensureQueryData(deputes16Query),
+  loader: ({ context }) => context.queryClient.ensureQueryData(deputes16Query),
   component: Legislature16Page,
 });
 
@@ -92,77 +91,92 @@ function Legislature16Page() {
         </p>
       </div>
 
-      {/* Recherche */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          navigate({
-            search: (p: { q: string; groupe: string }) => ({ ...p, q: sanitizeSearchInput(search) }),
-          });
-        }}
-        className="flex gap-2 mb-4"
-        role="search"
-      >
-        <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
-          <svg
-            className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="7" />
-            <path d="m20 20-3.5-3.5" strokeLinecap="round" />
-          </svg>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Nom, prénom, circonscription…"
-            className="flex-1 py-3 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
-            maxLength={150}
-          />
-        </div>
-        <button
-          type="submit"
-          className="btn-primary px-5 py-3 rounded-2xl text-sm font-medium"
+      {/* Recherche et Filtres */}
+      <div className="sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 bg-background/95 backdrop-blur-md border-b border-border/20 mb-8 space-y-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            navigate({
+              search: (p) => ({
+                ...p,
+                q: sanitizeSearchInput(search),
+              }),
+            });
+          }}
+          className="flex gap-2"
+          role="search"
         >
-          Chercher
-        </button>
-      </form>
-
-      {/* Filtres groupes — noms complets */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        <button
-          onClick={() =>
-            navigate({ search: (p: { q: string; groupe: string }) => ({ ...p, groupe: "" }) })
-          }
-          aria-pressed={!groupe}
-          className={chip(!groupe)}
-        >
-          Tous les groupes
-        </button>
-        {groupes.map(([sig, n]) => {
-          const g = groupeMeta(sig);
-          return (
-            <button
-              key={sig}
-              onClick={() =>
-                navigate({ search: (p: { q: string; groupe: string }) => ({ ...p, groupe: sig }) })
-              }
-              aria-pressed={groupe === sig}
-              className={chip(groupe === sig)}
+          <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
+            <svg
+              className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
             >
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: g.couleur }}
-                aria-hidden="true"
-              />
-              {g.nom}
-              <span className="opacity-50">· {n}</span>
-            </button>
-          );
-        })}
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" strokeLinecap="round" />
+            </svg>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Nom, prénom, circonscription…"
+              className="flex-1 py-3 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
+              maxLength={150}
+            />
+          </div>
+          <button
+            type="submit"
+            className="btn-primary px-5 py-3 rounded-2xl text-sm font-medium"
+          >
+            Chercher
+          </button>
+        </form>
+
+        {/* Filtres groupes — noms complets */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() =>
+              navigate({
+                search: (p) => ({
+                  ...p,
+                  groupe: "",
+                }),
+              })
+            }
+            aria-pressed={!groupe}
+            className={chip(!groupe)}
+          >
+            Tous les groupes
+          </button>
+          {groupes.map(([sig, n]) => {
+            const g = groupeMeta(sig);
+            return (
+              <button
+                key={sig}
+                onClick={() =>
+                  navigate({
+                    search: (p) => ({
+                      ...p,
+                      groupe: sig,
+                    }),
+                  })
+                }
+                aria-pressed={groupe === sig}
+                className={chip(groupe === sig)}
+              >
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: g.couleur }}
+                  aria-hidden="true"
+                />
+                {g.nom}
+                <span className="opacity-50">· {n}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <p className="text-sm text-muted-foreground mb-4">

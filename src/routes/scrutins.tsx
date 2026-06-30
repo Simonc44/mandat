@@ -53,7 +53,7 @@ function ScrutinsPage() {
   }, [scrutins, q, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages);
+  const safePage = Math.min(page > totalPages ? totalPages : page, totalPages);
   const slice = filtered.slice(
     (safePage - 1) * PAGE_SIZE,
     safePage * PAGE_SIZE,
@@ -67,7 +67,7 @@ function ScrutinsPage() {
     }>,
   ) =>
     navigate({
-      search: (prev: z.infer<typeof searchSchema>) => ({
+      search: (prev) => ({
         ...prev,
         ...patch,
         page: patch.page ?? 1,
@@ -87,7 +87,7 @@ function ScrutinsPage() {
 
       {/* Filtres */}
       <div
-        className="space-y-4 mb-8 animate-fade-up"
+        className="sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 bg-background/95 backdrop-blur-md border-b border-border/20 space-y-4 mb-8 animate-fade-up"
         style={{ animationDelay: "60ms" }}
       >
         <form
