@@ -1,4 +1,4 @@
-// Server function pour récupérer les députés de la 16e législature
+// Server functions pour récupérer les données de la 16e législature
 // via l'archive ouverte de nosdeputes.fr (2022-2024).
 import { createServerFn } from "@tanstack/react-start";
 
@@ -16,6 +16,20 @@ export type Depute16 = {
   sexe: string;
   url_an: string;
   photo: string;
+};
+
+export type Scrutin16 = {
+  numero: string;
+  date: string;
+  titre: string;
+  sort: string;
+  isAdopte: boolean;
+  type: string;
+  nombre_votants: string;
+  nombre_pours: string;
+  nombre_contres: string;
+  nombre_abstentions: string;
+  url_institution: string;
 };
 
 export const getDeputes16 = createServerFn({ method: "GET" }).handler(
@@ -66,6 +80,59 @@ export const getDeputes16 = createServerFn({ method: "GET" }).handler(
       return out.sort((a, b) =>
         a.nom_de_famille.localeCompare(b.nom_de_famille, "fr"),
       );
+    } catch (e) {
+      clearTimeout(t);
+      throw e;
+    }
+  },
+);
+
+// Liste des scrutins de la 16e législature (2022-2024), via l'API
+// NosDéputés.fr (Regards Citoyens) : https://www.nosdeputes.fr/16/scrutins/json
+export const getScrutins16 = createServerFn({ method: "GET" }).handler(
+  async (): Promise<Scrutin16[]> => {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 25_000);
+    try {
+      const r = await fetch("https://www.nosdeputes.fr/16/scrutins/json", {
+        signal: ctrl.signal,
+        headers: { Accept: "application/json" },
+      });
+      clearTimeout(t);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data: any = await r.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const list: any[] = data?.scrutins ?? [];
+      const out: Scrutin16[] = [];
+      for (const x of list) {
+        const s = x?.scrutin ?? x;
+        if (!s) continue;
+        const numero = String(s.numero ?? "").replace(/[^0-9]/g, "");
+        if (!numero) continue;
+        const pours = parseInt(String(s.nombre_pours ?? "0"), 10) || 0;
+        const contres = parseInt(String(s.nombre_contres ?? "0"), 10) || 0;
+        const abstentions =
+          parseInt(String(s.nombre_abstentions ?? "0"), 10) || 0;
+        const isAdopte = pours > contres;
+        out.push({
+          numero,
+          date: String(s.date ?? "").slice(0, 30),
+          titre: String(s.titre ?? `Scrutin n°${numero}`).slice(0, 500),
+          sort: isAdopte ? "adopté" : "rejeté",
+          isAdopte,
+          type: String(s.type ?? "Scrutin public").slice(0, 100),
+          nombre_votants: String(
+            parseInt(String(s.nombre_votants ?? "0"), 10) ||
+              pours + contres + abstentions,
+          ),
+          nombre_pours: String(pours),
+          nombre_contres: String(contres),
+          nombre_abstentions: String(abstentions),
+          url_institution: `https://2022-2024.nosdeputes.fr/16/scrutin/${numero}`,
+        });
+      }
+      return out.sort((a, b) => b.date.localeCompare(a.date));
     } catch (e) {
       clearTimeout(t);
       throw e;
