@@ -24,17 +24,17 @@ export function Header() {
       {isLoading && <div className="nav-progress" aria-hidden="true" />}
 
       <header
-        className={`sticky top-0 z-40 transition-all duration-300 ${
+        className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "glass-strong shadow-sm"
-            : "bg-transparent border-b border-transparent"
+            ? "glass-navbar shadow-sm"
+            : "glass-navbar border-b border-border/30"
         }`}
       >
-        <div className="container-app flex items-center justify-between h-16">
+        <div className="container-app flex items-center justify-between h-16 gap-3">
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2.5 group"
+            className="flex items-center gap-2.5 group shrink-0"
             aria-label="Mandat — Accueil"
           >
             <div className="relative">
@@ -79,9 +79,23 @@ export function Header() {
                 {l.label}
               </Link>
             ))}
+
+            {/* Bouton 16e législature → archive nosdeputes */}
+            <a
+              href="https://2017-2022.nosdeputes.fr"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="ml-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium glass border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
+              title="Voir les votes de la 16e législature (archives)"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-primary/70" aria-hidden="true" />
+              16<sup>e</sup> législature
+              <span aria-hidden="true">↗</span>
+            </a>
           </nav>
         </div>
       </header>
+
     </>
   );
 }

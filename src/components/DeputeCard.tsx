@@ -67,14 +67,26 @@ export function DeputeCard({ d, index = 0 }: { d: Depute; index?: number }) {
         <div className="font-semibold text-foreground truncate group-hover:text-primary transition-colors duration-200 text-sm">
           {d.prenom} {d.nom_de_famille}
         </div>
-        <div className="text-xs text-muted-foreground truncate mt-0.5">
-          {d.nom_circo}
-          {d.num_deptmt ? ` (${d.num_deptmt})` : ""}
-        </div>
         <div className="mt-1.5">
           <GroupBadge sigle={d.groupe_sigle} size="sm" />
         </div>
       </div>
+
+      {/* Circonscription à droite */}
+      <div className="self-center text-right shrink-0 max-w-[42%]">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
+          Circo.
+        </div>
+        <div className="text-xs font-medium text-foreground/80 truncate">
+          {d.nom_circo}
+        </div>
+        {d.num_deptmt && (
+          <div className="text-[10px] text-muted-foreground mt-0.5">
+            Dép. {d.num_deptmt}
+          </div>
+        )}
+      </div>
+
 
       {/* Flèche */}
       <svg
