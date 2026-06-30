@@ -63,7 +63,7 @@ export const Route = createFileRoute("/depute/$slug")({
       </p>
       <Link
         to="/deputes"
-        className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm"
+        className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm"
       >
         ← Tous les député·es
       </Link>
@@ -196,7 +196,7 @@ function DeputePage() {
         <div className="flex flex-col md:flex-row gap-6 md:gap-10 mb-10 animate-fade-up">
           {/* Photo */}
           <div className="relative shrink-0">
-            <div className="w-36 h-36 md:w-52 md:h-52 rounded-3xl overflow-hidden bg-muted shadow-xl ring-1 ring-border/50">
+            <div className="w-36 h-36 md:w-52 md:h-52 rounded-[2rem] overflow-hidden bg-muted shadow-xl ring-1 ring-border/50">
               {!imgError17 && photo17 ? (
                 <img
                   src={photo17}
@@ -273,7 +273,7 @@ function DeputePage() {
                   href={d.url_an}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex items-center gap-1.5 text-xs glass border border-border/50 text-muted-foreground hover:text-primary rounded-xl px-3 py-2 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs glass border border-border/50 text-muted-foreground hover:text-primary rounded-full px-4 py-2 transition-colors"
                 >
                   <svg
                     width="12"
@@ -300,7 +300,7 @@ function DeputePage() {
                   href={`https://twitter.com/${d.twitter}`}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex items-center gap-1.5 text-xs glass border border-border/50 text-muted-foreground hover:text-primary rounded-xl px-3 py-2 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs glass border border-border/50 text-muted-foreground hover:text-primary rounded-full px-4 py-2 transition-colors"
                 >
                   𝕏 @{d.twitter}
                 </a>
@@ -340,7 +340,7 @@ function DeputePage() {
         {/* ── BARRE PRÉSENCE ── */}
         {stats.total > 0 && (
           <div
-            className="card-glass rounded-2xl p-5 mb-8 animate-fade-up"
+            className="card-glass rounded-[2rem] p-6 mb-8 animate-fade-up"
             style={{ animationDelay: "150ms" }}
           >
             <div className="flex items-center justify-between mb-3">
@@ -390,7 +390,7 @@ function DeputePage() {
               key={k}
               onClick={() => setPosFilter(k as VotePosition | "all")}
               aria-pressed={posFilter === k}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${
+              className={`px-4 py-2 rounded-full text-xs font-medium border transition-all duration-200 ${
                 posFilter === k
                   ? "btn-primary border-transparent"
                   : "glass border-border/50 text-foreground/70 hover:text-foreground"
@@ -410,7 +410,7 @@ function DeputePage() {
         </h2>
 
         {filteredVotes.length === 0 ? (
-          <div className="py-12 text-center glass rounded-3xl border border-border/50">
+          <div className="py-12 text-center glass rounded-[2rem] border border-border/50">
             <p className="text-muted-foreground">
               Aucun vote dans cette catégorie.
             </p>
@@ -429,10 +429,10 @@ function DeputePage() {
                 <Link
                   to="/scrutin/$numero"
                   params={{ numero: v.scrutin.numero }}
-                  className="flex items-start gap-3 p-4 rounded-2xl card-glass group border border-border/40"
+                  className="flex items-start gap-3 p-4 rounded-[2rem] card-glass group border border-border/40"
                 >
                   <span
-                    className="shrink-0 mt-0.5 px-2.5 py-1 rounded-xl text-xs font-semibold uppercase tracking-wider"
+                    className="shrink-0 mt-0.5 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider"
                     style={{
                       color: positionColor(v.position),
                       backgroundColor: `color-mix(in oklch, ${positionColor(v.position)} 12%, transparent)`,
@@ -516,7 +516,7 @@ function StatBox({
 }) {
   return (
     <div
-      className="stat-box card-glass p-4 rounded-2xl"
+      className="stat-box card-glass p-5 rounded-[2rem]"
       style={{ borderColor: `color-mix(in oklch, ${color} 20%, transparent)` }}
     >
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">

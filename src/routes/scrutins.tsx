@@ -98,7 +98,7 @@ function ScrutinsPage() {
           className="flex gap-2"
           role="search"
         >
-          <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
+          <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5">
             <svg
               className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
               viewBox="0 0 24 24"
@@ -121,7 +121,7 @@ function ScrutinsPage() {
           </div>
           <button
             type="submit"
-            className="btn-primary px-5 py-3 rounded-2xl text-sm font-medium"
+            className="btn-primary px-6 py-3 rounded-full text-sm font-medium"
           >
             Chercher
           </button>
@@ -185,7 +185,7 @@ function ScrutinsPage() {
           <button
             onClick={() => setF({ page: Math.max(1, safePage - 1) })}
             disabled={safePage <= 1}
-            className="px-4 py-2 rounded-xl glass border border-border/50 text-sm disabled:opacity-40 hover:border-primary/30 transition-colors"
+            className="px-5 py-2 rounded-full glass border border-border/50 text-sm disabled:opacity-40 hover:border-primary/30 transition-colors"
           >
             ← Préc.
           </button>
@@ -195,7 +195,7 @@ function ScrutinsPage() {
           <button
             onClick={() => setF({ page: Math.min(totalPages, safePage + 1) })}
             disabled={safePage >= totalPages}
-            className="px-4 py-2 rounded-xl glass border border-border/50 text-sm disabled:opacity-40 hover:border-primary/30 transition-colors"
+            className="px-5 py-2 rounded-full glass border border-border/50 text-sm disabled:opacity-40 hover:border-primary/30 transition-colors"
           >
             Suiv. →
           </button>
@@ -226,7 +226,7 @@ function ScrutinRow({ s, index }: { s: Scrutin; index: number }) {
       <Link
         to="/scrutin/$numero"
         params={{ numero: s.numero }}
-        className="scrutin-card card-glass group block p-5 rounded-2xl border border-border/40"
+        className="scrutin-card card-glass group block p-5 rounded-[2rem] border border-border/40"
         aria-label={`Scrutin n°${s.numero} : ${s.titre || "Sans titre"}`}
       >
         {/* Meta */}

@@ -248,7 +248,7 @@ function ScrutinCard({ s, index = 0 }: { s: Scrutin; index?: number }) {
     <Link
       to="/scrutin/$numero"
       params={{ numero: s.numero }}
-      className="scrutin-card card-glass group block p-5 rounded-2xl animate-fade-up"
+      className="scrutin-card card-glass group block p-5 rounded-[2rem] animate-fade-up"
       style={{ animationDelay: `${index * 70}ms` }}
       aria-label={`Scrutin n°${s.numero} : ${s.titre}`}
     >
@@ -374,7 +374,7 @@ function TrustSection() {
             <div
               key={i}
               data-tilt
-              className="card-glass rounded-3xl p-7 will-change-transform"
+              className="card-glass rounded-[2rem] p-7 will-change-transform"
             >
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
@@ -459,7 +459,7 @@ function SearchBar({
         role="search"
         aria-label="Rechercher un député ou un scrutin"
       >
-        <div className="search-ring flex items-center gap-2 glass-strong rounded-2xl border border-white/30 shadow-lg">
+        <div className="search-ring flex items-center gap-2 glass-strong rounded-full border border-white/30 shadow-lg px-2">
           <svg
             className="ml-4 w-5 h-5 text-muted-foreground shrink-0"
             viewBox="0 0 24 24"
@@ -490,7 +490,7 @@ function SearchBar({
           />
           <button
             type="submit"
-            className="btn-primary m-2 px-5 py-3 rounded-xl text-sm font-medium"
+            className="btn-primary m-1.5 px-6 py-3 rounded-full text-sm font-medium"
             aria-label="Lancer la recherche"
           >
             Rechercher
@@ -501,14 +501,14 @@ function SearchBar({
       {/* Dropdown résultats — au-dessus de tout, opaque */}
       {open && hasResults && (
         <div
-          className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-2xl shadow-2xl overflow-hidden max-h-[65vh] overflow-y-auto border border-border/60 bg-white"
+          className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-[2rem] shadow-2xl overflow-hidden max-h-[65vh] overflow-y-auto border border-border/60 bg-white"
           style={{ zIndex: 9999, backgroundColor: "oklch(1 0 0)" }}
           role="listbox"
           aria-label="Suggestions"
         >
           {results!.ds.length > 0 && (
             <div className="p-2">
-              <div className="px-3 py-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
+              <div className="px-4 py-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
                 Député·es
               </div>
               {results!.ds.map((d) => (
@@ -516,7 +516,7 @@ function SearchBar({
                   key={d.slug}
                   to="/depute/$slug"
                   params={{ slug: d.slug }}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/20 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-2xl hover:bg-white/20 transition-colors"
                   onClick={() => setOpen(false)}
                 >
                   <DeputeAvatarSmall d={d} />
@@ -534,7 +534,7 @@ function SearchBar({
 
           {results!.ss.length > 0 && (
             <div className="p-2 border-t border-border/30">
-              <div className="px-3 py-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
+              <div className="px-4 py-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
                 Scrutins
               </div>
               {results!.ss.map((s) => (
@@ -542,7 +542,7 @@ function SearchBar({
                   key={s.numero}
                   to="/scrutin/$numero"
                   params={{ numero: s.numero }}
-                  className="block px-3 py-2.5 rounded-xl hover:bg-white/20 transition-colors"
+                  className="block px-4 py-2.5 rounded-2xl hover:bg-white/20 transition-colors"
                   onClick={() => setOpen(false)}
                 >
                   <div className="flex items-center gap-2 mb-0.5">

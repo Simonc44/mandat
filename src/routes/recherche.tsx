@@ -88,7 +88,7 @@ function SearchPage() {
           className="flex flex-col sm:flex-row gap-2 max-w-3xl"
           role="search"
         >
-          <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
+          <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5">
             <svg
               className="w-5 h-5 text-muted-foreground shrink-0 mr-3"
               viewBox="0 0 24 24"
@@ -137,7 +137,7 @@ function SearchPage() {
           </div>
           <button
             type="submit"
-            className="btn-primary px-6 py-3 rounded-2xl text-sm font-medium"
+            className="btn-primary px-8 py-3 rounded-full text-sm font-medium"
           >
             Rechercher
           </button>
@@ -293,7 +293,7 @@ function SearchPage() {
                       <Link
                         to="/scrutin/$numero"
                         params={{ numero: s.numero }}
-                        className="scrutin-card card-glass group block p-4 rounded-2xl border border-border/40"
+                        className="scrutin-card card-glass group block p-4 rounded-[2rem] border border-border/40"
                       >
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-1.5">
                           {s.date && (

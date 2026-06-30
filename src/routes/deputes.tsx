@@ -115,7 +115,7 @@ function DeputesPage() {
 
       {/* Recherche */}
       <div
-        className="sticky-toolbar sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 space-y-4 mb-8 animate-fade-up"
+        className="sticky-toolbar sticky top-[calc(4rem-1px)] -mx-4 px-4 py-4 space-y-4 mb-8 animate-fade-up"
         style={{ animationDelay: "60ms" }}
       >
         <form
@@ -126,7 +126,7 @@ function DeputesPage() {
           className="flex flex-col sm:flex-row gap-2"
           role="search"
         >
-          <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
+          <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-6">
             <svg
               className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
               viewBox="0 0 24 24"
@@ -149,7 +149,7 @@ function DeputesPage() {
           </div>
           <button
             type="submit"
-            className="btn-primary px-5 py-3 rounded-2xl text-sm font-medium"
+            className="btn-primary px-6 py-3 rounded-full text-sm font-medium"
           >
             Chercher
           </button>
@@ -162,7 +162,7 @@ function DeputesPage() {
                   search: { q: "", groupe: "", dept: "", page: 1 },
                 });
               }}
-              className="px-4 py-3 rounded-2xl glass border border-border/50 text-sm hover:border-primary/30 transition-colors"
+              className="px-6 py-3 rounded-full glass border border-border/50 text-sm hover:border-primary/30 transition-colors"
             >
               ✕ Réinit.
             </button>
@@ -213,7 +213,7 @@ function DeputesPage() {
             id="dept-select"
             value={dept}
             onChange={(e) => setFilter({ dept: e.target.value })}
-            className="px-3 py-2.5 rounded-xl glass border border-border/50 text-sm bg-transparent focus:outline-none focus:border-primary/50"
+            className="px-4 py-2.5 rounded-full glass border border-border/50 text-sm bg-transparent focus:outline-none focus:border-primary/50"
           >
             <option value="">Tous les départements</option>
             {departments.map(([num, nom]) => (
