@@ -449,7 +449,7 @@ function SearchBar({
     results && (results.ds.length > 0 || results.ss.length > 0);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative" style={{ zIndex: 9999 }}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
