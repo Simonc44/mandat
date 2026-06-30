@@ -520,7 +520,7 @@ export const scrutinsQuery = queryOptions({
     try {
       const rows = await getScrutinsFromDb();
       if (Array.isArray(rows) && rows.length > 0) {
-        return rows.map((s) => ({
+        return rows.map((s) => recomputeAdoption({
           ...s,
           titre: sanitizeText(s.titre, MAX_TITLE),
           sort: sanitizeText(s.sort, 100),
@@ -538,7 +538,7 @@ export const scrutinsQuery = queryOptions({
       const data = await fetchLocal<Scrutin[]>("/scrutins-17.json");
       if (Array.isArray(data) && data.length > 0) {
         return data
-          .map((s) => ({
+          .map((s) => recomputeAdoption({
             ...s,
             numero: sanitizeNumero(s.numero) || s.numero,
             titre: sanitizeText(s.titre, MAX_TITLE),
@@ -550,6 +550,7 @@ export const scrutinsQuery = queryOptions({
           .sort((a, b) => b.date.localeCompare(a.date));
       }
     } catch {}
+
 
     // ② CLAIR
     try {
