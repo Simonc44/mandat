@@ -13,6 +13,8 @@ export function DeputeCard({ d, index = 0 }: { d: Depute; index?: number }) {
   // Tente photo 17e, puis 16e si disponible, puis initiales
   const photoSrc = d.id_an ? photoUrl(d.id_an, 17) : "";
   const photo16Src = d.id_an ? photoUrl(d.id_an, 16) : "";
+  const fallbackSrc = "/images/depute-placeholder.svg";
+  const [useFallback, setUseFallback] = useState(false);
 
   const initials =
     `${d.prenom?.[0] ?? ""}${d.nom_de_famille?.[0] ?? ""}`.toUpperCase();
@@ -46,6 +48,16 @@ export function DeputeCard({ d, index = 0 }: { d: Depute; index?: number }) {
             height={56}
             className="depute-photo w-full h-full object-cover"
             onError={() => setImgError16(true)}
+          />
+        ) : !useFallback ? (
+          <img
+            src={fallbackSrc}
+            alt=""
+            loading="lazy"
+            width={56}
+            height={56}
+            className="depute-photo w-full h-full object-cover opacity-20 grayscale"
+            onError={() => setUseFallback(true)}
           />
         ) : (
           /* Initiales colorées */

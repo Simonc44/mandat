@@ -216,9 +216,7 @@ function Home() {
 function StatPill({ value, label }: { value: string; label: string }) {
   return (
     <div className="stat-box glass rounded-full px-5 py-2.5 border border-border/40 inline-flex items-center gap-2">
-      <span className="stat-value font-display text-lg text-ink">
-        {value}
-      </span>
+      <span className="stat-value font-display text-lg text-ink">{value}</span>
       <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
         {label}
       </span>

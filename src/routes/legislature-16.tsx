@@ -30,9 +30,7 @@ const scrutins16Query = queryOptions({
 });
 
 const searchSchema = z.object({
-  tab: fallback(z.enum(["deputes", "scrutins"]), "deputes").default(
-    "deputes",
-  ),
+  tab: fallback(z.enum(["deputes", "scrutins"]), "deputes").default("deputes"),
   q: fallback(z.string(), "").default(""),
   groupe: fallback(z.string(), "").default(""),
 });
@@ -313,6 +311,9 @@ function chip(active: boolean) {
 function Depute16Card({ d }: { d: Depute16 }) {
   const g = groupeMeta(d.groupe_sigle);
   const [err, setErr] = useState(false);
+  const [fallbackErr, setFallbackErr] = useState(false);
+  const fallbackSrc = "/images/depute-placeholder.svg";
+
   return (
     <a
       href={d.url_an || `https://2022-2024.nosdeputes.fr/${d.slug}`}
@@ -320,7 +321,23 @@ function Depute16Card({ d }: { d: Depute16 }) {
       rel="noreferrer noopener"
       className="card-glass group p-4 rounded-2xl flex items-center gap-3 hover:border-primary/40 transition-all"
     >
-      {err ? (
+      {!err ? (
+        <img
+          src={d.photo}
+          alt=""
+          aria-hidden="true"
+          className="w-12 h-12 rounded-full object-cover shrink-0"
+          onError={() => setErr(true)}
+        />
+      ) : !fallbackErr ? (
+        <img
+          src={fallbackSrc}
+          alt=""
+          aria-hidden="true"
+          className="w-12 h-12 rounded-full object-cover shrink-0 opacity-20 grayscale"
+          onError={() => setFallbackErr(true)}
+        />
+      ) : (
         <div
           className="w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
           style={{
@@ -330,14 +347,6 @@ function Depute16Card({ d }: { d: Depute16 }) {
         >
           {`${d.prenom?.[0] ?? ""}${d.nom_de_famille?.[0] ?? ""}`}
         </div>
-      ) : (
-        <img
-          src={d.photo}
-          alt=""
-          aria-hidden="true"
-          className="w-12 h-12 rounded-full object-cover shrink-0"
-          onError={() => setErr(true)}
-        />
       )}
       <div className="min-w-0 flex-1">
         <div className="font-medium text-sm truncate text-foreground group-hover:text-primary transition-colors">
@@ -455,8 +464,7 @@ function ScrutinsTab({
       )}
       {filtered.length > 100 && (
         <p className="text-center mt-8 text-sm text-muted-foreground">
-          Affichage limité aux 100 premiers résultats — affinez votre
-          recherche.
+          Affichage limité aux 100 premiers résultats — affinez votre recherche.
         </p>
       )}
     </>

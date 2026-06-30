@@ -16,6 +16,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header, Footer, CookieBanner } from "../components/Header";
 import { PWAInstallPrompt } from "../components/PWAInstallPrompt";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 
 // ─── CONSTANTES ──────────────────────────────────────────────────────────────
 
@@ -340,6 +341,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen flex flex-col">
+        <LoadingOverlay />
         <Header />
         <main className="flex-1">
           <Outlet />
