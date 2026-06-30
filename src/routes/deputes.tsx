@@ -326,6 +326,116 @@ function chipCls(active: boolean) {
   }`;
 }
 
+// ── CARTE DÉPARTEMENT ──────────────────────────────────────
+// Affichée quand un département est sélectionné : numéro géant +
+// liste des circonscriptions + logo Mandat en bas.
+
+function DepartementCard({
+  numero,
+  nomDepartement,
+  deputes,
+}: {
+  numero: string;
+  nomDepartement: string;
+  deputes: import("@/lib/api").Depute[];
+}) {
+  const circos = [...deputes].sort(
+    (a, b) => (a.num_circo ?? 0) - (b.num_circo ?? 0),
+  );
+
+  return (
+    <section
+      className="dept-card relative mb-10 overflow-hidden rounded-[2rem] border border-white/40 glass-strong animate-fade-up"
+      aria-label={`Département ${numero}`}
+    >
+      {/* Halo coloré de fond */}
+      <div
+        className="absolute inset-0 -z-10 opacity-60 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(90% 70% at 80% 0%, oklch(0.62 0.20 285 / 28%), transparent 60%), radial-gradient(70% 60% at 0% 100%, oklch(0.55 0.18 215 / 22%), transparent 60%)",
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="grid md:grid-cols-[auto_1fr] gap-8 p-8 md:p-12">
+        {/* Numéro géant */}
+        <div className="flex flex-col items-center md:items-start">
+          <div className="text-[10px] uppercase tracking-[0.28em] text-primary/80 font-medium mb-2">
+            Département
+          </div>
+          <div
+            className="font-display leading-none tracking-tighter text-gradient"
+            style={{ fontSize: "clamp(7rem, 18vw, 14rem)" }}
+          >
+            {numero}
+          </div>
+          <div className="text-base md:text-lg text-foreground/80 font-medium mt-1 max-w-[18ch] text-center md:text-left">
+            {nomDepartement || `Département ${numero}`}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            {circos.length} circonscription{circos.length > 1 ? "s" : ""}
+          </div>
+        </div>
+
+        {/* Grille des circonscriptions */}
+        <div className="flex flex-col">
+          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+            Circonscriptions
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+            {circos.map((d) => (
+              <div
+                key={d.id || d.slug}
+                className="rounded-xl glass border border-white/30 p-3 text-xs hover:border-primary/40 transition-colors"
+              >
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-display text-lg leading-none text-primary">
+                    {d.num_circo}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    circo.
+                  </span>
+                </div>
+                <div className="text-foreground/90 font-medium mt-1 truncate">
+                  {d.prenom} {d.nom_de_famille}
+                </div>
+                <div className="text-muted-foreground truncate">
+                  {d.groupe_sigle}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Signature Mandat en bas */}
+          <div className="mt-6 pt-5 border-t border-white/40 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <img
+                src="/favicon.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-6 h-6"
+                width={24}
+                height={24}
+              />
+              <span className="font-display text-base text-ink tracking-tight">
+                Mandat
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground hidden sm:inline">
+                · Transparence citoyenne
+              </span>
+            </div>
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+              17<sup>e</sup> législature
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
 function buildPageRange(current: number, total: number): (number | "…")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
   const pages: (number | "…")[] = [1];
