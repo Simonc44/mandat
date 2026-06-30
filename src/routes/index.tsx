@@ -509,7 +509,6 @@ function SearchBar({
           role="listbox"
           aria-label="Suggestions"
         >
-
           {results!.ds.length > 0 && (
             <div className="p-2">
               <div className="px-3 py-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">

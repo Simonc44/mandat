@@ -90,14 +90,15 @@ export function Header() {
               }}
               title="Voir les députés de la 16e législature (2022-2024)"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" aria-hidden="true" />
+              <span
+                className="w-1.5 h-1.5 rounded-full bg-current opacity-70"
+                aria-hidden="true"
+              />
               16<sup>e</sup> législature
             </Link>
-
           </nav>
         </div>
       </header>
-
     </>
   );
 }

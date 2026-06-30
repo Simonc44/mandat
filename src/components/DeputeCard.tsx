@@ -87,7 +87,6 @@ export function DeputeCard({ d, index = 0 }: { d: Depute; index?: number }) {
         )}
       </div>
 
-
       {/* Flèche */}
       <svg
         className="self-center shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-0 group-hover:translate-x-1"
