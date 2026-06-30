@@ -449,7 +449,7 @@ function SearchBar({
     results && (results.ds.length > 0 || results.ss.length > 0);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative" style={{ zIndex: 9999 }}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -501,13 +501,15 @@ function SearchBar({
         </div>
       </form>
 
-      {/* Dropdown résultats */}
+      {/* Dropdown résultats — au-dessus de tout, opaque */}
       {open && hasResults && (
         <div
-          className="animate-slide-down absolute left-0 right-0 top-full mt-2 glass-strong rounded-2xl shadow-xl overflow-hidden z-30 max-h-[65vh] overflow-y-auto border border-white/20"
+          className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-2xl shadow-2xl overflow-hidden max-h-[65vh] overflow-y-auto border border-border/60 bg-white"
+          style={{ zIndex: 9999, backgroundColor: "oklch(1 0 0)" }}
           role="listbox"
           aria-label="Suggestions"
         >
+
           {results!.ds.length > 0 && (
             <div className="p-2">
               <div className="px-3 py-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">

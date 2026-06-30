@@ -10,7 +10,9 @@ import {
   normalize,
   sanitizeSearchInput,
   GROUPES,
+  groupeMeta,
 } from "@/lib/api";
+
 import { DeputeCard, DeputeCardSkeletonGrid } from "@/components/DeputeCard";
 import { SearchX } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
@@ -327,8 +329,8 @@ function chipCls(active: boolean) {
 }
 
 // ── CARTE DÉPARTEMENT ──────────────────────────────────────
-// Affichée quand un département est sélectionné : numéro géant +
-// liste des circonscriptions + logo Mandat en bas.
+// Cartogramme moderne : chaque circonscription est un hexagone teinté
+// par la couleur du groupe politique de son·sa député·e.
 
 function DepartementCard({
   numero,
@@ -343,12 +345,19 @@ function DepartementCard({
     (a, b) => (a.num_circo ?? 0) - (b.num_circo ?? 0),
   );
 
+  // Layout hexagonal — calcul des positions pour un cluster compact
+  const n = circos.length;
+  const cols = Math.ceil(Math.sqrt(n * 1.3));
+  const hexW = 88;
+  const hexH = 100;
+  const xStep = hexW * 0.86;
+  const yStep = hexH * 0.75;
+
   return (
     <section
       className="dept-card relative mb-10 overflow-hidden rounded-[2rem] border border-white/40 glass-strong animate-fade-up"
       aria-label={`Département ${numero}`}
     >
-      {/* Halo coloré de fond */}
       <div
         className="absolute inset-0 -z-10 opacity-60 pointer-events-none"
         style={{
@@ -378,36 +387,114 @@ function DepartementCard({
           </div>
         </div>
 
-        {/* Grille des circonscriptions */}
+        {/* Cartogramme hexagonal */}
         <div className="flex flex-col">
-          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
-            Circonscriptions
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-            {circos.map((d) => (
-              <div
-                key={d.id || d.slug}
-                className="rounded-xl glass border border-white/30 p-3 text-xs hover:border-primary/40 transition-colors"
-              >
-                <div className="flex items-baseline gap-1.5">
-                  <span className="font-display text-lg leading-none text-primary">
-                    {d.num_circo}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    circo.
-                  </span>
-                </div>
-                <div className="text-foreground/90 font-medium mt-1 truncate">
-                  {d.prenom} {d.nom_de_famille}
-                </div>
-                <div className="text-muted-foreground truncate">
-                  {d.groupe_sigle}
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              Carte des circonscriptions
+            </div>
+            <div className="text-[10px] text-muted-foreground">
+              Couleur = groupe politique
+            </div>
           </div>
 
-          {/* Signature Mandat en bas */}
+          {/* SVG hex grid */}
+          <div className="relative w-full overflow-x-auto">
+            <svg
+              viewBox={`0 0 ${cols * xStep + hexW * 0.2} ${Math.ceil(n / cols) * yStep + hexH * 0.35}`}
+              className="w-full h-auto"
+              role="img"
+              aria-label={`Carte des ${n} circonscriptions du département ${numero}`}
+            >
+              <defs>
+                <filter id="hexShadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.15" />
+                </filter>
+              </defs>
+              {circos.map((d, i) => {
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+                const x = col * xStep + (row % 2 ? xStep / 2 : 0) + hexW / 2;
+                const y = row * yStep + hexH / 2;
+                const g = groupeMeta(d.groupe_sigle);
+                const r = hexW / 2 - 4;
+                const points = Array.from({ length: 6 }, (_, k) => {
+                  const a = (Math.PI / 3) * k - Math.PI / 2;
+                  return `${x + r * Math.cos(a)},${y + r * Math.sin(a)}`;
+                }).join(" ");
+                return (
+                  <g key={d.id || d.slug} className="dept-hex">
+                    <title>{`${d.num_circo}e circonscription — ${d.prenom} ${d.nom_de_famille} (${g.nom})`}</title>
+                    <polygon
+                      points={points}
+                      fill={g.couleur}
+                      fillOpacity="0.78"
+                      stroke="white"
+                      strokeWidth="2"
+                      filter="url(#hexShadow)"
+                    />
+                    <text
+                      x={x}
+                      y={y - 6}
+                      textAnchor="middle"
+                      fill="white"
+                      fontSize="20"
+                      fontWeight="700"
+                      style={{ fontFamily: "Fraunces, serif" }}
+                    >
+                      {d.num_circo}
+                    </text>
+                    <text
+                      x={x}
+                      y={y + 14}
+                      textAnchor="middle"
+                      fill="white"
+                      fontSize="8"
+                      fontWeight="600"
+                      opacity="0.95"
+                    >
+                      {(d.nom_de_famille || "").slice(0, 10).toUpperCase()}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+
+          {/* Liste détaillée — noms complets, sans abréviations */}
+          <ul className="mt-5 grid sm:grid-cols-2 gap-2">
+            {circos.map((d) => {
+              const g = groupeMeta(d.groupe_sigle);
+              return (
+                <li
+                  key={`row-${d.id || d.slug}`}
+                  className="flex items-center gap-3 rounded-xl glass border border-white/30 p-2.5"
+                >
+                  <span
+                    className="font-display text-lg w-8 text-center text-primary"
+                    aria-hidden="true"
+                  >
+                    {d.num_circo}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-foreground truncate">
+                      {d.prenom} {d.nom_de_famille}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground truncate">
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: g.couleur }}
+                        aria-hidden="true"
+                      />
+                      <span className="truncate">{g.nom}</span>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Signature Mandat */}
           <div className="mt-6 pt-5 border-t border-white/40 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <img
@@ -434,6 +521,7 @@ function DepartementCard({
     </section>
   );
 }
+
 
 
 function buildPageRange(current: number, total: number): (number | "…")[] {

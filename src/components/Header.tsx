@@ -80,18 +80,20 @@ export function Header() {
               </Link>
             ))}
 
-            {/* Bouton 16e législature → archive nosdeputes */}
-            <a
-              href="https://2017-2022.nosdeputes.fr"
-              target="_blank"
-              rel="noreferrer noopener"
+            {/* Bouton 16e législature → page interne (nosdeputes proxifié) */}
+            <Link
+              to="/legislature-16"
               className="ml-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium glass border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
-              title="Voir les votes de la 16e législature (archives)"
+              activeProps={{
+                className:
+                  "ml-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium btn-primary",
+              }}
+              title="Voir les députés de la 16e législature (2022-2024)"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-primary/70" aria-hidden="true" />
+              <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" aria-hidden="true" />
               16<sup>e</sup> législature
-              <span aria-hidden="true">↗</span>
-            </a>
+            </Link>
+
           </nav>
         </div>
       </header>
