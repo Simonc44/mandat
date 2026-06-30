@@ -10,7 +10,9 @@ import {
   normalize,
   sanitizeSearchInput,
   GROUPES,
+  groupeMeta,
 } from "@/lib/api";
+
 import { DeputeCard, DeputeCardSkeletonGrid } from "@/components/DeputeCard";
 import { SearchX } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
