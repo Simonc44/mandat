@@ -1,8 +1,8 @@
 // routes/deputes.tsx — Liquid Glass + filtres + pagination
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import {
@@ -14,8 +14,10 @@ import {
 } from "@/lib/api";
 
 import { DeputeCard, DeputeCardSkeletonGrid } from "@/components/DeputeCard";
-import { SearchX } from "lucide-react";
+import { SearchX, Download, Map as MapIcon } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
+import { toPng } from "html-to-image";
+import { toast } from "sonner";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -113,7 +115,7 @@ function DeputesPage() {
 
       {/* Recherche */}
       <div
-        className="sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 bg-background/95 backdrop-blur-md border-b border-border/20 space-y-4 mb-8 animate-fade-up"
+        className="sticky-toolbar sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 space-y-4 mb-8 animate-fade-up"
         style={{ animationDelay: "60ms" }}
       >
         <form
@@ -121,7 +123,7 @@ function DeputesPage() {
             e.preventDefault();
             setFilter({ q: sanitizeSearchInput(search) });
           }}
-          className="flex gap-2"
+          className="flex flex-col sm:flex-row gap-2"
           role="search"
         >
           <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
@@ -341,9 +343,36 @@ function DepartementCard({
   nomDepartement: string;
   deputes: import("@/lib/api").Depute[];
 }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
+
   const circos = [...deputes].sort(
     (a, b) => (a.num_circo ?? 0) - (b.num_circo ?? 0),
   );
+
+  const handleDownload = async () => {
+    if (!cardRef.current) return;
+    setDownloading(true);
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        cacheBust: true,
+        backgroundColor: "white",
+        style: {
+          borderRadius: "0",
+        },
+      });
+      const link = document.createElement("a");
+      link.download = `mandat-carte-dept-${numero}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success("Carte téléchargée !");
+    } catch (err) {
+      console.error("Erreur téléchargement", err);
+      toast.error("Échec du téléchargement");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   // Layout hexagonal — calcul des positions pour un cluster compact
   const n = circos.length;
@@ -355,6 +384,7 @@ function DepartementCard({
 
   return (
     <section
+      ref={cardRef}
       className="dept-card relative mb-10 overflow-hidden rounded-[2rem] border border-white/40 glass-strong animate-fade-up"
       aria-label={`Département ${numero}`}
     >
@@ -385,13 +415,27 @@ function DepartementCard({
           <div className="text-xs text-muted-foreground mt-1">
             {circos.length} circonscription{circos.length > 1 ? "s" : ""}
           </div>
+
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="mt-8 btn-primary px-4 py-2 text-xs flex items-center gap-2"
+          >
+            {downloading ? (
+              <span className="animate-spin">⏳</span>
+            ) : (
+              <Download className="w-3.5 h-3.5" />
+            )}
+            Télécharger la carte
+          </button>
         </div>
 
         {/* Cartogramme hexagonal */}
         <div className="flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">
-              Carte des circonscriptions
+            <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+              <MapIcon className="w-3.5 h-3.5" />
+              Circonscriptions
             </div>
             <div className="text-[10px] text-muted-foreground">
               Couleur = groupe politique
@@ -434,7 +478,12 @@ function DepartementCard({
                   return `${x + r * Math.cos(a)},${y + r * Math.sin(a)}`;
                 }).join(" ");
                 return (
-                  <g key={d.id || d.slug} className="dept-hex">
+                  <Link
+                    key={d.id || d.slug}
+                    to="/depute/$slug"
+                    params={{ slug: d.slug }}
+                    className="dept-hex group/hex outline-none focus:ring-2 focus:ring-primary rounded-full"
+                  >
                     <title>{`${d.num_circo}e circonscription — ${d.prenom} ${d.nom_de_famille} (${g.nom})`}</title>
                     <polygon
                       points={points}
@@ -443,6 +492,7 @@ function DepartementCard({
                       stroke="white"
                       strokeWidth="2"
                       filter="url(#hexShadow)"
+                      className="transition-all duration-200 group-hover/hex:fill-opacity-100 group-hover/hex:stroke-primary"
                     />
                     <text
                       x={x}
@@ -452,6 +502,7 @@ function DepartementCard({
                       fontSize="20"
                       fontWeight="700"
                       style={{ fontFamily: "Fraunces, serif" }}
+                      className="pointer-events-none"
                     >
                       {d.num_circo}
                     </text>
@@ -463,10 +514,11 @@ function DepartementCard({
                       fontSize="8"
                       fontWeight="600"
                       opacity="0.95"
+                      className="pointer-events-none"
                     >
                       {(d.nom_de_famille || "").slice(0, 10).toUpperCase()}
                     </text>
-                  </g>
+                  </Link>
                 );
               })}
             </svg>

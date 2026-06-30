@@ -85,7 +85,7 @@ function SearchPage() {
             e.preventDefault();
             navigate({ search: { q: sanitizeSearchInput(input.trim()) } });
           }}
-          className="flex gap-2 max-w-3xl"
+          className="flex flex-col sm:flex-row gap-2 max-w-3xl"
           role="search"
         >
           <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
