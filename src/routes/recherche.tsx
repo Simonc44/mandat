@@ -77,7 +77,7 @@ function SearchPage() {
 
       {/* Barre */}
       <div
-        className="sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 bg-background/95 backdrop-blur-md border-b border-border/20 mb-10 animate-fade-up"
+        className="sticky-toolbar sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 mb-10 animate-fade-up"
         style={{ animationDelay: "60ms" }}
       >
         <form
