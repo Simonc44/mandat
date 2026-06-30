@@ -196,6 +196,21 @@
 .dark .glass-strong { background: oklch(1 0 0 / 8%); border-color: oklch(1 0 0 / 14%); }
 .dark .glass-navbar { background: oklch(0.18 0.04 285 / 88%); }
 
+/* ═══════════════════════════════════════════════════════════
+   BARRE STICKY (recherche + filtres) — fond NET, pas de double flou
+   ═══════════════════════════════════════════════════════════
+   Avant : bg-background/95 + backdrop-blur-md sur le wrapper, ET
+   glass-strong (autre blur, autre opacité) sur l'input à l'intérieur
+   → deux flous superposés qui rendent le champ "sale"/peu lisible.
+   Maintenant : un seul fond opaque net derrière, l'input glass-strong
+   se détache proprement par-dessus. */
+.sticky-toolbar {
+  background: oklch(0.982 0.006 285 / 97%);
+  border-bottom: 1px solid var(--color-border);
+}
+.dark .sticky-toolbar {
+  background: oklch(0.10 0.025 285 / 97%);
+}
 
 /* ═══════════════════════════════════════════════════════════
    CARTES — Liquid Glass avec hover magnétique
