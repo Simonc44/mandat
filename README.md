@@ -1,5 +1,5 @@
 <h1>
-  <img src="https://mandat-fr.vercel.app/favicon.ico" alt="logo" width="200" />
+  <img src="https://mandat-fr.vercel.app/favicon.ico" alt="logo" width="20" />
   Mandat — Transparence citoyenne
 </h1>
 
