@@ -646,9 +646,11 @@ export const scrutinDetailQuery = (numeroRaw: string) => {
           ),
         ]);
 
-        const meta = scrutins?.find(
+        const metaRaw = scrutins?.find(
           (s) => s.numero === numero || s.uid === numero,
         );
+        const meta = metaRaw ? recomputeAdoption(metaRaw) : undefined;
+
         const votesNominatifs = votesIndex
           ? (votesIndex[numero] ?? null)
           : null;
