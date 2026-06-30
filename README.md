@@ -9,22 +9,6 @@
 
 ---
 
-## Installation & Développement
-
-Le projet utilise **TanStack Start** (React + Vite + TanStack Router) et **pnpm**.
-
-```bash
-# 1. Cloner le projet
-git clone https://github.com/Simonc44/mandat.git
-cd mandat
-
-# 2. Installer les dépendances
-pnpm install
-
-# 3. Lancer le serveur de développement
-pnpm dev
-```
-
 ### Commandes utiles
 
 - `pnpm dev` : Lance le serveur de développement sur http://localhost:3000.
@@ -70,4 +54,4 @@ La visualisation par département utilise un cartogramme hexagonal compact. Chaq
 
 ---
 
-*Projet citoyen indépendant — Aucune affiliation politique — Licence MIT*
+*Projet citoyen indépendant — Aucune affiliation politique*
