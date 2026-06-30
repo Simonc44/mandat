@@ -57,7 +57,7 @@ function Home() {
   return (
     <div>
       {/* ── HERO LIQUID GLASS ── */}
-      <section className="relative overflow-hidden min-h-[60vh] flex items-center">
+      <section className="relative min-h-[60vh] flex items-center">
         {/* Orbes de fond animés */}
         <div
           className="absolute inset-0 -z-10 pointer-events-none overflow-hidden"
@@ -114,7 +114,7 @@ function Home() {
 
             {/* H1 */}
             <h1
-              className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.92] mb-6 animate-fade-up tracking-tight"
+              className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.95] sm:leading-[0.92] mb-6 animate-fade-up tracking-tight"
               style={{ animationDelay: "80ms" }}
             >
               Qui a voté quoi —
@@ -459,9 +459,9 @@ function SearchBar({
         role="search"
         aria-label="Rechercher un député ou un scrutin"
       >
-        <div className="search-ring flex items-center gap-2 glass-strong rounded-full border border-white/30 shadow-lg px-2">
+        <div className="search-ring flex items-center gap-1 sm:gap-2 glass-strong rounded-full border border-white/30 shadow-lg px-1.5 sm:px-2">
           <svg
-            className="ml-4 w-5 h-5 text-muted-foreground shrink-0"
+            className="ml-3 sm:ml-4 w-5 h-5 text-muted-foreground shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -480,7 +480,7 @@ function SearchBar({
             }}
             onFocus={() => setOpen(true)}
             placeholder="Cherchez un·e député·e, un texte de loi…"
-            className="flex-1 py-4 px-2 bg-transparent outline-none text-base placeholder:text-muted-foreground"
+            className="flex-1 min-w-0 py-3.5 sm:py-4 px-2 bg-transparent outline-none text-sm sm:text-base placeholder:text-muted-foreground"
             aria-label="Terme de recherche"
             aria-autocomplete="list"
             aria-expanded={open && hasResults ? "true" : "false"}
@@ -490,10 +490,21 @@ function SearchBar({
           />
           <button
             type="submit"
-            className="btn-primary m-1.5 px-6 py-3 rounded-full text-sm font-medium"
+            className="btn-primary m-1 sm:m-1.5 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-medium shrink-0"
             aria-label="Lancer la recherche"
           >
-            Rechercher
+            <span className="hidden sm:inline">Rechercher</span>
+            <svg
+              className="sm:hidden w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" strokeLinecap="round" />
+            </svg>
           </button>
         </div>
       </form>
@@ -501,7 +512,7 @@ function SearchBar({
       {/* Dropdown résultats — au-dessus de tout, opaque */}
       {open && hasResults && (
         <div
-          className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-[2rem] shadow-2xl overflow-hidden max-h-[65vh] overflow-y-auto border border-border/60 bg-white"
+          className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden max-h-[50vh] sm:max-h-[65vh] overflow-y-auto border border-border/60 bg-white"
           style={{ zIndex: 9999, backgroundColor: "oklch(1 0 0)" }}
           role="listbox"
           aria-label="Suggestions"

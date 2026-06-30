@@ -3,7 +3,7 @@
 
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
-import { Github } from "lucide-react";
+import { Github, Menu, X } from "lucide-react";
 
 // ═══════════════════════════════════════════════════════════
 // CONSTANTES
@@ -15,15 +15,40 @@ export const GITHUB_REPO_URL = "https://github.com/Simonc44/mandat";
 // HEADER STICKY — Liquid Glass
 // ═══════════════════════════════════════════════════════════
 
+const NAV_LINKS = [
+  { to: "/deputes", label: "Député·es" },
+  { to: "/scrutins", label: "Scrutins" },
+  { to: "/recherche", label: "Recherche" },
+] as const;
+
 export function Header() {
   const isLoading = useRouterState({ select: (s) => s.isLoading });
+  const location = useRouterState({ select: (s) => s.location.pathname });
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
+
+  // Ferme le menu mobile à chaque changement de page
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location]);
+
+  // Bloque le scroll du body quand le panneau mobile est ouvert
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   return (
     <>
@@ -58,22 +83,18 @@ export function Header() {
               <span className="font-display text-lg font-semibold tracking-tight text-ink">
                 Mandat
               </span>
-              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              <span className="hidden sm:block text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                 Transparence citoyenne
               </span>
             </span>
           </Link>
 
-          {/* Nav */}
+          {/* Nav desktop — cachée sous md */}
           <nav
-            className="flex items-center gap-1 text-sm"
+            className="hidden md:flex items-center gap-1 text-sm"
             aria-label="Navigation principale"
           >
-            {[
-              { to: "/deputes", label: "Député·es" },
-              { to: "/scrutins", label: "Scrutins" },
-              { to: "/recherche", label: "Recherche" },
-            ].map((l) => (
+            {NAV_LINKS.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
@@ -104,7 +125,62 @@ export function Header() {
               16<sup>e</sup> législature
             </Link>
           </nav>
+
+          {/* Bouton burger — visible seulement sous md */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl text-foreground/80 hover:bg-white/30 transition-colors shrink-0"
+            aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-nav-panel"
+          >
+            {mobileOpen ? (
+              <X className="w-5 h-5" aria-hidden="true" />
+            ) : (
+              <Menu className="w-5 h-5" aria-hidden="true" />
+            )}
+          </button>
         </div>
+
+        {/* Panneau nav mobile */}
+        {mobileOpen && (
+          <nav
+            id="mobile-nav-panel"
+            className="md:hidden glass-navbar border-t border-border/30 animate-slide-down"
+            aria-label="Navigation principale mobile"
+          >
+            <div className="container-app py-3 flex flex-col gap-1">
+              {NAV_LINKS.map((l) => (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  className="px-4 py-3 rounded-xl text-base text-foreground/80 hover:text-foreground hover:bg-white/30 transition-colors"
+                  activeProps={{
+                    className:
+                      "px-4 py-3 rounded-xl text-base text-primary font-medium bg-primary/8 glass",
+                  }}
+                >
+                  {l.label}
+                </Link>
+              ))}
+              <Link
+                to="/legislature-16"
+                className="mt-1 inline-flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium glass border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
+                activeProps={{
+                  className:
+                    "mt-1 inline-flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium btn-primary",
+                }}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-current opacity-70"
+                  aria-hidden="true"
+                />
+                16<sup>e</sup> législature
+              </Link>
+            </div>
+          </nav>
+        )}
       </header>
     </>
   );

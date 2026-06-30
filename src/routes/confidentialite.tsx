@@ -133,7 +133,7 @@ function PrivacyPage() {
             })}
           </p>
           <p className="mt-2">
-            Pour toute question : contact [at] mandat-fr.app
+            Pour toute question : simon.chusseau@gmail.com
           </p>
         </footer>
       </div>
