@@ -57,7 +57,7 @@ function Home() {
   return (
     <div>
       {/* ── HERO LIQUID GLASS ── */}
-      <section className="relative overflow-hidden min-h-[80vh] flex items-center">
+      <section className="relative overflow-hidden min-h-[60vh] flex items-center">
         {/* Orbes de fond animés */}
         <div
           className="absolute inset-0 -z-10 pointer-events-none overflow-hidden"
@@ -98,7 +98,7 @@ function Home() {
           />
         </div>
 
-        <div className="container-app py-16 md:py-24 w-full">
+        <div className="container-app py-16 md:py-20 w-full">
           <div className="max-w-3xl">
             {/* Badge législature */}
             <div
@@ -142,28 +142,12 @@ function Home() {
             >
               <SearchBar deputes={deputes} scrutins={scrutins} />
             </div>
-
-            {/* Stats */}
-            <div
-              className="grid grid-cols-3 gap-4 mt-12 max-w-xl animate-fade-up"
-              style={{ animationDelay: "320ms" }}
-            >
-              <StatPill
-                value={stats.deputes.toLocaleString("fr-FR")}
-                label="Député·es"
-              />
-              <StatPill
-                value={stats.scrutins.toLocaleString("fr-FR")}
-                label="Scrutins"
-              />
-              <StatPill value={stats.groupes.toString()} label="Groupes" />
-            </div>
           </div>
         </div>
       </section>
 
-      {/* ── DERNIERS SCRUTINS ── */}
-      <section className="container-app pb-24 pt-4">
+      {/* ── DERNIERS SCRUTINS (mis en avant) ── */}
+      <section className="container-app pb-16 pt-4">
         <ScrollScene variant="rise">
           <div className="flex items-end justify-between mb-8 mt-2" data-rise>
             <div>
@@ -206,6 +190,21 @@ function Home() {
         </ScrollScene>
       </section>
 
+      {/* ── STATS — discrètes, sous les résultats ── */}
+      <section className="container-app pb-16">
+        <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 animate-fade-up">
+          <StatPill
+            value={stats.deputes.toLocaleString("fr-FR")}
+            label="Député·es"
+          />
+          <StatPill
+            value={stats.scrutins.toLocaleString("fr-FR")}
+            label="Scrutins"
+          />
+          <StatPill value={stats.groupes.toString()} label="Groupes" />
+        </div>
+      </section>
+
       {/* ── SECTION CONFIANCE ── */}
       <TrustSection />
     </div>
@@ -216,13 +215,13 @@ function Home() {
 
 function StatPill({ value, label }: { value: string; label: string }) {
   return (
-    <div className="stat-box glass rounded-2xl px-4 py-3 border border-border/40 text-center">
-      <div className="stat-value font-display text-2xl md:text-3xl text-ink">
+    <div className="stat-box glass rounded-full px-5 py-2.5 border border-border/40 inline-flex items-center gap-2">
+      <span className="stat-value font-display text-lg text-ink">
         {value}
-      </div>
-      <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">
+      </span>
+      <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
         {label}
-      </div>
+      </span>
     </div>
   );
 }
