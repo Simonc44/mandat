@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ScrutinsRouteImport } from './routes/scrutins'
 import { Route as RechercheRouteImport } from './routes/recherche'
+import { Route as Legislature16RouteImport } from './routes/legislature-16'
 import { Route as DeputesRouteImport } from './routes/deputes'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as IndexRouteImport } from './routes/index'
@@ -26,6 +27,11 @@ const ScrutinsRoute = ScrutinsRouteImport.update({
 const RechercheRoute = RechercheRouteImport.update({
   id: '/recherche',
   path: '/recherche',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Legislature16Route = Legislature16RouteImport.update({
+  id: '/legislature-16',
+  path: '/legislature-16',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeputesRoute = DeputesRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
   '/api/visits': typeof ApiVisitsRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
   '/api/visits': typeof ApiVisitsRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
   '/api/visits': typeof ApiVisitsRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/confidentialite'
     | '/deputes'
+    | '/legislature-16'
     | '/recherche'
     | '/scrutins'
     | '/api/visits'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/confidentialite'
     | '/deputes'
+    | '/legislature-16'
     | '/recherche'
     | '/scrutins'
     | '/api/visits'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/confidentialite'
     | '/deputes'
+    | '/legislature-16'
     | '/recherche'
     | '/scrutins'
     | '/api/visits'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   DeputesRoute: typeof DeputesRoute
+  Legislature16Route: typeof Legislature16Route
   RechercheRoute: typeof RechercheRoute
   ScrutinsRoute: typeof ScrutinsRoute
   ApiVisitsRoute: typeof ApiVisitsRoute
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/recherche'
       fullPath: '/recherche'
       preLoaderRoute: typeof RechercheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legislature-16': {
+      id: '/legislature-16'
+      path: '/legislature-16'
+      fullPath: '/legislature-16'
+      preLoaderRoute: typeof Legislature16RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/deputes': {
@@ -199,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   DeputesRoute: DeputesRoute,
+  Legislature16Route: Legislature16Route,
   RechercheRoute: RechercheRoute,
   ScrutinsRoute: ScrutinsRoute,
   ApiVisitsRoute: ApiVisitsRoute,

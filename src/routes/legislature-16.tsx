@@ -97,7 +97,7 @@ function Legislature16Page() {
         onSubmit={(e) => {
           e.preventDefault();
           navigate({
-            search: (p) => ({ ...p, q: sanitizeSearchInput(search) }),
+            search: (p: { q: string; groupe: string }) => ({ ...p, q: sanitizeSearchInput(search) }),
           });
         }}
         className="flex gap-2 mb-4"
@@ -135,7 +135,7 @@ function Legislature16Page() {
       <div className="flex flex-wrap gap-2 mb-8">
         <button
           onClick={() =>
-            navigate({ search: (p) => ({ ...p, groupe: "" }) })
+            navigate({ search: (p: { q: string; groupe: string }) => ({ ...p, groupe: "" }) })
           }
           aria-pressed={!groupe}
           className={chip(!groupe)}
@@ -148,7 +148,7 @@ function Legislature16Page() {
             <button
               key={sig}
               onClick={() =>
-                navigate({ search: (p) => ({ ...p, groupe: sig }) })
+                navigate({ search: (p: { q: string; groupe: string }) => ({ ...p, groupe: sig }) })
               }
               aria-pressed={groupe === sig}
               className={chip(groupe === sig)}
