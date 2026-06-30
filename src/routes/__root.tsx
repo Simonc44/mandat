@@ -15,6 +15,7 @@ import { Landmark, AlertTriangle, Home, RotateCcw } from "lucide-react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 import { Header, Footer, CookieBanner } from "../components/Header";
 import { PWAInstallPrompt } from "../components/PWAInstallPrompt";
 import { LoadingOverlay } from "../components/LoadingOverlay";
@@ -343,6 +344,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen flex flex-col">
         <SpeedInsights />
+        <Analytics />
         <LoadingOverlay />
         <Header />
         <main className="flex-1 pt-20">
