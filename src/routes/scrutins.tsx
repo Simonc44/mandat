@@ -87,7 +87,7 @@ function ScrutinsPage() {
 
       {/* Filtres */}
       <div
-        className="sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 bg-background/95 backdrop-blur-md border-b border-border/20 space-y-4 mb-8 animate-fade-up"
+        className="sticky-toolbar sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 space-y-4 mb-8 animate-fade-up"
         style={{ animationDelay: "60ms" }}
       >
         <form
