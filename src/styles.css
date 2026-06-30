@@ -59,24 +59,24 @@
   --popover: oklch(1 0 0 / 92%);
   --popover-foreground: oklch(0.18 0.04 285);
 
-  --primary: oklch(0.50 0.20 285);
+  --primary: oklch(0.5 0.2 285);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.94 0.02 285 / 70%);
   --secondary-foreground: oklch(0.22 0.05 285);
   --muted: oklch(0.94 0.012 285);
-  --muted-foreground: oklch(0.50 0.03 285);
+  --muted-foreground: oklch(0.5 0.03 285);
   --accent: oklch(0.92 0.04 285 / 60%);
   --accent-foreground: oklch(0.22 0.08 285);
   --destructive: oklch(0.58 0.22 27);
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(0.88 0.014 285 / 60%);
   --input: oklch(0.88 0.014 285 / 70%);
-  --ring: oklch(0.50 0.20 285);
+  --ring: oklch(0.5 0.2 285);
 
-  --pour: oklch(0.60 0.16 155);
+  --pour: oklch(0.6 0.16 155);
   --contre: oklch(0.58 0.22 27);
   --abstention: oklch(0.68 0.14 80);
-  --absent: oklch(0.60 0.02 285);
+  --absent: oklch(0.6 0.02 285);
 
   /* Liquid Glass variables */
   --glass-bg: oklch(1 0 0 / 55%);
@@ -85,28 +85,45 @@
   --glass-blur: 20px;
 
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, oklch(0.50 0.20 285), oklch(0.42 0.22 260));
-  --gradient-hero: radial-gradient(ellipse 80% 50% at 20% 20%, oklch(0.50 0.20 285 / 12%), transparent),
-                   radial-gradient(ellipse 60% 40% at 80% 80%, oklch(0.60 0.18 215 / 10%), transparent),
-                   radial-gradient(ellipse 50% 60% at 50% 50%, oklch(0.48 0.22 260 / 6%), transparent);
+  --gradient-primary: linear-gradient(
+    135deg,
+    oklch(0.5 0.2 285),
+    oklch(0.42 0.22 260)
+  );
+  --gradient-hero:
+    radial-gradient(
+      ellipse 80% 50% at 20% 20%,
+      oklch(0.5 0.2 285 / 12%),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 80%,
+      oklch(0.6 0.18 215 / 10%),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 50% 60% at 50% 50%,
+      oklch(0.48 0.22 260 / 6%),
+      transparent
+    );
 }
 
 .dark {
-  --background: oklch(0.10 0.025 285);
+  --background: oklch(0.1 0.025 285);
   --foreground: oklch(0.96 0.008 285);
   --ink: oklch(0.99 0 0);
-  --surface: oklch(0.16 0.030 285 / 80%);
+  --surface: oklch(0.16 0.03 285 / 80%);
   --surface-muted: oklch(0.19 0.03 285 / 60%);
-  --card: oklch(0.16 0.030 285 / 85%);
+  --card: oklch(0.16 0.03 285 / 85%);
   --card-foreground: oklch(0.96 0.008 285);
-  --popover: oklch(0.14 0.030 285 / 95%);
+  --popover: oklch(0.14 0.03 285 / 95%);
   --popover-foreground: oklch(0.96 0.008 285);
   --primary: oklch(0.72 0.16 285);
-  --primary-foreground: oklch(0.10 0.03 285);
+  --primary-foreground: oklch(0.1 0.03 285);
   --secondary: oklch(0.22 0.035 285 / 70%);
   --secondary-foreground: oklch(0.96 0.008 285);
   --muted: oklch(0.22 0.025 285);
-  --muted-foreground: oklch(0.70 0.018 285);
+  --muted-foreground: oklch(0.7 0.018 285);
   --accent: oklch(0.25 0.05 285 / 60%);
   --accent-foreground: oklch(0.96 0.008 285);
   --destructive: oklch(0.65 0.22 27);
@@ -124,8 +141,13 @@
    ═══════════════════════════════════════════════════════════ */
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
   body {
     background-color: var(--color-background);
     background-image: var(--gradient-hero);
@@ -134,7 +156,10 @@
     font-family: var(--font-sans);
     min-height: 100vh;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: -0.025em;
     color: var(--color-ink);
@@ -192,10 +217,16 @@
   mask-image: linear-gradient(to bottom, transparent 0, black 80px);
 }
 
-.dark .glass { background: oklch(1 0 0 / 5%); }
-.dark .glass-strong { background: oklch(1 0 0 / 8%); border-color: oklch(1 0 0 / 14%); }
-.dark .glass-navbar { background: oklch(0.18 0.04 285 / 88%); }
-
+.dark .glass {
+  background: oklch(1 0 0 / 5%);
+}
+.dark .glass-strong {
+  background: oklch(1 0 0 / 8%);
+  border-color: oklch(1 0 0 / 14%);
+}
+.dark .glass-navbar {
+  background: oklch(0.18 0.04 285 / 88%);
+}
 
 /* ═══════════════════════════════════════════════════════════
    CARTES — Liquid Glass avec hover magnétique
@@ -218,10 +249,10 @@
 
 .card-glass:hover {
   transform: translateY(-3px) scale(1.005);
-  border-color: oklch(0.50 0.20 285 / 35%);
+  border-color: oklch(0.5 0.2 285 / 35%);
   box-shadow:
     0 1px 0 oklch(1 0 0 / 60%) inset,
-    0 24px 48px oklch(0.50 0.20 285 / 12%),
+    0 24px 48px oklch(0.5 0.2 285 / 12%),
     0 8px 24px oklch(0 0 0 / 8%);
 }
 
@@ -243,20 +274,28 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, oklch(0.50 0.20 285 / 0%) 0%, oklch(0.50 0.20 285 / 6%) 100%);
+  background: linear-gradient(
+    135deg,
+    oklch(0.5 0.2 285 / 0%) 0%,
+    oklch(0.5 0.2 285 / 6%) 100%
+  );
   opacity: 0;
   transition: opacity 220ms ease;
   border-radius: inherit;
   pointer-events: none;
 }
 
-.depute-card:hover::before { opacity: 1; }
+.depute-card:hover::before {
+  opacity: 1;
+}
 
 .depute-photo {
   transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.depute-card:hover .depute-photo { transform: scale(1.08); }
+.depute-card:hover .depute-photo {
+  transform: scale(1.08);
+}
 
 /* ═══════════════════════════════════════════════════════════
    SCRUTIN CARD — Accent bar left
@@ -270,7 +309,9 @@
 .scrutin-card::after {
   content: "";
   position: absolute;
-  left: 0; top: 0; bottom: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
   width: 3px;
   background: var(--gradient-primary);
   transform: scaleY(0);
@@ -279,8 +320,12 @@
   border-radius: 0 2px 2px 0;
 }
 
-.scrutin-card:hover::after { transform: scaleY(1); }
-.scrutin-card:hover { transform: translateX(4px) translateY(-2px); }
+.scrutin-card:hover::after {
+  transform: scaleY(1);
+}
+.scrutin-card:hover {
+  transform: translateX(4px) translateY(-2px);
+}
 
 /* ═══════════════════════════════════════════════════════════
    BARRE DE RÉSULTATS — Fill animé
@@ -301,10 +346,10 @@
 }
 
 .search-ring:focus-within {
-  border-color: oklch(0.50 0.20 285 / 60%);
+  border-color: oklch(0.5 0.2 285 / 60%);
   box-shadow:
-    0 0 0 4px oklch(0.50 0.20 285 / 12%),
-    0 8px 24px oklch(0.50 0.20 285 / 10%);
+    0 0 0 4px oklch(0.5 0.2 285 / 12%),
+    0 8px 24px oklch(0.5 0.2 285 / 10%);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -319,7 +364,7 @@
   border: none;
   box-shadow:
     0 1px 0 oklch(1 0 0 / 20%) inset,
-    0 4px 12px oklch(0.50 0.20 285 / 25%);
+    0 4px 12px oklch(0.5 0.2 285 / 25%);
   transition:
     transform 130ms ease,
     box-shadow 130ms ease,
@@ -330,7 +375,7 @@
   transform: translateY(-1px);
   box-shadow:
     0 1px 0 oklch(1 0 0 / 25%) inset,
-    0 8px 20px oklch(0.50 0.20 285 / 30%);
+    0 8px 20px oklch(0.5 0.2 285 / 30%);
 }
 
 .btn-primary:active {
@@ -343,8 +388,12 @@
    ═══════════════════════════════════════════════════════════ */
 
 @keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 .skeleton {
@@ -375,60 +424,144 @@
    ═══════════════════════════════════════════════════════════ */
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slide-down {
-  from { opacity: 0; transform: translateY(-8px) scaleY(0.95); }
-  to   { opacity: 1; transform: translateY(0) scaleY(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scaleY(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.92); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes progress-bar {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(400%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes gradient-shift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 oklch(0.50 0.20 285 / 0%); }
-  50%       { box-shadow: 0 0 0 8px oklch(0.50 0.20 285 / 12%); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.5 0.2 285 / 0%);
+  }
+  50% {
+    box-shadow: 0 0 0 8px oklch(0.5 0.2 285 / 12%);
+  }
 }
 
-.animate-fade-up   { animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-fade-in   { animation: fade-in 0.3s ease both; }
-.animate-slide-down { animation: slide-down 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-scale-in  { animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-.animate-float     { animation: float 4s ease-in-out infinite; }
+@keyframes logo-pulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 0px var(--color-primary));
+  }
+  50% {
+    transform: scale(1.1) rotate(3deg);
+    filter: drop-shadow(0 0 15px var(--color-primary));
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 0px var(--color-primary));
+  }
+}
+
+.animate-logo-pulse {
+  animation: logo-pulse 2s ease-in-out infinite;
+}
+.animate-fade-up {
+  animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease both;
+}
+.animate-slide-down {
+  animation: slide-down 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-scale-in {
+  animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
 
 /* Cascade pour grilles */
-.animate-stagger > *:nth-child(1)  { animation-delay:   0ms; }
-.animate-stagger > *:nth-child(2)  { animation-delay:  50ms; }
-.animate-stagger > *:nth-child(3)  { animation-delay: 100ms; }
-.animate-stagger > *:nth-child(4)  { animation-delay: 150ms; }
-.animate-stagger > *:nth-child(5)  { animation-delay: 200ms; }
-.animate-stagger > *:nth-child(6)  { animation-delay: 250ms; }
-.animate-stagger > *:nth-child(n+7){ animation-delay: 300ms; }
+.animate-stagger > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.animate-stagger > *:nth-child(2) {
+  animation-delay: 50ms;
+}
+.animate-stagger > *:nth-child(3) {
+  animation-delay: 100ms;
+}
+.animate-stagger > *:nth-child(4) {
+  animation-delay: 150ms;
+}
+.animate-stagger > *:nth-child(5) {
+  animation-delay: 200ms;
+}
+.animate-stagger > *:nth-child(6) {
+  animation-delay: 250ms;
+}
+.animate-stagger > *:nth-child(n + 7) {
+  animation-delay: 300ms;
+}
 
 /* ═══════════════════════════════════════════════════════════
    HERO GRADIENT — Orbes animés
@@ -447,7 +580,12 @@
    ═══════════════════════════════════════════════════════════ */
 
 .text-gradient {
-  background: linear-gradient(135deg, oklch(0.50 0.20 285) 0%, oklch(0.42 0.22 215) 50%, oklch(0.55 0.18 165) 100%);
+  background: linear-gradient(
+    135deg,
+    oklch(0.5 0.2 285) 0%,
+    oklch(0.42 0.22 215) 50%,
+    oklch(0.55 0.18 165) 100%
+  );
   background-size: 200% 200%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -460,7 +598,9 @@
    ═══════════════════════════════════════════════════════════ */
 
 .groupe-badge {
-  transition: box-shadow 200ms ease, transform 150ms ease;
+  transition:
+    box-shadow 200ms ease,
+    transform 150ms ease;
 }
 
 .groupe-badge:hover {
@@ -473,7 +613,9 @@
 
 .nav-progress {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 2px;
   background: var(--gradient-primary);
   z-index: 9999;
@@ -484,7 +626,12 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 50%), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(1 0 0 / 50%),
+    transparent
+  );
   animation: progress-bar 1s ease-in-out infinite;
 }
 
@@ -504,20 +651,34 @@
 }
 
 @keyframes slide-up-banner {
-  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
    STAT BOXES — Hover coloré
    ═══════════════════════════════════════════════════════════ */
 
-.stat-box { transition: transform 200ms ease; }
-.stat-box:hover { transform: scale(1.02); }
+.stat-box {
+  transition: transform 200ms ease;
+}
+.stat-box:hover {
+  transform: scale(1.02);
+}
 
-.stat-value { transition: color 300ms ease, transform 200ms ease; }
+.stat-value {
+  transition:
+    color 300ms ease,
+    transform 200ms ease;
+}
 .stat-box:hover .stat-value {
-  color: oklch(0.50 0.20 285);
+  color: oklch(0.5 0.2 285);
   transform: scale(1.05);
 }
 
@@ -526,7 +687,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 :focus-visible {
-  outline: 2px solid oklch(0.50 0.20 285);
+  outline: 2px solid oklch(0.5 0.2 285);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -536,7 +697,9 @@
    ═══════════════════════════════════════════════════════════ */
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -547,19 +710,26 @@
    SCROLLBAR CUSTOM
    ═══════════════════════════════════════════════════════════ */
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.50 0.20 285 / 25%);
+  background: oklch(0.5 0.2 285 / 25%);
   border-radius: 99px;
 }
-::-webkit-scrollbar-thumb:hover { background: oklch(0.50 0.20 285 / 45%); }
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.5 0.2 285 / 45%);
+}
 
 /* ═══════════════════════════════════════════════════════════
    SELECTION
    ═══════════════════════════════════════════════════════════ */
 
 ::selection {
-  background: oklch(0.50 0.20 285 / 20%);
-  color: oklch(0.20 0.05 285);
+  background: oklch(0.5 0.2 285 / 20%);
+  color: oklch(0.2 0.05 285);
 }

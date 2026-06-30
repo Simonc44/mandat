@@ -57,8 +57,8 @@ function Scrutins16Page() {
           Scrutins 16<sup>e</sup> législature
         </h1>
         <p className="text-muted-foreground max-w-2xl">
-          Retrouvez les votes de la précédente législature. Les détails nominatifs
-          ne sont pas disponibles pour cette archive.
+          Retrouvez les votes de la précédente législature. Les détails
+          nominatifs ne sont pas disponibles pour cette archive.
         </p>
       </div>
 

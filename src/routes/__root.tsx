@@ -16,6 +16,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header, Footer, CookieBanner } from "../components/Header";
 import { PWAInstallPrompt } from "../components/PWAInstallPrompt";
+import { LoadingOverlay } from "../components/LoadingOverlay";
 
 // ─── CONSTANTES ──────────────────────────────────────────────────────────────
 
@@ -349,6 +350,8 @@ function RootComponent() {
         <CookieBanner />
         {/* Notification installation PWA */}
         <PWAInstallPrompt />
+        {/* Overlay de chargement global */}
+        <LoadingOverlay />
       </div>
     </QueryClientProvider>
   );
