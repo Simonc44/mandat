@@ -211,7 +211,7 @@ function DeputesTab({
           className="flex gap-2"
           role="search"
         >
-          <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
+          <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5">
             <svg
               className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
               viewBox="0 0 24 24"
@@ -233,7 +233,7 @@ function DeputesTab({
           </div>
           <button
             type="submit"
-            className="btn-primary px-5 py-3 rounded-2xl text-sm font-medium"
+            className="btn-primary px-6 py-3 rounded-full text-sm font-medium"
           >
             Chercher
           </button>
@@ -319,14 +319,14 @@ function Depute16Card({ d }: { d: Depute16 }) {
       href={d.url_an || `https://2022-2024.nosdeputes.fr/${d.slug}`}
       target="_blank"
       rel="noreferrer noopener"
-      className="card-glass group p-4 rounded-2xl flex items-center gap-3 hover:border-primary/40 transition-all"
+      className="card-glass group p-4 rounded-[2rem] flex items-center gap-3 hover:border-primary/40 transition-all"
     >
       {!err ? (
         <img
           src={d.photo}
           alt=""
           aria-hidden="true"
-          className="w-12 h-12 rounded-full object-cover shrink-0"
+          className="w-12 h-12 rounded-2xl object-cover shrink-0"
           onError={() => setErr(true)}
         />
       ) : !fallbackErr ? (
@@ -334,12 +334,12 @@ function Depute16Card({ d }: { d: Depute16 }) {
           src={fallbackSrc}
           alt=""
           aria-hidden="true"
-          className="w-12 h-12 rounded-full object-cover shrink-0 opacity-20 grayscale"
+          className="w-12 h-12 rounded-2xl object-cover shrink-0 opacity-20 grayscale"
           onError={() => setFallbackErr(true)}
         />
       ) : (
         <div
-          className="w-12 h-12 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+          className="w-12 h-12 rounded-2xl flex items-center justify-center text-xs font-bold shrink-0"
           style={{
             background: `color-mix(in oklch, ${g.couleur} 18%, white)`,
             color: g.couleur,
@@ -408,7 +408,7 @@ function ScrutinsTab({
           className="flex gap-2"
           role="search"
         >
-          <div className="search-ring flex-1 flex items-center glass-strong rounded-2xl border border-white/30 px-4">
+          <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5">
             <svg
               className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
               viewBox="0 0 24 24"
@@ -431,7 +431,7 @@ function ScrutinsTab({
           </div>
           <button
             type="submit"
-            className="btn-primary px-5 py-3 rounded-2xl text-sm font-medium"
+            className="btn-primary px-6 py-3 rounded-full text-sm font-medium"
           >
             Chercher
           </button>
@@ -492,7 +492,7 @@ function Scrutin16Row({ s, index }: { s: Scrutin16; index: number }) {
         href={s.url_institution}
         target="_blank"
         rel="noreferrer noopener"
-        className="scrutin-card card-glass group block p-5 rounded-2xl border border-border/40"
+        className="scrutin-card card-glass group block p-5 rounded-[2rem] border border-border/40"
         aria-label={`Scrutin n°${s.numero} : ${s.titre || "Sans titre"}`}
       >
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-2">

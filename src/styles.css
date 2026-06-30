@@ -203,6 +203,7 @@
 
 /* Header — verre ultra-opaque qui MASQUE totalement ce qui passe dessous */
 .glass-navbar {
+  z-index: 60;
   background: oklch(0.99 0.006 285 / 88%);
   backdrop-filter: blur(40px) saturate(200%) brightness(1.04);
   border-bottom: 1px solid oklch(0.88 0.014 285 / 70%);
@@ -237,6 +238,7 @@
    Maintenant : un seul fond opaque net derrière, l'input glass-strong
    se détache proprement par-dessus. */
 .sticky-toolbar {
+  z-index: 50;
   background: oklch(0.982 0.006 285 / 80%);
   backdrop-filter: blur(10px) saturate(180%);
   -webkit-backdrop-filter: blur(10px) saturate(180%);

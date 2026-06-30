@@ -56,7 +56,7 @@ export const Route = createFileRoute("/scrutin/$numero")({
       </p>
       <Link
         to="/scrutins"
-        className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm"
+        className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm"
       >
         ← Tous les scrutins
       </Link>
@@ -278,7 +278,7 @@ function ScrutinPage() {
           <div className="flex flex-wrap items-center gap-3">
             {/* Badge résultat */}
             <span
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold glass"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold glass shadow-sm"
               style={{
                 color: isAdopte ? "var(--color-pour)" : "var(--color-contre)",
                 borderColor: isAdopte
@@ -298,7 +298,7 @@ function ScrutinPage() {
             {meta.tags?.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 rounded-full text-xs glass text-muted-foreground"
+                className="px-4 py-2 rounded-full text-xs glass text-muted-foreground"
               >
                 {sanitizeText(tag)}
               </span>
@@ -310,7 +310,7 @@ function ScrutinPage() {
                 href={meta.url_institution}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary glass px-3 py-2 rounded-xl border border-border/60 transition-colors"
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary glass px-4 py-2 rounded-full border border-border/60 transition-colors shadow-sm"
               >
                 Dossier AN ↗
               </a>
@@ -320,13 +320,13 @@ function ScrutinPage() {
 
         {/* ── RÉSULTAT GLOBAL ── */}
         <section
-          className="mb-10 p-6 rounded-3xl card-glass animate-fade-up"
+          className="mb-10 p-8 rounded-[2rem] card-glass animate-fade-up shadow-md"
           style={{ animationDelay: "80ms" }}
           aria-labelledby="result-heading"
         >
           <h2
             id="result-heading"
-            className="font-display text-xl mb-5 flex items-center gap-2"
+            className="font-display text-xl mb-6 flex items-center gap-2"
           >
             Résultat global
             <span className="text-sm font-sans font-normal text-muted-foreground">
@@ -339,7 +339,7 @@ function ScrutinPage() {
             contre={cFinal}
             abstention={aFinal}
           />
-          <div className="grid grid-cols-3 gap-3 mt-5">
+          <div className="grid grid-cols-3 gap-4 mt-6">
             <ResultCell
               label="Pour"
               value={pFinal}
@@ -374,13 +374,13 @@ function ScrutinPage() {
             style={{ animationDelay: "160ms" }}
             aria-labelledby="groups-heading"
           >
-            <h2 id="groups-heading" className="font-display text-xl mb-2">
+            <h2 id="groups-heading" className="font-display text-xl mb-3">
               Par groupe politique
             </h2>
-            <p className="text-xs text-muted-foreground mb-4">
+            <p className="text-xs text-muted-foreground mb-5">
               Cliquez sur un groupe pour filtrer la liste.
             </p>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {byGroup.map((g, i) => {
                 const total = Math.max(1, g.total);
                 const isActive = filter.groupe === g.organeRef;
@@ -394,18 +394,18 @@ function ScrutinPage() {
                       }))
                     }
                     aria-pressed={isActive}
-                    className={`w-full text-left p-4 rounded-2xl border transition-all duration-200 animate-fade-up ${isActive ? "card-glass border-primary/40 shadow-md" : "glass border-border/50 hover:border-primary/25"}`}
+                    className={`w-full text-left p-5 rounded-[2rem] border transition-all duration-300 animate-fade-up ${isActive ? "card-glass border-primary/50 shadow-lg ring-1 ring-primary/20" : "glass border-border/50 hover:border-primary/30 hover:shadow-md"}`}
                     style={{ animationDelay: `${i * 30}ms` }}
                   >
-                    <div className="flex items-center justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <div className="flex items-center gap-3 flex-wrap">
                         <GroupBadge sigle={g.organeRef} />
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm font-medium text-foreground/90">
                           {groupeMeta(g.organeRef).nom}
                         </span>
                         {g.positionMajoritaire && (
                           <span
-                            className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full"
+                            className="text-[10px] uppercase tracking-wider px-3 py-1 rounded-full font-semibold"
                             style={{
                               color:
                                 g.positionMajoritaire === "pour"
@@ -420,12 +420,12 @@ function ScrutinPage() {
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-muted-foreground shrink-0">
+                      <span className="text-xs text-muted-foreground shrink-0 font-medium">
                         {g.total} député·es
                       </span>
                     </div>
                     {/* Barre groupe */}
-                    <div className="flex h-2.5 rounded-full overflow-hidden bg-muted/50">
+                    <div className="flex h-3 rounded-full overflow-hidden bg-muted/50 shadow-inner">
                       {g.pour > 0 && (
                         <div
                           className="result-bar-segment"
@@ -463,7 +463,7 @@ function ScrutinPage() {
                         />
                       )}
                     </div>
-                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mt-2">
+                    <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mt-3 font-medium">
                       <span>
                         <strong className="text-foreground">{g.pour}</strong>{" "}
                         pour
@@ -495,7 +495,7 @@ function ScrutinPage() {
         {/* ── PAR DÉPUTÉ ── */}
         {votes.length > 0 && (
           <section aria-labelledby="deputies-heading">
-            <div className="flex items-end justify-between flex-wrap gap-3 mb-4">
+            <div className="flex items-end justify-between flex-wrap gap-4 mb-6">
               <h2 id="deputies-heading" className="font-display text-xl">
                 Position des député·es{" "}
                 {filter.groupe && (
@@ -530,7 +530,7 @@ function ScrutinPage() {
                       }))
                     }
                     aria-pressed={filter.pos === k}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${filter.pos === k ? "btn-primary border-transparent" : "glass border-border/50 text-foreground/70 hover:text-foreground"}`}
+                    className={`px-4 py-2 rounded-full text-xs font-medium border transition-all duration-200 ${filter.pos === k ? "btn-primary border-transparent shadow-sm" : "glass border-border/50 text-foreground/70 hover:text-foreground hover:border-primary/30"}`}
                   >
                     {label}
                   </button>
@@ -538,7 +538,7 @@ function ScrutinPage() {
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 animate-stagger">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-stagger">
               {filteredVotes.slice(0, 300).map((v, i) => {
                 const nom =
                   v.parlementaire_prenom && v.parlementaire_nom
@@ -557,17 +557,17 @@ function ScrutinPage() {
                     key={`${v.parlementaire_slug}-${i}`}
                     to="/depute/$slug"
                     params={{ slug }}
-                    className="flex items-center gap-3 p-3 rounded-2xl card-glass group animate-fade-up"
+                    className="flex items-center gap-3 p-3 rounded-[2rem] card-glass group animate-fade-up shadow-sm"
                     style={{ animationDelay: `${Math.min(i * 15, 300)}ms` }}
                     aria-label={`${nom} — ${positionLabel(v.position)}`}
                   >
                     <DeputeAvatar nom={nom} idAn={idAn} position={v.position} />
                     <div className="min-w-0 flex-1">
-                      <span className="text-sm font-medium truncate block group-hover:text-primary transition-colors">
+                      <span className="text-sm font-semibold truncate block group-hover:text-primary transition-colors">
                         {nom || slug}
                       </span>
                       <span
-                        className="text-[10px] font-semibold uppercase tracking-wider"
+                        className="text-[10px] font-bold uppercase tracking-wider"
                         style={{ color: positionColor(v.position) }}
                       >
                         {positionLabel(v.position)}
@@ -583,13 +583,13 @@ function ScrutinPage() {
             </div>
 
             {filteredVotes.length > 300 && (
-              <p className="text-xs text-muted-foreground text-center mt-6 py-4 border-t border-border/40">
+              <p className="text-xs text-muted-foreground text-center mt-8 py-6 border-t border-border/30">
                 Affichage de 300 sur {filteredVotes.length}. Filtrez par groupe
                 ou position pour affiner.
               </p>
             )}
             {filteredVotes.length === 0 && (
-              <div className="py-12 text-center glass rounded-3xl border border-border/50">
+              <div className="py-16 text-center glass rounded-[2rem] border border-border/50">
                 <p className="text-muted-foreground">
                   Aucun vote dans cette catégorie.
                 </p>
@@ -599,8 +599,8 @@ function ScrutinPage() {
         )}
 
         {votes.length === 0 && (
-          <div className="py-10 text-center glass rounded-3xl border border-border/50">
-            <p className="text-muted-foreground mb-3">
+          <div className="py-12 text-center glass rounded-[2rem] border border-border/50">
+            <p className="text-muted-foreground mb-4 font-medium">
               Les votes nominatifs ne sont pas encore disponibles pour ce
               scrutin.
             </p>
@@ -609,7 +609,7 @@ function ScrutinPage() {
                 href={meta.url_institution}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="text-sm text-primary hover:underline"
+                className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs"
               >
                 Voir le dossier officiel sur assemblee-nationale.fr ↗
               </a>
@@ -641,7 +641,7 @@ function AnimatedResultBar({
 
   return (
     <div
-      className="flex h-5 rounded-full overflow-hidden bg-muted/50"
+      className="flex h-6 rounded-full overflow-hidden bg-muted/50 shadow-inner"
       role="img"
       aria-label={`${pour} pour, ${contre} contre, ${abstention} abstentions`}
     >
@@ -683,19 +683,19 @@ function ResultCell({
 }) {
   return (
     <div
-      className="p-4 rounded-2xl glass border border-border/40 text-center"
+      className="p-5 rounded-[2rem] glass border border-border/40 text-center transition-transform hover:scale-[1.02]"
       style={{
-        borderColor: `color-mix(in oklch, ${color} 20%, transparent)`,
-        backgroundColor: `color-mix(in oklch, ${color} 5%, transparent)`,
+        borderColor: `color-mix(in oklch, ${color} 25%, transparent)`,
+        backgroundColor: `color-mix(in oklch, ${color} 6%, transparent)`,
       }}
     >
-      <div className="font-display text-3xl md:text-4xl mb-1" style={{ color }}>
+      <div className="font-display text-3xl md:text-4xl mb-2 font-bold" style={{ color }}>
         {value.toLocaleString("fr-FR")}
       </div>
-      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
         {label}
       </div>
-      <div className="text-xs text-muted-foreground mt-0.5">{pct}%</div>
+      <div className="text-xs font-medium text-muted-foreground mt-1">{pct}%</div>
     </div>
   );
 }
@@ -724,7 +724,7 @@ function DeputeAvatar({
   if ((!src17 || err17) && (!src16 || err16)) {
     return (
       <div
-        className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 border-2"
+        className="w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-bold shrink-0 border-2"
         style={{
           backgroundColor: `color-mix(in oklch, ${color} 15%, var(--color-muted))`,
           borderColor: color,
@@ -738,28 +738,30 @@ function DeputeAvatar({
   }
 
   return (
-    <div className="relative w-8 h-8 shrink-0">
-      {!err17 && src17 ? (
-        <img
-          src={src17}
-          alt=""
-          aria-hidden="true"
-          className="w-8 h-8 rounded-full object-cover"
-          loading="lazy"
-          onError={() => setErr17(true)}
-        />
-      ) : (
-        <img
-          src={src16}
-          alt=""
-          aria-hidden="true"
-          className="w-8 h-8 rounded-full object-cover"
-          loading="lazy"
-          onError={() => setErr16(true)}
-        />
-      )}
+    <div className="relative w-10 h-10 shrink-0">
+      <div className="w-10 h-10 rounded-2xl overflow-hidden ring-1 ring-black/5 bg-muted">
+        {!err17 && src17 ? (
+          <img
+            src={src17}
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={() => setErr17(true)}
+          />
+        ) : (
+          <img
+            src={src16}
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={() => setErr16(true)}
+          />
+        )}
+      </div>
       <span
-        className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border border-card"
+        className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white shadow-sm"
         style={{ backgroundColor: color }}
         title={positionLabel(position)}
         aria-hidden="true"

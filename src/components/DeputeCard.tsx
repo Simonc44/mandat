@@ -23,12 +23,12 @@ export function DeputeCard({ d, index = 0 }: { d: Depute; index?: number }) {
     <Link
       to="/depute/$slug"
       params={{ slug: d.slug }}
-      className="depute-card card-glass group flex gap-3 p-3 rounded-2xl animate-fade-up"
+      className="depute-card card-glass group flex gap-3 p-3 rounded-[2rem] animate-fade-up shadow-sm hover:shadow-md transition-all duration-300"
       style={{ animationDelay: `${Math.min(index * 35, 400)}ms` }}
       aria-label={`Profil de ${d.prenom} ${d.nom_de_famille}`}
     >
       {/* Photo avec fallback en cascade */}
-      <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-muted">
+      <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0 bg-muted ring-1 ring-black/5">
         {!imgError && photoSrc ? (
           <img
             src={photoSrc}
@@ -121,11 +121,11 @@ export function DeputeCard({ d, index = 0 }: { d: Depute; index?: number }) {
 export function DeputeCardSkeleton({ index = 0 }: { index?: number }) {
   return (
     <div
-      className="flex gap-3 p-3 rounded-2xl glass border border-border/40 animate-fade-in"
+      className="flex gap-3 p-3 rounded-[2rem] glass border border-border/40 animate-fade-in shadow-sm"
       style={{ animationDelay: `${index * 25}ms` }}
       aria-hidden="true"
     >
-      <div className="skeleton w-14 h-14 rounded-xl shrink-0" />
+      <div className="skeleton w-14 h-14 rounded-2xl shrink-0" />
       <div className="flex-1 space-y-2 py-1">
         <div className="skeleton h-4 rounded-lg w-3/4" />
         <div className="skeleton h-3 rounded-lg w-1/2" />
