@@ -250,7 +250,17 @@ async function fetchLocal<T>(path: string, timeoutMs = 10_000): Promise<T> {
   }
 }
 
+// ─── ADOPTION DERIVED FROM COUNTS (le champ "sort" du dump est cassé) ─────
+/** Recompute le sort/isAdopte depuis pours vs contres (données dump corrompues). */
+function recomputeAdoption(s: Scrutin): Scrutin {
+  const p = parseInt(s.nombre_pours || "0") || 0;
+  const c = parseInt(s.nombre_contres || "0") || 0;
+  const adopte = p > c;
+  return { ...s, isAdopte: adopte, sort: adopte ? "adopté" : "rejeté" };
+}
+
 // ─── NORMALISATION ───────────────────────────────────────────────────────────
+
 
 function slugify(prenom: string, nom: string): string {
   return `${prenom}-${nom}`
