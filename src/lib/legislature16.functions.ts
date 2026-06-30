@@ -72,3 +72,54 @@ export const getDeputes16 = createServerFn({ method: "GET" }).handler(
     }
   },
 );
+
+export type Scrutin16 = {
+  numero: string;
+  date: string;
+  titre: string;
+  sort: string;
+  isAdopte: boolean;
+  nombre_pours: string;
+  nombre_contres: string;
+  nombre_abstentions: string;
+};
+
+export const getScrutins16 = createServerFn({ method: "GET" }).handler(
+  async (): Promise<Scrutin16[]> => {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 30_000);
+    try {
+      const r = await fetch("https://www.nosdeputes.fr/16/scrutins/json", {
+        signal: ctrl.signal,
+        headers: { Accept: "application/json" },
+      });
+      clearTimeout(t);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data: any = await r.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const list: any[] = data?.scrutins ?? [];
+      const out: Scrutin16[] = [];
+      for (const x of list) {
+        const s = x?.scrutin ?? x;
+        if (!s) continue;
+        const sortRaw = String(s.sort ?? "");
+        const isAdopte = /adopt/i.test(sortRaw) && !/non/i.test(sortRaw);
+        out.push({
+          numero: String(s.numero ?? ""),
+          date: String(s.date ?? ""),
+          titre: String(s.titre ?? s.objet ?? `Scrutin n°${s.numero}`),
+          sort: isAdopte ? "adopté" : "rejeté",
+          isAdopte,
+          nombre_pours: String(s.nombre_pours ?? "0"),
+          nombre_contres: String(s.nombre_contres ?? "0"),
+          nombre_abstentions: String(s.nombre_abstentions ?? "0"),
+        });
+      }
+      return out.sort((a, b) => b.date.localeCompare(a.date));
+    } catch (e) {
+      clearTimeout(t);
+      throw e;
+    }
+  },
+);

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as Scrutins16RouteImport } from './routes/scrutins-16'
 import { Route as ScrutinsRouteImport } from './routes/scrutins'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as Legislature16RouteImport } from './routes/legislature-16'
@@ -19,6 +20,11 @@ import { Route as ScrutinNumeroRouteImport } from './routes/scrutin.$numero'
 import { Route as DeputeSlugRouteImport } from './routes/depute.$slug'
 import { Route as ApiVisitsRouteImport } from './routes/api/visits'
 
+const Scrutins16Route = Scrutins16RouteImport.update({
+  id: '/scrutins-16',
+  path: '/scrutins-16',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScrutinsRoute = ScrutinsRouteImport.update({
   id: '/scrutins',
   path: '/scrutins',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
+  '/scrutins-16': typeof Scrutins16Route
   '/api/visits': typeof ApiVisitsRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
+  '/scrutins-16': typeof Scrutins16Route
   '/api/visits': typeof ApiVisitsRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
+  '/scrutins-16': typeof Scrutins16Route
   '/api/visits': typeof ApiVisitsRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/legislature-16'
     | '/recherche'
     | '/scrutins'
+    | '/scrutins-16'
     | '/api/visits'
     | '/depute/$slug'
     | '/scrutin/$numero'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/legislature-16'
     | '/recherche'
     | '/scrutins'
+    | '/scrutins-16'
     | '/api/visits'
     | '/depute/$slug'
     | '/scrutin/$numero'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/legislature-16'
     | '/recherche'
     | '/scrutins'
+    | '/scrutins-16'
     | '/api/visits'
     | '/depute/$slug'
     | '/scrutin/$numero'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   Legislature16Route: typeof Legislature16Route
   RechercheRoute: typeof RechercheRoute
   ScrutinsRoute: typeof ScrutinsRoute
+  Scrutins16Route: typeof Scrutins16Route
   ApiVisitsRoute: typeof ApiVisitsRoute
   DeputeSlugRoute: typeof DeputeSlugRoute
   ScrutinNumeroRoute: typeof ScrutinNumeroRoute
@@ -149,6 +162,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/scrutins-16': {
+      id: '/scrutins-16'
+      path: '/scrutins-16'
+      fullPath: '/scrutins-16'
+      preLoaderRoute: typeof Scrutins16RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scrutins': {
       id: '/scrutins'
       path: '/scrutins'
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   Legislature16Route: Legislature16Route,
   RechercheRoute: RechercheRoute,
   ScrutinsRoute: ScrutinsRoute,
+  Scrutins16Route: Scrutins16Route,
   ApiVisitsRoute: ApiVisitsRoute,
   DeputeSlugRoute: DeputeSlugRoute,
   ScrutinNumeroRoute: ScrutinNumeroRoute,

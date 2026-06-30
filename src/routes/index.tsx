@@ -137,7 +137,7 @@ function Home() {
 
             {/* Search */}
             <div
-              className="animate-fade-up"
+              className="animate-fade-up relative z-20"
               style={{ animationDelay: "240ms" }}
             >
               <SearchBar deputes={deputes} scrutins={scrutins} />
@@ -145,7 +145,7 @@ function Home() {
 
             {/* Stats */}
             <div
-              className="grid grid-cols-3 gap-4 mt-12 max-w-xl animate-fade-up"
+              className="grid grid-cols-3 gap-4 mt-12 max-w-xl animate-fade-up relative z-10"
               style={{ animationDelay: "320ms" }}
             >
               <StatPill

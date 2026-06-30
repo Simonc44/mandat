@@ -75,7 +75,7 @@ function Legislature16Page() {
         <h1 className="font-display text-4xl md:text-5xl mb-2 tracking-tight">
           16<sup>e</sup> législature
         </h1>
-        <p className="text-muted-foreground max-w-2xl">
+        <p className="text-muted-foreground max-w-2xl mb-4">
           Les {deputes.length} député·es de la précédente législature. Données
           fournies par{" "}
           <a
@@ -89,6 +89,25 @@ function Legislature16Page() {
           </a>
           .
         </p>
+        <Link
+          to="/scrutins-16"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium glass hover:text-primary transition-colors"
+        >
+          Voir les scrutins archivés
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </Link>
       </div>
 
       {/* Recherche et Filtres */}
