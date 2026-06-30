@@ -3,6 +3,13 @@
 
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
+import { Github } from "lucide-react";
+
+// ═══════════════════════════════════════════════════════════
+// CONSTANTES
+// ═══════════════════════════════════════════════════════════
+
+export const GITHUB_REPO_URL = "https://github.com/Simonc44/mandat";
 
 // ═══════════════════════════════════════════════════════════
 // HEADER STICKY — Liquid Glass
@@ -268,7 +275,19 @@ export function Footer() {
               Le moteur de recherche citoyen des votes à l'Assemblée nationale.
               17e législature · Données officielles · Aucune publicité.
             </p>
-            <VisitCounter />
+            <div className="flex items-center gap-4">
+              <VisitCounter />
+              <a
+                href={GITHUB_REPO_URL}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Code source du projet sur GitHub"
+              >
+                <Github className="w-3.5 h-3.5" aria-hidden="true" />
+                Code source
+              </a>
+            </div>
           </div>
 
           {/* Navigation */}
@@ -324,13 +343,32 @@ export function Footer() {
             >
               API CIVIX ↗
             </a>
+            <a
+              href={GITHUB_REPO_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-muted-foreground hover:text-primary transition-colors py-1 inline-flex items-center gap-1.5"
+            >
+              <Github className="w-3.5 h-3.5" aria-hidden="true" />
+              GitHub ↗
+            </a>
           </nav>
         </div>
 
         {/* Bas de footer */}
         <div className="pt-6 border-t border-border/40 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 items-center">
             <span>© {new Date().getFullYear()} Mandat</span>
+            <span>·</span>
+            <a
+              href={GITHUB_REPO_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
+            >
+              <Github className="w-3.5 h-3.5" aria-hidden="true" />
+              Simonc44/mandat
+            </a>
             <span>·</span>
             <span>
               Sources :{" "}
