@@ -176,8 +176,26 @@
     0 4px 16px oklch(0 0 0 / 8%);
 }
 
+/* Header — verre ultra-opaque qui MASQUE totalement ce qui passe dessous */
+.glass-navbar {
+  background: oklch(0.99 0.006 285 / 88%);
+  backdrop-filter: blur(40px) saturate(200%) brightness(1.04);
+  border-bottom: 1px solid oklch(0.88 0.014 285 / 70%);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 70%) inset,
+    0 12px 32px oklch(0 0 0 / 8%);
+}
+
+/* Effet "verre déformant" pour le contenu qui défile sous la navbar */
+.under-nav-distort {
+  /* halo flou qui amplifie le glass au sommet */
+  mask-image: linear-gradient(to bottom, transparent 0, black 80px);
+}
+
 .dark .glass { background: oklch(1 0 0 / 5%); }
 .dark .glass-strong { background: oklch(1 0 0 / 8%); border-color: oklch(1 0 0 / 14%); }
+.dark .glass-navbar { background: oklch(0.18 0.04 285 / 88%); }
+
 
 /* ═══════════════════════════════════════════════════════════
    CARTES — Liquid Glass avec hover magnétique
