@@ -221,7 +221,17 @@ function DeputesPage() {
         </div>
       </div>
 
+      {/* Carte département (quand un département est sélectionné) */}
+      {dept && (
+        <DepartementCard
+          numero={dept}
+          deputes={filtered}
+          nomDepartement={departments.find(([n]) => n === dept)?.[1] ?? ""}
+        />
+      )}
+
       {/* Résultats */}
+
       {slice.length === 0 ? (
         <div className="py-16 text-center glass rounded-3xl border border-border/50">
           <SearchX
