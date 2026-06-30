@@ -13,7 +13,8 @@ export function PwaInstallBanner() {
     if (
       localStorage.getItem("mandat_pwa_dismissed") === "true" ||
       window.matchMedia("(display-mode: standalone)").matches
-    ) return;
+    )
+      return;
 
     const handler = (e: Event) => {
       e.preventDefault();
@@ -51,9 +52,15 @@ export function PwaInstallBanner() {
     >
       <div className="glass-strong rounded-3xl p-4 border border-white/20 shadow-2xl">
         <div className="flex items-start gap-3 mb-3">
-          <img src="/favicon.svg" alt="Logo Mandat" className="w-10 h-10 rounded-xl shrink-0" />
+          <img
+            src="/favicon.svg"
+            alt="Logo Mandat"
+            className="w-10 h-10 rounded-xl shrink-0"
+          />
           <div>
-            <p className="text-sm font-semibold text-foreground">Installer Mandat</p>
+            <p className="text-sm font-semibold text-foreground">
+              Installer Mandat
+            </p>
             <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
               Accédez aux votes de l'Assemblée en un tap, même sans connexion.
             </p>
@@ -63,8 +70,19 @@ export function PwaInstallBanner() {
             className="ml-auto shrink-0 text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Fermer"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>

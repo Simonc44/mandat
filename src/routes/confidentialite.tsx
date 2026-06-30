@@ -132,9 +132,7 @@ function PrivacyPage() {
               year: "numeric",
             })}
           </p>
-          <p className="mt-2">
-            Pour toute question : simon.chusseau@gmail.com
-          </p>
+          <p className="mt-2">Pour toute question : simon.chusseau@gmail.com</p>
         </footer>
       </div>
     </div>
