@@ -9,16 +9,6 @@
 
 ---
 
-### Commandes utiles
-
-- `pnpm dev` : Lance le serveur de développement sur http://localhost:3000.
-- `pnpm build` : Prépare l'application pour la production.
-- `pnpm start` : Lance l'application buildée localement.
-- `pnpm lint` : Vérifie la qualité du code (ESLint).
-- `pnpm run fetch-data` : Télécharge les dernières données officielles de la 17e législature.
-
----
-
 ## Stack Technique
 
 - **Framework** : [TanStack Start](https://tanstack.com/start) (React 18)
