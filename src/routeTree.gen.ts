@@ -15,9 +15,12 @@ import { Route as Legislature16RouteImport } from './routes/legislature-16'
 import { Route as DeputesRouteImport } from './routes/deputes'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as CommencerRouteImport } from './routes/commencer'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ScrutinNumeroRouteImport } from './routes/scrutin.$numero'
 import { Route as DeputeSlugRouteImport } from './routes/depute.$slug'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiVisitsRouteImport } from './routes/api/visits'
 
 const ScrutinsRoute = ScrutinsRouteImport.update({
@@ -50,10 +53,20 @@ const CommencerRoute = CommencerRouteImport.update({
   path: '/commencer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
 } as any)
 const ScrutinNumeroRoute = ScrutinNumeroRouteImport.update({
   id: '/scrutin/$numero',
@@ -65,6 +78,11 @@ const DeputeSlugRoute = DeputeSlugRouteImport.update({
   path: '/depute/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
 const ApiVisitsRoute = ApiVisitsRouteImport.update({
   id: '/api/visits',
   path: '/api/visits',
@@ -73,6 +91,7 @@ const ApiVisitsRoute = ApiVisitsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/blog': typeof BlogRouteWithChildren
   '/commencer': typeof CommencerRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
@@ -80,8 +99,10 @@ export interface FileRoutesByFullPath {
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
   '/api/visits': typeof ApiVisitsRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
+  '/blog/': typeof BlogIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -92,12 +113,15 @@ export interface FileRoutesByTo {
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
   '/api/visits': typeof ApiVisitsRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
+  '/blog': typeof BlogIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/blog': typeof BlogRouteWithChildren
   '/commencer': typeof CommencerRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
@@ -105,13 +129,16 @@ export interface FileRoutesById {
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
   '/api/visits': typeof ApiVisitsRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
+  '/blog/': typeof BlogIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/blog'
     | '/commencer'
     | '/confidentialite'
     | '/deputes'
@@ -119,8 +146,10 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/scrutins'
     | '/api/visits'
+    | '/blog/$slug'
     | '/depute/$slug'
     | '/scrutin/$numero'
+    | '/blog/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -131,11 +160,14 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/scrutins'
     | '/api/visits'
+    | '/blog/$slug'
     | '/depute/$slug'
     | '/scrutin/$numero'
+    | '/blog'
   id:
     | '__root__'
     | '/'
+    | '/blog'
     | '/commencer'
     | '/confidentialite'
     | '/deputes'
@@ -143,12 +175,15 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/scrutins'
     | '/api/visits'
+    | '/blog/$slug'
     | '/depute/$slug'
     | '/scrutin/$numero'
+    | '/blog/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BlogRoute: typeof BlogRouteWithChildren
   CommencerRoute: typeof CommencerRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   DeputesRoute: typeof DeputesRoute
@@ -204,12 +239,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommencerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/scrutin/$numero': {
       id: '/scrutin/$numero'
@@ -225,6 +274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeputeSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/api/visits': {
       id: '/api/visits'
       path: '/api/visits'
@@ -235,8 +291,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BlogRoute: BlogRouteWithChildren,
   CommencerRoute: CommencerRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   DeputesRoute: DeputesRoute,
@@ -250,13 +319,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
