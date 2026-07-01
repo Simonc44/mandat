@@ -3,7 +3,7 @@
 > **Qui a voté quoi, et pourquoi.** Le moteur de recherche citoyen, neutre et open-data des votes de l'Assemblée nationale (17e législature).
 
 [![Production](https://img.shields.io/badge/Production-Live-success?style=flat-square)](https://mandat-fr.is-a.dev)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-mandat-blue.svg?style=flat-square)](LICENSE)
 [![Built with TanStack](https://img.shields.io/badge/Built%20with-TanStack-ff4154?style=flat-square)](https://tanstack.com)
 
 **Site en production :** [mandat-fr.is-a.dev](https://mandat-fr.is-a.dev) *(ou alternativement [mandat-fr.vercel.app](https://mandat-fr.vercel.app))*
@@ -59,6 +59,6 @@ La visualisation géographique par département utilise un modèle de grille hex
 
 ## Licence & Engagement
 
-Ce projet est distribué sous la licence **MIT**.
+Ce projet est distribué sous la licence **Mandat**.
 
 * **Note importante :** Mandat est une initiative citoyenne, bénévole et indépendante. Le projet n'est affilié à aucun parti politique, aucun député, ni à l'administration officielle de l'Assemblée nationale française.*
