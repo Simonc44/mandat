@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "parse-data": "node scripts/parse-local-data.mjs",
     "fetch-data": "node scripts/fetch-data-17.mjs",
+    "update-data-17": "node scripts/update-database-17.mjs",
     "sitemap": "node scripts/generate-sitemap.mjs",
     "prepare-data": "node scripts/parse-local-data.mjs"
   },
