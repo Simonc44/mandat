@@ -1,0 +1,14 @@
+name: Nightly Data Sync
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  trigger-vercel-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Deploy Trigger to Vercel
+        run: |
+          curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
