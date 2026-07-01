@@ -57,7 +57,7 @@ function Home() {
   return (
     <div>
       {/* ── HERO LIQUID GLASS ── */}
-      <section className="relative z-20 min-h-[60vh] flex items-center">
+      <section className="relative z-20">
         {/* Orbes de fond animés */}
         <div
           className="absolute inset-0 -z-10 pointer-events-none overflow-hidden"
