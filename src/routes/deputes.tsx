@@ -99,7 +99,7 @@ function DeputesPage() {
     patch: Partial<{ q: string; groupe: string; dept: string; page: number }>,
   ) =>
     navigate({
-      search: (prev) => ({
+      search: (prev: Record<string, unknown>) => ({
         ...prev,
         ...patch,
         page: patch.page ?? 1,
