@@ -114,52 +114,66 @@ export function createSeoMeta(config: SeoConfig) {
   ];
 }
 
+/**
+ * Sécurise une chaîne JSON pour injection dans une balise <script type="application/ld+json">.
+ * Remplace '<' par '\u003c' pour éviter la fermeture prématurée de la balise script (XSS).
+ */
+function safeJsonLd(json: string): string {
+  return json.replace(/</g, "\\u003c");
+}
+
 export function createBreadcrumbSchema(
   breadcrumbs: Array<{ name: string; url: string }>,
 ) {
-  return JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: breadcrumbs.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: item.url,
-    })),
-  });
+  return safeJsonLd(
+    JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: breadcrumbs.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    }),
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createPersonSchema(deputy: any) {
-  return JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: deputy.name,
-    givenName: deputy.firstName,
-    familyName: deputy.lastName,
-    image: deputy.imageUrl,
-    jobTitle: "Député",
-    affiliation: { "@type": "PoliticalParty", name: deputy.party },
-    address: { "@type": "PostalAddress", addressLocality: deputy.region },
-    url: `${SITE_URL}/depute/${deputy.slug}`,
-  });
+  return safeJsonLd(
+    JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: deputy.name,
+      givenName: deputy.firstName,
+      familyName: deputy.lastName,
+      image: deputy.imageUrl,
+      jobTitle: "Député",
+      affiliation: { "@type": "PoliticalParty", name: deputy.party },
+      address: { "@type": "PostalAddress", addressLocality: deputy.region },
+      url: `${SITE_URL}/depute/${deputy.slug}`,
+    }),
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createVoteEventSchema(vote: any) {
-  return JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: vote.title,
-    description: vote.summary,
-    startDate: vote.date,
-    url: `${SITE_URL}/scrutin/${vote.id}`,
-    location: {
-      "@type": "Place",
-      name: "Assemblée nationale française",
-      address: { "@type": "PostalAddress", addressCountry: "FR" },
-    },
-  });
+  return safeJsonLd(
+    JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Event",
+      name: vote.title,
+      description: vote.summary,
+      startDate: vote.date,
+      url: `${SITE_URL}/scrutin/${vote.id}`,
+      location: {
+        "@type": "Place",
+        name: "Assemblée nationale française",
+        address: { "@type": "PostalAddress", addressCountry: "FR" },
+      },
+    }),
+  );
 }
 
 // ─── 404 / ERROR ─────────────────────────────────────────────────────────────
@@ -288,23 +302,25 @@ function RootShell({ children }: { children: ReactNode }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              "@id": `${SITE_URL}/#website`,
-              url: SITE_URL,
-              name: SITE_NAME,
-              description: SITE_DESCRIPTION,
-              potentialAction: {
-                "@type": "SearchAction",
-                target: {
-                  "@type": "EntryPoint",
-                  urlTemplate: `${SITE_URL}/recherche?q={search_term_string}`,
+            __html: safeJsonLd(
+              JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "@id": `${SITE_URL}/#website`,
+                url: SITE_URL,
+                name: SITE_NAME,
+                description: SITE_DESCRIPTION,
+                potentialAction: {
+                  "@type": "SearchAction",
+                  target: {
+                    "@type": "EntryPoint",
+                    urlTemplate: `${SITE_URL}/recherche?q={search_term_string}`,
+                  },
+                  "query-input": "required name=search_term_string",
                 },
-                "query-input": "required name=search_term_string",
-              },
-              inLanguage: "fr-FR",
-            }),
+                inLanguage: "fr-FR",
+              }),
+            ),
           }}
         />
 
@@ -312,18 +328,20 @@ function RootShell({ children }: { children: ReactNode }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "@id": `${SITE_URL}/#organization`,
-              name: SITE_NAME,
-              url: SITE_URL,
-              logo: `${SITE_URL}/favicon.svg`,
-              description: SITE_DESCRIPTION,
-              foundingDate: "2025",
-              foundingLocation: "France",
-              areaServed: "FR",
-            }),
+            __html: safeJsonLd(
+              JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "@id": `${SITE_URL}/#organization`,
+                name: SITE_NAME,
+                url: SITE_URL,
+                logo: `${SITE_URL}/favicon.svg`,
+                description: SITE_DESCRIPTION,
+                foundingDate: "2025",
+                foundingLocation: "France",
+                areaServed: "FR",
+              }),
+            ),
           }}
         />
       </head>
