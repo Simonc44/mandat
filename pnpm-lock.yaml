@@ -226,7 +226,7 @@ importers:
         specifier: 3.0.260603-beta
         version: 3.0.260603-beta(@libsql/client@0.17.4)(chokidar@5.0.0)(jiti@1.21.7)(vite@8.1.0(@types/node@22.20.0)(jiti@1.21.7))
       prettier:
-        specifier: ^3.7.3
+        specifier: ^3.9.4
         version: 3.9.4
       typescript:
         specifier: ^5.8.3
