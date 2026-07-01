@@ -220,7 +220,12 @@ function DeputesPage() {
             <SelectTrigger className="h-auto py-2.5 px-6 rounded-full glass border-border/50 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
               <SelectValue placeholder="Tous les départements" />
             </SelectTrigger>
-            <SelectContent className="glass-strong border-border/40 rounded-2xl overflow-hidden shadow-2xl">
+            <SelectContent
+              side="bottom"
+              sideOffset={5}
+              avoidCollisions={false}
+              className="bg-white dark:bg-[#0a0a0a] border-border/40 rounded-2xl overflow-hidden shadow-2xl !opacity-100"
+            >
               <SelectItem value="all">Tous les départements</SelectItem>
               {departments.map(([num, nom]) => (
                 <SelectItem
