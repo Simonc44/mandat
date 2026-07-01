@@ -101,7 +101,7 @@ function Legislature16Page() {
           role="tab"
           aria-selected={tab === "deputes"}
           onClick={() =>
-            navigate({ search: (p) => ({ ...p, tab: "deputes" }) })
+            navigate({ search: (p: Record<string, unknown>) => ({ ...p, tab: "deputes" }) })
           }
           className={tabClass(tab === "deputes")}
         >
@@ -112,7 +112,7 @@ function Legislature16Page() {
           role="tab"
           aria-selected={tab === "scrutins"}
           onClick={() =>
-            navigate({ search: (p) => ({ ...p, tab: "scrutins" }) })
+            navigate({ search: (p: Record<string, unknown>) => ({ ...p, tab: "scrutins" }) })
           }
           className={tabClass(tab === "scrutins")}
         >

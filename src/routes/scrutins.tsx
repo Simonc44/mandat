@@ -67,7 +67,7 @@ function ScrutinsPage() {
     }>,
   ) =>
     navigate({
-      search: (prev) => ({
+      search: (prev: Record<string, unknown>) => ({
         ...prev,
         ...patch,
         page: patch.page ?? 1,

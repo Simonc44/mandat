@@ -22,8 +22,14 @@ const staticPages = [
   { loc: "/", changefreq: "daily", priority: "1.0" },
   { loc: "/deputes", changefreq: "weekly", priority: "0.9" },
   { loc: "/scrutins", changefreq: "daily", priority: "0.9" },
+  { loc: "/blog", changefreq: "weekly", priority: "0.8" },
+  { loc: "/blog/comment-lire-un-scrutin-assemblee-nationale", changefreq: "monthly", priority: "0.7" },
+  { loc: "/blog/17e-legislature-ce-quil-faut-savoir", changefreq: "monthly", priority: "0.7" },
+  { loc: "/blog/transparence-democratique-open-data-parlementaire", changefreq: "monthly", priority: "0.7" },
+  { loc: "/blog/assiduite-deputes-comment-la-mesurer", changefreq: "monthly", priority: "0.7" },
   { loc: "/recherche", changefreq: "monthly", priority: "0.5" },
 ];
+
 
 // ── Député·es ────────────────────────────────────────────────
 let deputeUrls = "";
