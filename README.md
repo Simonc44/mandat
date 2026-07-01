@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-mandat-blue.svg?style=flat-square)](LICENSE)
 [![Built with TanStack](https://img.shields.io/badge/Built%20with-TanStack-ff4154?style=flat-square)](https://tanstack.com)
 
-**Site en production :** [mandat-fr.vercel.app](https://mandat-fr.vercel.app))
+**Site en production :** [mandat-fr.vercel.app](https://mandat-fr.vercel.app)
 
 ---
 
