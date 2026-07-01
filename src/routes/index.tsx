@@ -98,7 +98,7 @@ function Home() {
           />
         </div>
 
-        <div className="container-app py-16 md:py-20 w-full">
+        <div className="container-app pt-6 md:pt-8 pb-16 md:pb-20 w-full">
           <div className="max-w-3xl">
             {/* Badge législature */}
             <div
