@@ -392,10 +392,10 @@ export function Footer() {
               Recherche
             </Link>
             <Link
-              to="/commencer"
+              to="/blog"
               className="text-muted-foreground hover:text-primary transition-colors py-1"
             >
-              Commencer
+              Blog
             </Link>
             <Link
               to="/confidentialite"

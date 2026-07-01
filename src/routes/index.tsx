@@ -57,7 +57,7 @@ function Home() {
   return (
     <div>
       {/* ── HERO LIQUID GLASS ── */}
-      <section className="relative z-20 min-h-[60vh] flex items-center">
+      <section className="relative z-20">
         {/* Orbes de fond animés */}
         <div
           className="absolute inset-0 -z-10 pointer-events-none overflow-hidden"
@@ -98,7 +98,7 @@ function Home() {
           />
         </div>
 
-        <div className="container-app py-16 md:py-20 w-full">
+        <div className="container-app pt-6 md:pt-8 pb-16 md:pb-20 w-full">
           <div className="max-w-3xl">
             {/* Badge législature */}
             <div
