@@ -4,6 +4,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { Github, Menu, X } from "lucide-react";
+import { LastUpdated } from "./LastUpdated";
 
 // ═══════════════════════════════════════════════════════════
 // CONSTANTES
@@ -353,7 +354,7 @@ export function Footer() {
               Le moteur de recherche citoyen des votes à l'Assemblée nationale.
               17e législature · Données officielles · Aucune publicité.
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <VisitCounter />
               <a
                 href={GITHUB_REPO_URL}
@@ -366,6 +367,7 @@ export function Footer() {
                 Code source
               </a>
             </div>
+            <LastUpdated />
           </div>
 
           {/* Navigation */}
