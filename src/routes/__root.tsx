@@ -117,10 +117,13 @@ export function createSeoMeta(config: SeoConfig) {
 
 /**
  * Sécurise une chaîne JSON pour injection dans une balise <script type="application/ld+json">.
- * Remplace '<' par '\u003c' pour éviter la fermeture prématurée de la balise script (XSS).
+ * Échappe les caractères '<', '>', '&' pour éviter l'injection de scripts (XSS).
  */
 function safeJsonLd(json: string): string {
-  return json.replace(/</g, "\\u003c");
+  return json
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
 }
 
 export function createBreadcrumbSchema(
