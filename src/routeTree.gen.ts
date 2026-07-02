@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatutRouteImport } from './routes/statut'
 import { Route as ScrutinsRouteImport } from './routes/scrutins'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as Legislature16RouteImport } from './routes/legislature-16'
@@ -21,7 +22,14 @@ import { Route as ScrutinNumeroRouteImport } from './routes/scrutin.$numero'
 import { Route as DeputeSlugRouteImport } from './routes/depute.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiVisitsRouteImport } from './routes/api/visits'
+import { Route as ApiStatusRouteImport } from './routes/api/status'
+import { Route as ApiMetaRouteImport } from './routes/api/meta'
 
+const StatutRoute = StatutRouteImport.update({
+  id: '/statut',
+  path: '/statut',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScrutinsRoute = ScrutinsRouteImport.update({
   id: '/scrutins',
   path: '/scrutins',
@@ -82,6 +90,16 @@ const ApiVisitsRoute = ApiVisitsRouteImport.update({
   path: '/api/visits',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStatusRoute = ApiStatusRouteImport.update({
+  id: '/api/status',
+  path: '/api/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMetaRoute = ApiMetaRouteImport.update({
+  id: '/api/meta',
+  path: '/api/meta',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -91,6 +109,9 @@ export interface FileRoutesByFullPath {
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
+  '/statut': typeof StatutRoute
+  '/api/meta': typeof ApiMetaRoute
+  '/api/status': typeof ApiStatusRoute
   '/api/visits': typeof ApiVisitsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
@@ -104,6 +125,9 @@ export interface FileRoutesByTo {
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
+  '/statut': typeof StatutRoute
+  '/api/meta': typeof ApiMetaRoute
+  '/api/status': typeof ApiStatusRoute
   '/api/visits': typeof ApiVisitsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
@@ -119,6 +143,9 @@ export interface FileRoutesById {
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
+  '/statut': typeof StatutRoute
+  '/api/meta': typeof ApiMetaRoute
+  '/api/status': typeof ApiStatusRoute
   '/api/visits': typeof ApiVisitsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
@@ -135,6 +162,9 @@ export interface FileRouteTypes {
     | '/legislature-16'
     | '/recherche'
     | '/scrutins'
+    | '/statut'
+    | '/api/meta'
+    | '/api/status'
     | '/api/visits'
     | '/blog/$slug'
     | '/depute/$slug'
@@ -148,6 +178,9 @@ export interface FileRouteTypes {
     | '/legislature-16'
     | '/recherche'
     | '/scrutins'
+    | '/statut'
+    | '/api/meta'
+    | '/api/status'
     | '/api/visits'
     | '/blog/$slug'
     | '/depute/$slug'
@@ -162,6 +195,9 @@ export interface FileRouteTypes {
     | '/legislature-16'
     | '/recherche'
     | '/scrutins'
+    | '/statut'
+    | '/api/meta'
+    | '/api/status'
     | '/api/visits'
     | '/blog/$slug'
     | '/depute/$slug'
@@ -177,6 +213,9 @@ export interface RootRouteChildren {
   Legislature16Route: typeof Legislature16Route
   RechercheRoute: typeof RechercheRoute
   ScrutinsRoute: typeof ScrutinsRoute
+  StatutRoute: typeof StatutRoute
+  ApiMetaRoute: typeof ApiMetaRoute
+  ApiStatusRoute: typeof ApiStatusRoute
   ApiVisitsRoute: typeof ApiVisitsRoute
   DeputeSlugRoute: typeof DeputeSlugRoute
   ScrutinNumeroRoute: typeof ScrutinNumeroRoute
@@ -184,6 +223,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/statut': {
+      id: '/statut'
+      path: '/statut'
+      fullPath: '/statut'
+      preLoaderRoute: typeof StatutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scrutins': {
       id: '/scrutins'
       path: '/scrutins'
@@ -268,6 +314,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiVisitsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/status': {
+      id: '/api/status'
+      path: '/api/status'
+      fullPath: '/api/status'
+      preLoaderRoute: typeof ApiStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/meta': {
+      id: '/api/meta'
+      path: '/api/meta'
+      fullPath: '/api/meta'
+      preLoaderRoute: typeof ApiMetaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -291,6 +351,9 @@ const rootRouteChildren: RootRouteChildren = {
   Legislature16Route: Legislature16Route,
   RechercheRoute: RechercheRoute,
   ScrutinsRoute: ScrutinsRoute,
+  StatutRoute: StatutRoute,
+  ApiMetaRoute: ApiMetaRoute,
+  ApiStatusRoute: ApiStatusRoute,
   ApiVisitsRoute: ApiVisitsRoute,
   DeputeSlugRoute: DeputeSlugRoute,
   ScrutinNumeroRoute: ScrutinNumeroRoute,
