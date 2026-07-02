@@ -405,6 +405,12 @@ export function Footer() {
             >
               Confidentialité
             </Link>
+            <Link
+              to="/statut"
+              className="text-muted-foreground hover:text-primary transition-colors py-1"
+            >
+              Statut du service
+            </Link>
             <a
               href="https://data.assemblee-nationale.fr"
               target="_blank"
