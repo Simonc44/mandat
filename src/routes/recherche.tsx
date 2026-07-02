@@ -5,12 +5,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import {
-  allDeputesQuery,
-  scrutinsQuery,
-  normalize,
-  sanitizeSearchInput,
-} from "@/lib/api";
+import { searchQuery, normalize, sanitizeSearchInput } from "@/lib/api";
 import { DeputeCard } from "@/components/DeputeCard";
 import { createSeoMeta, SITE_URL } from "./__root";
 
@@ -28,37 +23,20 @@ export const Route = createFileRoute("/recherche")({
     }),
   }),
   validateSearch: zodValidator(searchSchema),
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.ensureQueryData(allDeputesQuery),
-      context.queryClient.ensureQueryData(scrutinsQuery),
-    ]),
+  loader: ({ context, location }) => {
+    const search = searchSchema.parse(location.search);
+    if (search.q.trim().length >= 2) {
+      return context.queryClient.ensureQueryData(searchQuery(search.q));
+    }
+  },
   component: SearchPage,
 });
 
 function SearchPage() {
   const { q } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { data: deputes } = useSuspenseQuery(allDeputesQuery);
-  const { data: scrutins } = useSuspenseQuery(scrutinsQuery);
+  const { data: results } = useSuspenseQuery(searchQuery(q));
   const [input, setInput] = useState(q);
-
-  const results = useMemo(() => {
-    const n = normalize(q);
-    if (!n || n.length < 2) return null;
-    const ds = deputes
-      .filter((d) =>
-        normalize(
-          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.num_deptmt} ${d.groupe_sigle}`,
-        ).includes(n),
-      )
-      .slice(0, 24);
-    const ss = scrutins
-      .filter((s) => normalize(s.titre || "").includes(n))
-      .sort((a, b) => b.date.localeCompare(a.date))
-      .slice(0, 30);
-    return { ds, ss };
-  }, [q, deputes, scrutins]);
 
   const total = results ? results.ds.length + results.ss.length : 0;
 

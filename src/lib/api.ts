@@ -17,7 +17,14 @@
 // ══════════════════════════════════════════════════════════════════════
 
 import { queryOptions } from "@tanstack/react-query";
-import { getDeputesFromDb, getScrutinsFromDb } from "./data.functions";
+import {
+  getDeputesFromDb,
+  getScrutinsFromDb,
+  getGlobalStatsFromDb,
+  getLatestScrutinsFromDb,
+  getScrutinsPaginatedFromDb,
+  searchDeputesAndScrutinsFromDb,
+} from "./data.functions";
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 export const LEGISLATURE = 17;
@@ -517,6 +524,39 @@ export const allDeputesQuery = queryOptions({
     return r;
   },
 });
+
+export const globalStatsQuery = queryOptions({
+  queryKey: ["global-stats"],
+  staleTime: 1000 * 60 * 60,
+  queryFn: () => getGlobalStatsFromDb(),
+});
+
+export const latestScrutinsQuery = queryOptions({
+  queryKey: ["scrutins", "latest"],
+  staleTime: 1000 * 60 * 10,
+  queryFn: () => getLatestScrutinsFromDb(),
+});
+
+export const paginatedScrutinsQuery = (
+  page: number,
+  pageSize: number,
+  q?: string,
+  sort?: string,
+) =>
+  queryOptions({
+    queryKey: ["scrutins", "paginated", page, pageSize, q, sort],
+    staleTime: 1000 * 60 * 5,
+    queryFn: () =>
+      getScrutinsPaginatedFromDb({ data: { page, pageSize, q, sort } }),
+  });
+
+export const searchQuery = (q: string) =>
+  queryOptions({
+    queryKey: ["search", q],
+    staleTime: 1000 * 60 * 5,
+    enabled: q.trim().length >= 2,
+    queryFn: () => searchDeputesAndScrutinsFromDb({ data: q }),
+  });
 
 /**
  * Liste des scrutins — source locale prioritaire (scrutins-17.json)

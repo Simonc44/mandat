@@ -6,7 +6,7 @@ import { useMemo, useState, useEffect } from "react";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import {
-  scrutinsQuery,
+  paginatedScrutinsQuery,
   normalize,
   sanitizeSearchInput,
   type Scrutin,
@@ -29,35 +29,29 @@ export const Route = createFileRoute("/scrutins")({
     }),
   }),
   validateSearch: zodValidator(searchSchema),
-  loader: ({ context }) => context.queryClient.ensureQueryData(scrutinsQuery),
+  loader: ({ context, location }) => {
+    const search = searchSchema.parse(location.search);
+    return context.queryClient.ensureQueryData(
+      paginatedScrutinsQuery(search.page, 20, search.q, search.sort),
+    );
+  },
   component: ScrutinsPage,
 });
 
 const PAGE_SIZE = 20;
 
 function ScrutinsPage() {
-  const { data: scrutins } = useSuspenseQuery(scrutinsQuery);
   const { q, sort, page } = Route.useSearch();
+  const { data } = useSuspenseQuery(
+    paginatedScrutinsQuery(page, PAGE_SIZE, q, sort),
+  );
+  const { items: slice, total } = data;
+
   const navigate = Route.useNavigate();
   const [search, setSearch] = useState(q);
 
-  const filtered = useMemo(() => {
-    const n = normalize(q);
-    const sorted = [...scrutins].sort((a, b) => b.date.localeCompare(a.date));
-    return sorted.filter((s) => {
-      if (sort === "adopte" && !/adopt/i.test(s.sort)) return false;
-      if (sort === "rejete" && /adopt/i.test(s.sort)) return false;
-      if (n && !normalize(s.titre || "").includes(n)) return false;
-      return true;
-    });
-  }, [scrutins, q, sort]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page > totalPages ? totalPages : page, totalPages);
-  const slice = filtered.slice(
-    (safePage - 1) * PAGE_SIZE,
-    safePage * PAGE_SIZE,
-  );
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const safePage = page;
 
   const setF = (
     patch: Partial<{
@@ -80,8 +74,8 @@ function ScrutinsPage() {
       <div className="mb-8 animate-fade-up">
         <h1 className="font-display text-4xl md:text-5xl mb-2">Scrutins</h1>
         <p className="text-muted-foreground">
-          {filtered.length.toLocaleString("fr-FR")} scrutin
-          {filtered.length > 1 ? "s" : ""} · XVIIe législature
+          {total.toLocaleString("fr-FR")} scrutin
+          {total > 1 ? "s" : ""} · XVIIe législature
         </p>
       </div>
 

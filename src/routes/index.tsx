@@ -1,11 +1,12 @@
 // routes/index.tsx — Page d'accueil Liquid Glass + orbes + 17e législature
 
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useRef, useEffect } from "react";
 import {
-  allDeputesQuery,
-  scrutinsQuery,
+  latestScrutinsQuery,
+  globalStatsQuery,
+  searchQuery,
   normalize,
   sanitizeSearchInput,
   type Depute,
@@ -20,39 +21,24 @@ import { createSeoMeta, SITE_URL } from "./__root";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: createSeoMeta({
-      title: "Mandat — Qui a voté quoi, et pourquoi à l'Assemblée nationale ?",
+      title: "Mandat — Qui a voté quoi, et pourquoi à l'Assemblée ?",
       description:
-        "Découvrez les votes des 577 députés de la 17e législature. Un outil citoyen pour suivre l'actualité législative avec transparence, lisibilité et sans parti pris.",
+        "Découvrez les votes des 577 députés de la 17e législature. Un outil citoyen pour suivre l'actualité législative avec transparence et sans parti pris.",
       canonical: SITE_URL,
       ogType: "website",
     }),
   }),
   loader: ({ context }) =>
     Promise.all([
-      context.queryClient.ensureQueryData(allDeputesQuery),
-      context.queryClient.ensureQueryData(scrutinsQuery),
+      context.queryClient.ensureQueryData(globalStatsQuery),
+      context.queryClient.ensureQueryData(latestScrutinsQuery),
     ]),
   component: Home,
 });
 
 function Home() {
-  const { data: deputes } = useSuspenseQuery(allDeputesQuery);
-  const { data: scrutins } = useSuspenseQuery(scrutinsQuery);
-
-  const latest = useMemo(
-    () =>
-      [...scrutins].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6),
-    [scrutins],
-  );
-
-  const stats = useMemo(() => {
-    const groupes = new Set(deputes.map((d) => d.groupe_sigle).filter(Boolean));
-    return {
-      deputes: deputes.length,
-      scrutins: scrutins.length,
-      groupes: groupes.size,
-    };
-  }, [deputes, scrutins]);
+  const { data: stats } = useSuspenseQuery(globalStatsQuery);
+  const { data: latest } = useSuspenseQuery(latestScrutinsQuery);
 
   return (
     <div>
@@ -140,7 +126,7 @@ function Home() {
               className="animate-fade-up"
               style={{ animationDelay: "240ms" }}
             >
-              <SearchBar deputes={deputes} scrutins={scrutins} />
+              <SearchBar />
             </div>
           </div>
         </div>
@@ -448,35 +434,19 @@ function TrustSection() {
 
 // ── SEARCH BAR ──────────────────────────────────────────────
 
-function SearchBar({
-  deputes,
-  scrutins,
-}: {
-  deputes: Depute[];
-  scrutins: Scrutin[];
-}) {
+function SearchBar() {
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
   const [open, setOpen] = useState(false);
   const nav = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
 
-  const safeQ = sanitizeSearchInput(q);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(q), 300);
+    return () => clearTimeout(t);
+  }, [q]);
 
-  const results = useMemo(() => {
-    const n = normalize(safeQ);
-    if (n.length < 2) return null;
-    const ds = deputes
-      .filter((d) =>
-        normalize(
-          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.groupe_sigle}`,
-        ).includes(n),
-      )
-      .slice(0, 5);
-    const ss = scrutins
-      .filter((s) => normalize(s.titre).includes(n))
-      .slice(0, 5);
-    return { ds, ss };
-  }, [safeQ, deputes, scrutins]);
+  const { data: results } = useQuery(searchQuery(debouncedQ));
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
