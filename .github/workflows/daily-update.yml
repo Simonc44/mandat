@@ -1,6 +1,8 @@
-name: Nightly Data Sync
+name: Nightly Deploy Trigger
 
 on:
+  # GitHub Actions cron s'exécute en UTC.
+  # 03:00 UTC ≈ 04:00 Paris en hiver / 05:00 en été.
   schedule:
     - cron: '0 3 * * *'
   workflow_dispatch:
@@ -9,6 +11,23 @@ jobs:
   trigger-vercel-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Deploy Trigger to Vercel
+      - name: Vérifier la présence du deploy hook
         run: |
-          curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
+          if [ -z "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" ]; then
+            echo "❌ Le secret VERCEL_DEPLOY_HOOK_URL n'est pas configuré."
+            echo "→ Ajoute-le dans Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          echo "✅ Secret présent."
+
+      - name: Déclencher le déploiement Vercel
+        run: |
+          HTTP_CODE=$(curl -s -o /tmp/resp.txt -w "%{http_code}" \
+            -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}")
+          echo "HTTP $HTTP_CODE"
+          cat /tmp/resp.txt || true
+          if [ "$HTTP_CODE" -ge 400 ]; then
+            echo "❌ Échec du déclenchement du déploiement."
+            exit 1
+          fi
+          echo "✅ Déploiement déclenché avec succès."
