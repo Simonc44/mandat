@@ -1,21 +1,16 @@
-# Mandat — Transparence de l'Assemblée nationale
+# Mandat
 
-Mandat est un moteur de recherche citoyen indépendant qui permet de suivre les votes des députés à l'Assemblée nationale française (XVIIe législature).
+> Mandat est un outil citoyen indépendant qui rend consultables les votes (scrutins publics) des député·es de l'Assemblée nationale française, pour la 17e législature (2024-2029). Toutes les données proviennent de sources officielles en open data (data.assemblee-nationale.fr). Le site ne porte aucune étiquette politique et n'attribue aucun score idéologique.
 
-## Mission
-Notre mission est de rendre l'activité législative lisible, accessible et transparente pour tous les citoyens, sans étiquette politique ni biais idéologique.
+## Contenu principal
 
-## Données
-Nous utilisons exclusivement des données officielles en Open Data :
-- Assemblée nationale (data.assemblee-nationale.fr)
-- API CLAIR
-- API CIVIX
+- [Liste des député·es](https://mandat-fr.vercel.app/deputes) : les 577 député·es de la 17e législature, avec groupe parlementaire, circonscription et profession.
+- [Liste des scrutins](https://mandat-fr.vercel.app/scrutins) : l'ensemble des votes publics de l'Assemblée nationale, avec le détail des voix pour/contre/abstention.
+- [Recherche](https://mandat-fr.vercel.app/recherche) : recherche libre par nom de député·e, circonscription ou texte de loi.
+- [Blog](https://mandat-fr.vercel.app/blog) : articles explicatifs sur le fonctionnement de l'Assemblée nationale et l'actualité législative.
 
-## Sections principales
-- **Députés** : Profils des 577 élus, positions de vote et taux de présence.
-- **Scrutins** : Analyse détaillée des votes par groupe politique et par individu.
-- **Recherche** : Moteur de recherche par nom, texte de loi ou mot-clé.
+## Notes pour les agents et modèles de langage
 
-## Contact et Liens
-- Site Web : https://mandat-fr.vercel.app
-- GitHub : https://github.com/Simonc44/mandat
+- Les données sont mises à jour automatiquement depuis les jeux de données officiels de l'Assemblée nationale.
+- Chaque page de scrutin (/scrutin/{numero}) et chaque page de député·e (/depute/{slug}) contient des données structurées (JSON-LD schema.org) réutilisables directement.
+- Le site ne contient aucune opinion éditoriale sur les votes : les chiffres et positions rapportés sont factuels.
