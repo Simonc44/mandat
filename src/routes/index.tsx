@@ -1,17 +1,20 @@
 // routes/index.tsx — Page d'accueil Liquid Glass + orbes + 17e législature
 
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
-  allDeputesQuery,
-  scrutinsQuery,
   normalize,
   sanitizeSearchInput,
   type Depute,
   type Scrutin,
   photoUrl,
 } from "@/lib/api";
+import {
+  getHomeStats,
+  getLatestScrutins,
+  searchHome,
+  type HomeStats,
+} from "@/lib/data.functions";
 import { GroupBadge } from "@/components/GroupBadge";
 import { ScrollScene } from "@/components/ScrollScene";
 import { Unlock, Scale, ShieldCheck } from "lucide-react";
@@ -20,39 +23,28 @@ import { createSeoMeta, SITE_URL } from "./__root";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: createSeoMeta({
-      title: "Mandat — Qui a voté quoi, et pourquoi à l'Assemblée nationale ?",
+      title: "Mandat — Qui a voté quoi, et pourquoi à l'Assemblée ?",
       description:
-        "Découvrez les votes des 577 députés de la 17e législature. Un outil citoyen pour suivre l'actualité législative avec transparence, lisibilité et sans parti pris.",
+        "Découvrez les votes des 577 députés de la 17e législature. Un outil citoyen pour suivre l'actualité législative avec transparence et sans parti pris.",
       canonical: SITE_URL,
       ogType: "website",
     }),
   }),
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.ensureQueryData(allDeputesQuery),
-      context.queryClient.ensureQueryData(scrutinsQuery),
-    ]),
+  loader: async () => {
+    const [stats, latest] = await Promise.all([
+      getHomeStats(),
+      getLatestScrutins(),
+    ]);
+    return { stats, latest };
+  },
   component: Home,
 });
 
 function Home() {
-  const { data: deputes } = useSuspenseQuery(allDeputesQuery);
-  const { data: scrutins } = useSuspenseQuery(scrutinsQuery);
-
-  const latest = useMemo(
-    () =>
-      [...scrutins].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6),
-    [scrutins],
-  );
-
-  const stats = useMemo(() => {
-    const groupes = new Set(deputes.map((d) => d.groupe_sigle).filter(Boolean));
-    return {
-      deputes: deputes.length,
-      scrutins: scrutins.length,
-      groupes: groupes.size,
-    };
-  }, [deputes, scrutins]);
+  const { stats, latest } = Route.useLoaderData() as {
+    stats: HomeStats;
+    latest: Scrutin[];
+  };
 
   return (
     <div>
@@ -129,7 +121,7 @@ function Home() {
             >
               Mandat rend lisibles les{" "}
               <strong className="text-foreground">
-                {stats.scrutins.toLocaleString("fr-FR")} scrutins
+                {stats.scrutinsCount.toLocaleString("fr-FR")} scrutins
               </strong>{" "}
               de la XVIIe législature. Cherchez un·e député·e, un texte de loi.
               Sans étiquette, sans score idéologique.
@@ -140,7 +132,7 @@ function Home() {
               className="animate-fade-up"
               style={{ animationDelay: "240ms" }}
             >
-              <SearchBar deputes={deputes} scrutins={scrutins} />
+              <SearchBar />
             </div>
           </div>
         </div>
@@ -194,14 +186,14 @@ function Home() {
       <section className="container-app pb-16">
         <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 animate-fade-up">
           <StatPill
-            value={stats.deputes.toLocaleString("fr-FR")}
+            value={stats.deputesCount.toLocaleString("fr-FR")}
             label="Député·es"
           />
           <StatPill
-            value={stats.scrutins.toLocaleString("fr-FR")}
+            value={stats.scrutinsCount.toLocaleString("fr-FR")}
             label="Scrutins"
           />
-          <StatPill value={stats.groupes.toString()} label="Groupes" />
+          <StatPill value={stats.groupesCount.toString()} label="Groupes" />
         </div>
       </section>
 
@@ -447,36 +439,34 @@ function TrustSection() {
 }
 
 // ── SEARCH BAR ──────────────────────────────────────────────
+// Recherche côté serveur (searchHome) : n'exige plus de télécharger
+// la liste complète des député·es/scrutins pour filtrer en local.
 
-function SearchBar({
-  deputes,
-  scrutins,
-}: {
-  deputes: Depute[];
-  scrutins: Scrutin[];
-}) {
+function SearchBar() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const [results, setResults] = useState<{
+    deputes: Depute[];
+    scrutins: Scrutin[];
+  } | null>(null);
   const nav = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
 
   const safeQ = sanitizeSearchInput(q);
 
-  const results = useMemo(() => {
+  useEffect(() => {
     const n = normalize(safeQ);
-    if (n.length < 2) return null;
-    const ds = deputes
-      .filter((d) =>
-        normalize(
-          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.groupe_sigle}`,
-        ).includes(n),
-      )
-      .slice(0, 5);
-    const ss = scrutins
-      .filter((s) => normalize(s.titre).includes(n))
-      .slice(0, 5);
-    return { ds, ss };
-  }, [safeQ, deputes, scrutins]);
+    if (n.length < 2) {
+      setResults(null);
+      return;
+    }
+    const t = setTimeout(() => {
+      searchHome({ data: { q: safeQ } })
+        .then((r) => setResults(r))
+        .catch(() => setResults(null));
+    }, 200);
+    return () => clearTimeout(t);
+  }, [safeQ]);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -488,7 +478,7 @@ function SearchBar({
   }, []);
 
   const hasResults =
-    results && (results.ds.length > 0 || results.ss.length > 0);
+    results && (results.deputes.length > 0 || results.scrutins.length > 0);
 
   return (
     <div ref={ref} className="relative" style={{ zIndex: 9999 }}>
@@ -562,12 +552,12 @@ function SearchBar({
           role="listbox"
           aria-label="Suggestions"
         >
-          {results!.ds.length > 0 && (
+          {results!.deputes.length > 0 && (
             <div className="p-2">
               <div className="px-4 py-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
                 Député·es
               </div>
-              {results!.ds.map((d) => (
+              {results!.deputes.map((d) => (
                 <Link
                   key={d.slug}
                   to="/depute/$slug"
@@ -588,12 +578,12 @@ function SearchBar({
             </div>
           )}
 
-          {results!.ss.length > 0 && (
+          {results!.scrutins.length > 0 && (
             <div className="p-2 border-t border-border/30">
               <div className="px-4 py-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
                 Scrutins
               </div>
-              {results!.ss.map((s) => (
+              {results!.scrutins.map((s) => (
                 <Link
                   key={s.numero}
                   to="/scrutin/$numero"
