@@ -23,9 +23,10 @@ import { LoadingOverlay } from "../components/LoadingOverlay";
 // ─── CONSTANTES ──────────────────────────────────────────────────────────────
 
 export const SITE_URL = "https://mandat-fr.vercel.app";
-export const SITE_NAME = "Mandat";
+export const SITE_NAME =
+  "Mandat — Le moteur de recherche citoyen des votes de l'Assemblée nationale";
 export const SITE_DESCRIPTION =
-  "Le moteur de recherche citoyen des votes à l'Assemblée nationale (17e législature). Qui a voté quoi ? Pourquoi ? Transparence sans étiquette politique.";
+  "Cherchez un·e député·e, un texte de loi, un scrutin. Les votes de l'Assemblée nationale 17e législature, enfin lisibles et accessibles à tous sans étiquette politique.";
 export const KEYWORDS = [
   "votes",
   "Assemblée nationale",
@@ -34,6 +35,7 @@ export const KEYWORDS = [
   "député",
   "élus",
   "transparence politique",
+  "transparence démocratique",
   "politique française",
   "open data",
   "17e législature",
@@ -46,6 +48,8 @@ export const KEYWORDS = [
   "qui a voté quoi",
   "démocratie citoyenne",
   "engagement civique",
+  "scrutins publics",
+  "opendata politique",
 ];
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
@@ -101,7 +105,6 @@ export function createSeoMeta(config: SeoConfig) {
 
     // Twitter Card
     { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:site", content: "@MandatFr" },
     { name: "twitter:title", content: config.title },
     { name: "twitter:description", content: config.description },
     { name: "twitter:image", content: ogImage },
@@ -341,6 +344,7 @@ function RootShell({ children }: { children: ReactNode }) {
                 foundingDate: "2025",
                 foundingLocation: "France",
                 areaServed: "FR",
+                sameAs: ["https://github.com/Simonc44/mandat"],
               }),
             ),
           }}

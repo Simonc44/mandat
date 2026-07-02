@@ -76,7 +76,8 @@ Nous rendons visible ce que la retransmission télévisée efface : le vote nomi
   },
   {
     slug: "transparence-democratique-open-data-parlementaire",
-    title: "Transparence démocratique : la révolution de l'open data parlementaire",
+    title:
+      "Transparence démocratique : la révolution de l'open data parlementaire",
     description:
       "De data.assemblee-nationale.fr à Mandat, comment l'open data transforme le rapport des citoyens à leurs élus.",
     date: "2026-04-15",

@@ -23,7 +23,6 @@ const NAV_LINKS = [
   { to: "/recherche", label: "Recherche" },
 ] as const;
 
-
 export function Header() {
   const isLoading = useRouterState({ select: (s) => s.isLoading });
   const location = useRouterState({ select: (s) => s.location.pathname });
@@ -75,8 +74,7 @@ export function Header() {
             <div className="relative">
               <img
                 src="/favicon.svg"
-                alt=""
-                aria-hidden="true"
+                alt="Logo Mandat — Retour à l'accueil"
                 className="w-9 h-9 object-contain transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
                 width={36}
                 height={36}
@@ -343,7 +341,7 @@ export function Footer() {
             <Link to="/" className="flex items-center gap-2.5 group w-fit">
               <img
                 src="/favicon.svg"
-                alt="Logo Mandat"
+                alt="Logo Mandat — Accueil"
                 className="w-8 h-8 object-contain"
                 width={32}
                 height={32}

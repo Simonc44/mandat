@@ -34,7 +34,7 @@ export const Route = createFileRoute("/scrutin/$numero")({
   },
   head: ({ params }) => ({
     meta: createSeoMeta({
-      title: `Scrutin n°${params.numero} — Analyse complète du vote · Mandat`,
+      title: `Scrutin n°${params.numero} — Analyse complète du vote à l'Assemblée nationale · Mandat`,
       description: `Résultats détaillés du scrutin n°${params.numero} à l'Assemblée nationale. Découvrez qui a voté pour ou contre, l'analyse par groupe politique et l'issue du vote.`,
       canonical: `${SITE_URL}/scrutin/${params.numero}`,
       ogType: "article",
@@ -748,8 +748,7 @@ function DeputeAvatar({
         {!err17 && src17 ? (
           <img
             src={src17}
-            alt=""
-            aria-hidden="true"
+            alt={nom}
             className="w-full h-full object-cover"
             loading="lazy"
             onError={() => setErr17(true)}
@@ -757,8 +756,7 @@ function DeputeAvatar({
         ) : (
           <img
             src={src16}
-            alt=""
-            aria-hidden="true"
+            alt={nom}
             className="w-full h-full object-cover"
             loading="lazy"
             onError={() => setErr16(true)}

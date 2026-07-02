@@ -131,7 +131,8 @@ function StatusPage() {
                 {label}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                Dernière vérification&nbsp;: {formatFr(status?.checkedAt)} · Nouvelle vérification dans {nextIn}s
+                Dernière vérification&nbsp;: {formatFr(status?.checkedAt)} ·
+                Nouvelle vérification dans {nextIn}s
               </p>
             </div>
           </div>
@@ -161,7 +162,9 @@ function StatusPage() {
         <StatusCard
           label="Député·es en base"
           value={
-            status?.deputes != null ? status.deputes.toLocaleString("fr-FR") : "…"
+            status?.deputes != null
+              ? status.deputes.toLocaleString("fr-FR")
+              : "…"
           }
           ok={(status?.deputes ?? 0) > 0}
         />

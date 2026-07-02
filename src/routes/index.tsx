@@ -20,9 +20,9 @@ import { createSeoMeta, SITE_URL } from "./__root";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: createSeoMeta({
-      title: "Mandat — Qui a voté quoi, et pourquoi",
+      title: "Mandat — Qui a voté quoi, et pourquoi à l'Assemblée nationale ?",
       description:
-        "Cherchez un·e député·e, un texte de loi, un scrutin. Les votes de l'Assemblée nationale 17e législature, enfin lisibles. Sans étiquette politique.",
+        "Découvrez les votes des 577 députés de la 17e législature. Un outil citoyen pour suivre l'actualité législative avec transparence, lisibilité et sans parti pris.",
       canonical: SITE_URL,
       ogType: "website",
     }),
@@ -202,6 +202,51 @@ function Home() {
             label="Scrutins"
           />
           <StatPill value={stats.groupes.toString()} label="Groupes" />
+        </div>
+      </section>
+
+      {/* ── SECTION EXPLICATION SEO ── */}
+      <section className="container-app py-16 border-t border-border/40">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="font-display text-3xl md:text-5xl mb-8 leading-[1.1] tracking-tight">
+            Comprendre les enjeux de la{" "}
+            <span className="text-gradient italic">XVIIe législature.</span>
+          </h2>
+          <div className="grid md:grid-cols-2 gap-10 text-muted-foreground leading-relaxed">
+            <div className="space-y-4">
+              <p>
+                L'Assemblée nationale est le cœur battant de la démocratie
+                française. À travers Mandat, nous souhaitons rendre l'activité
+                législative accessible à chaque citoyen. Chaque{" "}
+                <strong>scrutin public</strong> est une décision qui impacte
+                notre quotidien, qu'il s'agisse de lois sur l'économie,
+                l'écologie ou le social.
+              </p>
+              <p>
+                La XVIIe législature, débutée en 2024, se caractérise par une
+                composition plurielle. Suivre les{" "}
+                <strong>votes des députés</strong> devient essentiel pour
+                comprendre comment les équilibres politiques façonnent les
+                textes de loi adoptés ou rejetés.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <p>
+                Notre mission est d'offrir une{" "}
+                <strong>transparence démocratique</strong> totale. En utilisant
+                les données officielles en Open Data, nous permettons de
+                vérifier les positions réelles des élus, loin de la
+                communication politique habituelle. Qui a voté pour ? Qui s'est
+                abstenu ? Et surtout, pourquoi ce vote est-il crucial ?
+              </p>
+              <p>
+                Que vous cherchiez un·e député·e spécifique ou que vous
+                souhaitiez explorer les derniers amendements, Mandat regroupe
+                toutes les informations en un lieu unique, lisible et mis à jour
+                en temps réel selon les publications officielles de l'Assemblée.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -609,8 +654,7 @@ function DeputeAvatarSmall({ d }: { d: Depute }) {
   return (
     <img
       src={src}
-      alt=""
-      aria-hidden="true"
+      alt={`${d.prenom} ${d.nom_de_famille}`}
       className="w-7 h-7 rounded-full object-cover shrink-0"
       onError={() => setErr(true)}
     />
