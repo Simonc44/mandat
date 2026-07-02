@@ -28,8 +28,8 @@ function BlogIndex() {
           Comprendre l'Assemblée, autrement.
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl">
-          Décryptages, méthodes et coulisses de la fabrique de la loi.
-          Un article, une idée claire — sans jargon, sans parti pris.
+          Décryptages, méthodes et coulisses de la fabrique de la loi. Un
+          article, une idée claire — sans jargon, sans parti pris.
         </p>
       </header>
 

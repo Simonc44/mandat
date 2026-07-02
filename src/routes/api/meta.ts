@@ -42,10 +42,10 @@ export const Route = createFileRoute("/api/meta")({
             headers: HEADERS,
           });
         } catch (e) {
-          return new Response(
-            JSON.stringify({ error: (e as Error).message }),
-            { status: 500, headers: HEADERS },
-          );
+          return new Response(JSON.stringify({ error: (e as Error).message }), {
+            status: 500,
+            headers: HEADERS,
+          });
         }
       },
     },

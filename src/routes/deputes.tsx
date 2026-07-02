@@ -36,9 +36,9 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/deputes")({
   head: () => ({
     meta: createSeoMeta({
-      title: "Les 577 député·es — Mandat",
+      title: "Liste des 577 députés de l'Assemblée nationale — Mandat",
       description:
-        "Cherchez et filtrez les député·es à l'Assemblée nationale par groupe politique, département ou nom. 17e législature.",
+        "Cherchez et filtrez les député·es à l'Assemblée nationale par groupe politique, département ou nom. Suivez l'activité de vos élus durant la 17e législature.",
       canonical: `${SITE_URL}/deputes`,
     }),
   }),

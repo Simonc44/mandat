@@ -87,8 +87,8 @@ function PrivacyPage() {
             <p>Nous sommes fermement opposés au pistage publicitaire.</p>
             <ul className="list-disc pl-5 space-y-2 mt-4">
               <li>
-                <strong>Pas de cookies tiers :</strong> Nous n'utilisons aucun
-                cookie de régie publicitaire ou de réseaux sociaux.
+                <strong>Pas de cookies publicitaires :</strong> Nous n'utilisons
+                aucun cookie de régie publicitaire ou de pistage tiers.
               </li>
               <li>
                 <strong>Transparence :</strong> Seuls des cookies techniques

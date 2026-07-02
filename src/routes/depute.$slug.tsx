@@ -36,8 +36,8 @@ export const Route = createFileRoute("/depute/$slug")({
       .replace(/\b\w/g, (c) => c.toUpperCase());
     return {
       meta: createSeoMeta({
-        title: `${name} — Votes, positions et présence à l'Assemblée · Mandat`,
-        description: `Découvrez comment vote ${name} à l'Assemblée nationale. Analyse de ses positions, taux de présence et historique de vote durant la 17e législature.`,
+        title: `${name} — Député·e : ses votes, ses positions et sa présence à l'Assemblée nationale`,
+        description: `Découvrez comment vote ${name} à l'Assemblée nationale. Analyse complète de ses positions, taux de présence et historique de vote durant la 17e législature.`,
         canonical: `${SITE_URL}/depute/${params.slug}`,
         ogType: "profile",
         keywords: [

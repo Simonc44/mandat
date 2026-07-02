@@ -1,0 +1,21 @@
+# Mandat — Transparence de l'Assemblée nationale
+
+Mandat est un moteur de recherche citoyen indépendant qui permet de suivre les votes des députés à l'Assemblée nationale française (XVIIe législature).
+
+## Mission
+Notre mission est de rendre l'activité législative lisible, accessible et transparente pour tous les citoyens, sans étiquette politique ni biais idéologique.
+
+## Données
+Nous utilisons exclusivement des données officielles en Open Data :
+- Assemblée nationale (data.assemblee-nationale.fr)
+- API CLAIR
+- API CIVIX
+
+## Sections principales
+- **Députés** : Profils des 577 élus, positions de vote et taux de présence.
+- **Scrutins** : Analyse détaillée des votes par groupe politique et par individu.
+- **Recherche** : Moteur de recherche par nom, texte de loi ou mot-clé.
+
+## Contact et Liens
+- Site Web : https://mandat-fr.vercel.app
+- GitHub : https://github.com/Simonc44/mandat
