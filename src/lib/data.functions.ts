@@ -124,6 +124,7 @@ export const getDeputeBySlug = createServerFn({ method: "GET" })
   })
   .handler(async ({ data }): Promise<Depute | null> => {
     if (!data.slug) return null;
+    setEdgeCache(600, 3600);
     const c = tursoClient();
     const r = await c.execute({
       sql: `SELECT * FROM deputes WHERE slug = ? LIMIT 1`,
