@@ -143,6 +143,7 @@ export const getScrutinByNumero = createServerFn({ method: "GET" })
     return { numero: sanitizeNumero(raw) || raw };
   })
   .handler(async ({ data }): Promise<Scrutin | null> => {
+    setEdgeCache(600, 3600);
     const c = tursoClient();
     const r = await c.execute({
       sql: `SELECT * FROM scrutins WHERE numero = ? OR uid = ? LIMIT 1`,
