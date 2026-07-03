@@ -20,7 +20,7 @@ import { Header, Footer, CookieBanner } from "../components/Header";
 import { PWAInstallPrompt } from "../components/PWAInstallPrompt";
 import { LoadingOverlay } from "../components/LoadingOverlay";
 
-// ─── CONSTANTES ──────────────────────────────────────────────────────────────
+// ─── CONSTANTES ─────────────────────────────────────────────────────────
 
 export const SITE_URL = "https://mandat-fr.vercel.app";
 export const SITE_NAME =
@@ -52,7 +52,7 @@ export const KEYWORDS = [
   "opendata politique",
 ];
 
-// ─── TYPES ───────────────────────────────────────────────────────────────────
+// ─── TYPES ───────────────────────────────────────────────────────────
 
 interface SeoConfig {
   title: string;
@@ -66,7 +66,7 @@ interface SeoConfig {
   modifiedTime?: string;
 }
 
-// ─── SEO ─────────────────────────────────────────────────────────────────────
+// ─── SEO ───────────────────────────────────────────────────────────
 
 export function createSeoMeta(config: SeoConfig) {
   const canonical = config.canonical ?? SITE_URL;
@@ -88,7 +88,7 @@ export function createSeoMeta(config: SeoConfig) {
     { name: "keywords", content: keywords.join(", ") },
     { name: "application-name", content: SITE_NAME },
     { name: "apple-mobile-web-app-title", content: SITE_NAME },
-    { name: "apple-mobile-web-app-capable", content: "yes" },
+    { name: "mobile-web-app-capable", content: "yes" },
     { name: "apple-mobile-web-app-status-bar-style", content: "default" },
 
     // Open Graph
@@ -184,7 +184,7 @@ export function createVoteEventSchema(vote: any) {
   );
 }
 
-// ─── 404 / ERROR ─────────────────────────────────────────────────────────────
+// ─── 404 / ERROR ────────────────────────────────────────────────────────
 
 function NotFoundComponent() {
   return (
@@ -248,7 +248,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-// ─── ROOT ROUTE ───────────────────────────────────────────────────────────────
+// ─── ROOT ROUTE ─────────────────────────────────────────────────────────
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
@@ -278,6 +278,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         // pour que les <img> des députés arrivent sans handshake TLS supplémentaire.
         { rel: "preconnect", href: "https://www2.assemblee-nationale.fr", crossOrigin: "anonymous" },
         { rel: "dns-prefetch", href: "https://www2.assemblee-nationale.fr" },
+        { rel: "preconnect", href: "https://www.nosdeputes.fr", crossOrigin: "anonymous" },
+        { rel: "dns-prefetch", href: "https://www.nosdeputes.fr" },
       ],
     }),
     shellComponent: RootShell,
@@ -287,7 +289,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   },
 );
 
-// ─── SHELL & COMPONENT ───────────────────────────────────────────────────────
+// ─── SHELL & COMPONENT ──────────────────────────────────────────────────────
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
