@@ -1,6 +1,7 @@
 // Server functions pour récupérer les données de la 16e législature
 // via l'archive ouverte de nosdeputes.fr (2022-2024).
 import { createServerFn } from "@tanstack/react-start";
+import { fetchLocal } from "./api";
 
 export type Depute16 = {
   id_an: string;
@@ -34,6 +35,15 @@ export type Scrutin16 = {
 
 export const getDeputes16 = createServerFn({ method: "GET" }).handler(
   async (): Promise<Depute16[]> => {
+    // 1. Tenter le fichier local (si on l'a généré ou si servi par le CDN)
+    try {
+      const data = await fetchLocal<Depute16[]>("/deputes-16.json");
+      if (Array.isArray(data) && data.length > 0) return data;
+    } catch {
+      /* fallback */
+    }
+
+    // 2. Tenter l'API nosdeputes.fr
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 20_000);
     try {
@@ -82,7 +92,8 @@ export const getDeputes16 = createServerFn({ method: "GET" }).handler(
       );
     } catch (e) {
       clearTimeout(t);
-      throw e;
+      console.error("Error fetching deputes-16:", e);
+      return []; // Return empty array instead of throwing to avoid 500
     }
   },
 );
@@ -91,6 +102,15 @@ export const getDeputes16 = createServerFn({ method: "GET" }).handler(
 // NosDéputés.fr (Regards Citoyens) : https://www.nosdeputes.fr/16/scrutins/json
 export const getScrutins16 = createServerFn({ method: "GET" }).handler(
   async (): Promise<Scrutin16[]> => {
+    // 1. Tenter le fichier local
+    try {
+      const data = await fetchLocal<Scrutin16[]>("/scrutins-16.json");
+      if (Array.isArray(data) && data.length > 0) return data;
+    } catch {
+      /* fallback */
+    }
+
+    // 2. Tenter l'API
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 25_000);
     try {
@@ -135,7 +155,8 @@ export const getScrutins16 = createServerFn({ method: "GET" }).handler(
       return out.sort((a, b) => b.date.localeCompare(a.date));
     } catch (e) {
       clearTimeout(t);
-      throw e;
+      console.error("Error fetching scrutins-16:", e);
+      return []; // Return empty array instead of throwing
     }
   },
 );

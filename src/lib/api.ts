@@ -257,7 +257,7 @@ function resolveLocalUrl(path: string): string {
   return `${base}${path}`;
 }
 
-async function fetchLocal<T>(path: string, timeoutMs = 10_000): Promise<T> {
+export async function fetchLocal<T>(path: string, timeoutMs = 10_000): Promise<T> {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
