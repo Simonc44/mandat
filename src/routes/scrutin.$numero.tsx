@@ -28,7 +28,7 @@ export const Route = createFileRoute("/scrutin/$numero")({
   loader: async ({ context, params }) => {
     const numero = sanitizeNumero(params.numero) || params.numero;
     try {
-      await context.queryClient.ensureQueryData(scrutinDetailQuery(numero));
+      await context.queryClient.ensureQueryData(scrutinMetaQuery(numero));
     } catch {
       throw notFound();
     }
