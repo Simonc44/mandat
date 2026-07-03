@@ -24,7 +24,7 @@ async function getServerEntry(): Promise<ServerEntry> {
 
 const SECURITY_HEADERS: Record<string, string> = {
   "Content-Security-Policy":
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www2.assemblee-nationale.fr https://www.nosdeputes.fr; connect-src 'self' https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www2.assemblee-nationale.fr https://www.nosdeputes.fr; connect-src 'self' https://vercel.live; frame-src 'self' https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
