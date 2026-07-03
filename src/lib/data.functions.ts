@@ -85,6 +85,7 @@ function mapScrutinRow(row: any): Scrutin {
 
 export const getDeputesFromDb = createServerFn({ method: "GET" }).handler(
   async (): Promise<Depute[]> => {
+    setEdgeCache(600, 3600);
     const c = tursoClient();
     const r = await c.execute(
       `SELECT * FROM deputes ORDER BY nom_de_famille COLLATE NOCASE`,
@@ -95,6 +96,7 @@ export const getDeputesFromDb = createServerFn({ method: "GET" }).handler(
 
 export const getScrutinsFromDb = createServerFn({ method: "GET" }).handler(
   async (): Promise<Scrutin[]> => {
+    setEdgeCache(600, 3600);
     const c = tursoClient();
     const r = await c.execute(`SELECT * FROM scrutins ORDER BY date DESC`);
     return r.rows.map(mapScrutinRow);
