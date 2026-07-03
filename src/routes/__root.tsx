@@ -276,9 +276,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { rel: "alternate", hrefLang: "fr-FR", href: SITE_URL },
         // Perf : ouvrir la connexion au CDN photo de l'AN dès le premier paint
         // pour que les <img> des députés arrivent sans handshake TLS supplémentaire.
-        { rel: "preconnect", href: "https://www2.assemblee-nationale.fr", crossOrigin: "anonymous" },
+        {
+          rel: "preconnect",
+          href: "https://www2.assemblee-nationale.fr",
+          crossOrigin: "anonymous",
+        },
         { rel: "dns-prefetch", href: "https://www2.assemblee-nationale.fr" },
-        { rel: "preconnect", href: "https://www.nosdeputes.fr", crossOrigin: "anonymous" },
+        {
+          rel: "preconnect",
+          href: "https://www.nosdeputes.fr",
+          crossOrigin: "anonymous",
+        },
         { rel: "dns-prefetch", href: "https://www.nosdeputes.fr" },
       ],
     }),

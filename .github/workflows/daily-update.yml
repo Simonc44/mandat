@@ -4,7 +4,7 @@ on:
   # GitHub Actions cron s'exécute en UTC.
   # 03:00 UTC ≈ 04:00 Paris en hiver / 05:00 en été.
   schedule:
-    - cron: '0 3 * * *'
+    - cron: "0 3 * * *"
   workflow_dispatch:
 
 jobs:

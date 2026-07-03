@@ -14,7 +14,7 @@ import {
   type Scrutin16,
 } from "@/lib/legislature16.functions";
 import { groupeMeta, normalize, sanitizeSearchInput } from "@/lib/api";
-import { Archive, ExternalLink } from "lucide-react";
+import { Archive, ExternalLink, RefreshCw, AlertTriangle } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
 
 const deputes16Query = queryOptions({
@@ -51,6 +51,40 @@ export const Route = createFileRoute("/legislature-16")({
       context.queryClient.ensureQueryData(scrutins16Query),
     ]),
   component: Legislature16Page,
+  errorComponent: ({ error, reset }) => (
+    <div className="min-h-[400px] flex flex-col items-center justify-center p-8 text-center glass rounded-[2.5rem] border border-red-200/30 my-12">
+      <div className="w-16 h-16 bg-red-100/50 rounded-2xl flex items-center justify-center mb-6">
+        <AlertTriangle className="w-8 h-8 text-red-600" />
+      </div>
+      <h2 className="font-display text-2xl font-bold text-foreground mb-3">
+        Erreur d'affichage
+      </h2>
+      <p className="text-muted-foreground max-w-md mb-8">
+        Une erreur est survenue lors du chargement des archives de la 16e
+        législature. Cela peut être dû à une interruption de connexion.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <button
+          onClick={() => reset()}
+          className="btn-primary px-8 py-3 rounded-full font-semibold flex items-center justify-center gap-2"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Réessayer
+        </button>
+        <Link
+          to="/"
+          className="glass px-8 py-3 rounded-full font-semibold text-foreground/70 hover:text-foreground transition-colors"
+        >
+          Retour à l'accueil
+        </Link>
+      </div>
+      {process.env.NODE_ENV === "development" && (
+        <pre className="mt-8 p-4 bg-black/5 rounded-lg text-xs font-mono text-left max-w-full overflow-auto">
+          {error instanceof Error ? error.message : String(error)}
+        </pre>
+      )}
+    </div>
+  ),
 });
 
 function Legislature16Page() {
@@ -63,110 +97,191 @@ function Legislature16Page() {
   // Reset le champ texte affiché quand on change d'onglet ou que l'URL change
   useEffect(() => setSearch(q), [q, tab]);
 
-  return (
-    <div className="container-app py-12">
-      <div className="mb-8 animate-fade-up">
-        <div className="inline-flex items-center gap-2 glass rounded-full px-3 py-1.5 text-xs font-medium text-primary mb-4">
-          <Archive className="w-3.5 h-3.5" />
-          Archive · 2022 — 2024
-        </div>
-        <h1 className="font-display text-4xl md:text-5xl mb-2 tracking-tight">
-          16<sup>e</sup> législature
-        </h1>
-        <p className="text-muted-foreground max-w-2xl">
-          Les {deputes.length} député·es et les{" "}
-          {scrutins.length.toLocaleString("fr-FR")} scrutins de la précédente
-          législature. Données fournies par{" "}
-          <a
-            href="https://2022-2024.nosdeputes.fr"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="text-primary hover:underline inline-flex items-center gap-1"
-          >
-            nosdeputes.fr (Regards Citoyens)
-            <ExternalLink className="w-3 h-3" />
-          </a>
-          .
-        </p>
-      </div>
+  const filteredDeputes = useMemo(() => {
+    let list = [...deputes];
+    if (groupe) list = list.filter((d) => d.groupe_sigle === groupe);
+    const n = normalize(q);
+    if (!n) return list;
+    return list.filter((d) => {
+      const full = normalize(`${d.prenom} ${d.nom_de_famille}`);
+      return (
+        full.includes(n) ||
+        normalize(d.nom_circo || "").includes(n) ||
+        normalize(d.num_deptmt || "").includes(n)
+      );
+    });
+  }, [deputes, q, groupe]);
 
-      {/* Onglets Député·es / Scrutins */}
-      <div
-        className="flex gap-2 mb-6 animate-fade-up"
-        role="tablist"
-        aria-label="Sections de la 16e législature"
-        style={{ animationDelay: "30ms" }}
+  const stats = useMemo(() => {
+    const total = deputes.length;
+    const femmes = deputes.filter((d) => d.sexe === "F").length;
+    const groups = deputes.reduce(
+      (acc, d) => {
+        const s = d.groupe_sigle || "NI";
+        acc[s] = (acc[s] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    return {
+      total,
+      femmes,
+      femmesPct: Math.round((femmes / total) * 100),
+      groups: Object.entries(groups).sort((a, b) => b[1] - a[1]),
+    };
+  }, [deputes]);
+
+  return (
+    <main className="container max-w-5xl mx-auto px-4 py-12 md:py-20 animate-fade-in">
+      {/* Header Editorial */}
+      <header className="mb-16 text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border-border/40 text-[11px] font-semibold uppercase tracking-widest text-primary mb-6">
+          <Archive className="w-3.5 h-3.5" />
+          Archives Historiques
+        </div>
+        <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight text-foreground mb-6">
+          16<sup className="lowercase">e</sup> Législature
+          <span className="block text-primary/40 mt-1">2022 — 2024</span>
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          Consultation des archives de l'Assemblée nationale sous la mandature
+          précédente. Retrouvez l'intégralité des 577 député·es et des scrutins
+          publics.
+        </p>
+      </header>
+
+      {/* Statistiques clés */}
+      <section
+        className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
+        aria-label="Statistiques de la 16e législature"
       >
-        <button
-          role="tab"
-          aria-selected={tab === "deputes"}
+        <StatCard label="Député·es" value={stats.total} />
+        <StatCard
+          label="Femmes"
+          value={`${stats.femmesPct}%`}
+          sub={`${stats.femmes} élues`}
+        />
+        <StatCard label="Scrutins" value={scrutins.length} />
+        <StatCard label="Durée" value="2 ans" sub="22 juin 22 - 9 juin 24" />
+      </section>
+
+      {/* Navigation Onglets */}
+      <nav
+        className="flex p-1.5 glass rounded-[2rem] border border-border/40 mb-10 sticky top-4 z-50 shadow-sm backdrop-blur-xl"
+        aria-label="Menu des archives"
+      >
+        <TabButton
+          active={tab === "deputes"}
           onClick={() =>
-            navigate({
-              search: (p: Record<string, unknown>) => ({
-                ...p,
-                tab: "deputes",
-              }),
-            })
+            navigate({ search: (p) => ({ ...p, tab: "deputes" }) })
           }
-          className={tabClass(tab === "deputes")}
         >
           Député·es
-          <span className="opacity-50">· {deputes.length}</span>
-        </button>
-        <button
-          role="tab"
-          aria-selected={tab === "scrutins"}
+        </TabButton>
+        <TabButton
+          active={tab === "scrutins"}
           onClick={() =>
-            navigate({
-              search: (p: Record<string, unknown>) => ({
-                ...p,
-                tab: "scrutins",
-              }),
-            })
+            navigate({ search: (p) => ({ ...p, tab: "scrutins" }) })
           }
-          className={tabClass(tab === "scrutins")}
         >
           Scrutins
-          <span className="opacity-50">
-            · {scrutins.length.toLocaleString("fr-FR")}
-          </span>
-        </button>
+        </TabButton>
+      </nav>
+
+      {/* Contenu */}
+      <div className="min-h-[600px]">
+        {tab === "deputes" ? (
+          <DeputesTab
+            deputes={filteredDeputes}
+            stats={stats}
+            q={q}
+            groupe={groupe}
+            search={search}
+            setSearch={setSearch}
+            navigate={navigate}
+          />
+        ) : (
+          <ScrutinsTab
+            scrutins={scrutins}
+            q={q}
+            search={search}
+            setSearch={setSearch}
+            navigate={navigate}
+          />
+        )}
       </div>
 
-      {tab === "deputes" ? (
-        <DeputesTab
-          deputes={deputes}
-          q={q}
-          groupe={groupe}
-          search={search}
-          setSearch={setSearch}
-          navigate={navigate}
-        />
-      ) : (
-        <ScrutinsTab
-          scrutins={scrutins}
-          q={q}
-          search={search}
-          setSearch={setSearch}
-          navigate={navigate}
-        />
+      <footer className="mt-24 pt-12 border-t border-border/30 text-center">
+        <p className="text-sm text-muted-foreground">
+          Données historiques issues de{" "}
+          <a
+            href="https://www.nosdeputes.fr"
+            className="text-primary hover:underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            NosDéputés.fr
+          </a>{" "}
+          et de l'Assemblée nationale.
+        </p>
+      </footer>
+    </main>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string | number;
+  sub?: string;
+}) {
+  return (
+    <div className="glass-strong p-6 rounded-[2rem] border border-white/40 shadow-sm">
+      <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+        {label}
+      </div>
+      <div className="font-display text-3xl font-bold text-foreground">
+        {value}
+      </div>
+      {sub && (
+        <div className="text-[10px] text-muted-foreground mt-1">{sub}</div>
       )}
     </div>
   );
 }
 
-function tabClass(active: boolean) {
-  return `inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
-    active
-      ? "btn-primary border-transparent"
-      : "glass border-border/50 text-foreground/70 hover:text-foreground hover:border-primary/25"
-  }`;
+function TabButton({
+  children,
+  active,
+  onClick,
+}: {
+  children: React.ReactNode;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex-1 py-3 px-6 rounded-full text-sm font-semibold transition-all duration-300 ${
+        active
+          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]"
+          : "text-muted-foreground hover:text-foreground hover:bg-white/40"
+      }`}
+    >
+      {children}
+    </button>
+  );
 }
 
-// ─── ONGLET DÉPUTÉ·ES ──────────────────────────────────────────────────────
+// ─── ONGLET DEPUTES ───────────────────────────────────────────────────────
 
 function DeputesTab({
   deputes,
+  stats,
   q,
   groupe,
   search,
@@ -174,6 +289,7 @@ function DeputesTab({
   navigate,
 }: {
   deputes: Depute16[];
+  stats: any;
   q: string;
   groupe: string;
   search: string;
@@ -181,141 +297,108 @@ function DeputesTab({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   navigate: any;
 }) {
-  const groupes = useMemo(() => {
-    const map = new Map<string, number>();
-    deputes.forEach((d) =>
-      map.set(d.groupe_sigle, (map.get(d.groupe_sigle) ?? 0) + 1),
-    );
-    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
-  }, [deputes]);
-
-  const filtered = useMemo(() => {
-    const n = normalize(q);
-    return deputes.filter((d) => {
-      if (groupe && d.groupe_sigle !== groupe) return false;
-      if (
-        n &&
-        !normalize(
-          `${d.prenom} ${d.nom_de_famille} ${d.nom_circo} ${d.num_deptmt}`,
-        ).includes(n)
-      )
-        return false;
-      return true;
-    });
-  }, [deputes, q, groupe]);
-
   return (
-    <>
-      {/* Recherche et Filtres */}
-      <div className="sticky-toolbar sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 mb-8 space-y-4">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate({
-              search: (p: Record<string, unknown>) => ({
-                ...p,
-                q: sanitizeSearchInput(search),
-              }),
-            });
-          }}
-          className="flex gap-2"
-          role="search"
-        >
-          <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5">
-            <svg
-              className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3.5-3.5" strokeLinecap="round" />
-            </svg>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Nom, prénom, circonscription…"
-              className="flex-1 py-3 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
-              maxLength={150}
-            />
-          </div>
-          <button
-            type="submit"
-            className="btn-primary px-6 py-3 rounded-full text-sm font-medium"
-          >
-            Chercher
-          </button>
-        </form>
-
-        {/* Filtres groupes — noms complets */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() =>
+    <div className="animate-fade-up">
+      {/* Filtres */}
+      <div className="sticky-toolbar sticky top-[calc(4rem-1px)] z-40 -mx-4 px-4 py-4 mb-10">
+        <div className="flex flex-col md:flex-row gap-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
               navigate({
-                search: (p: Record<string, unknown>) => ({ ...p, groupe: "" }),
+                search: (p: Record<string, unknown>) => ({
+                  ...p,
+                  q: sanitizeSearchInput(search),
+                }),
+              });
+            }}
+            className="flex-1 flex gap-2"
+            role="search"
+          >
+            <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+              <svg
+                className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" strokeLinecap="round" />
+              </svg>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Nom, département, circonscription…"
+                className="flex-1 py-3 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
+                maxLength={100}
+                autoComplete="off"
+              />
+            </div>
+            <button
+              type="submit"
+              className="btn-primary px-6 py-3 rounded-full text-sm font-medium"
+            >
+              Filtrer
+            </button>
+          </form>
+
+          <select
+            value={groupe}
+            onChange={(e) =>
+              navigate({
+                search: (p: Record<string, unknown>) => ({
+                  ...p,
+                  groupe: e.target.value,
+                }),
               })
             }
-            aria-pressed={!groupe}
-            className={chip(!groupe)}
+            className="glass-strong px-6 py-3 rounded-full text-sm font-medium border border-white/30 outline-none appearance-none cursor-pointer hover:border-primary/30 transition-colors"
+            aria-label="Filtrer par groupe politique"
           >
-            Tous les groupes
-          </button>
-          {groupes.map(([sig, n]) => {
-            const g = groupeMeta(sig);
-            return (
-              <button
-                key={sig}
-                onClick={() =>
-                  navigate({
-                    search: (p: Record<string, unknown>) => ({
-                      ...p,
-                      groupe: sig,
-                    }),
-                  })
-                }
-                aria-pressed={groupe === sig}
-                className={chip(groupe === sig)}
-              >
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: g.couleur }}
-                  aria-hidden="true"
-                />
-                {g.nom}
-                <span className="opacity-50">· {n}</span>
-              </button>
-            );
-          })}
+            <option value="">Tous les groupes</option>
+            {stats.groups.map(([sigle, count]: [string, number]) => (
+              <option key={sigle} value={sigle}>
+                {groupeMeta(sigle).nom} ({count})
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground mb-4">
-        {filtered.length.toLocaleString("fr-FR")} résultat
-        {filtered.length > 1 ? "s" : ""}
-      </p>
-
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {filtered.slice(0, 120).map((d) => (
-          <Depute16Card key={d.slug} d={d} />
-        ))}
-      </div>
-      {filtered.length > 120 && (
-        <p className="text-center mt-8 text-sm text-muted-foreground">
-          Affichage limité aux 120 premiers résultats — affinez votre recherche.
-        </p>
+      {/* Liste */}
+      {deputes.length === 0 ? (
+        <div className="py-24 text-center glass rounded-[3rem] border border-border/40">
+          <div className="text-4xl mb-4" aria-hidden="true">
+            🔍
+          </div>
+          <p className="text-muted-foreground">
+            Aucun député ne correspond à votre recherche.
+          </p>
+          <button
+            onClick={() =>
+              navigate({
+                search: (p: any) => ({ ...p, q: "", groupe: "" }),
+              })
+            }
+            className="mt-4 text-primary font-semibold hover:underline"
+          >
+            Réinitialiser les filtres
+          </button>
+        </div>
+      ) : (
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          aria-label="Liste des député·es — 16e législature"
+        >
+          {deputes.map((d) => (
+            <Depute16Card key={d.slug} d={d} />
+          ))}
+        </div>
       )}
-    </>
+    </div>
   );
-}
-
-function chip(active: boolean) {
-  return `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${
-    active
-      ? "btn-primary border-transparent"
-      : "glass border-border/50 text-foreground/70 hover:text-foreground hover:border-primary/25"
-  }`;
 }
 
 function Depute16Card({ d }: { d: Depute16 }) {
@@ -433,7 +516,7 @@ function ScrutinsTab({
           className="flex gap-2"
           role="search"
         >
-          <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5">
+          <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
             <svg
               className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
               viewBox="0 0 24 24"
