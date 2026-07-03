@@ -955,13 +955,7 @@ export const deputeDetailQuery = (slugRaw: string) => {
       }
 
 
-  const slug = sanitizeSlug(slugRaw);
-  return queryOptions({
-    queryKey: ["depute-detail", 17, slug],
-    enabled: !!slug,
-    staleTime: 1000 * 60 * 60 * 4,
-    queryFn: async (): Promise<Depute> => {
-      // ① Depuis la liste locale
+      // ① Fichier local (fallback si Turso indisponible)
       try {
         const data = await fetchLocal<Depute[]>("/deputes-17.json");
         const found = Array.isArray(data)
