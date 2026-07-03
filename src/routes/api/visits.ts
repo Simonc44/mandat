@@ -34,8 +34,9 @@ export const Route = createFileRoute("/api/visits")({
             headers: { "Content-Type": "application/json", ...CORS },
           });
         } catch (e) {
+          console.error("[API/visits] GET Error:", e);
           return new Response(
-            JSON.stringify({ count: 0, error: (e as Error).message }),
+            JSON.stringify({ count: 0, error: "Internal Server Error" }),
             {
               status: 200,
               headers: { "Content-Type": "application/json", ...CORS },
@@ -70,8 +71,9 @@ export const Route = createFileRoute("/api/visits")({
             headers: { "Content-Type": "application/json", ...CORS },
           });
         } catch (e) {
+          console.error("[API/visits] POST Error:", e);
           return new Response(
-            JSON.stringify({ count: 0, error: (e as Error).message }),
+            JSON.stringify({ count: 0, error: "Internal Server Error" }),
             {
               status: 200,
               headers: { "Content-Type": "application/json", ...CORS },
