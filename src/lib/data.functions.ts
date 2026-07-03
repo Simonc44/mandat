@@ -93,6 +93,29 @@ export const getScrutinsFromDb = createServerFn({ method: "GET" }).handler(
 // chaque premier chargement direct → notFound() → 404. Cette requête Turso
 // ne récupère que la ligne demandée (métadonnées uniquement, pas les votes
 // nominatifs qui restent hors Turso — voir scripts/migrate-to-turso.mjs).
+// FIX bug 404 SSR sur /depute/:slug — même raison que getScrutinByNumero :
+// éviter de faire charger `deputes-17.json` (plusieurs Mo) par la fonction
+// serverless au premier chargement direct. Une requête Turso monoligne
+// suffit pour le loader.
+export const getDeputeBySlug = createServerFn({ method: "GET" })
+  .validator((data: unknown): { slug: string } => {
+    const raw =
+      data && typeof data === "object" && "slug" in data
+        ? String((data as Record<string, unknown>).slug ?? "")
+        : "";
+    return { slug: sanitizeSlug(raw) };
+  })
+  .handler(async ({ data }): Promise<Depute | null> => {
+    if (!data.slug) return null;
+    const c = tursoClient();
+    const r = await c.execute({
+      sql: `SELECT * FROM deputes WHERE slug = ? LIMIT 1`,
+      args: [data.slug],
+    });
+    if (!r.rows.length) return null;
+    return mapDeputeRow(r.rows[0]);
+  });
+
 export const getScrutinByNumero = createServerFn({ method: "GET" })
   .validator((data: unknown): { numero: string } => {
     const raw =
