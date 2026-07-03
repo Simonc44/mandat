@@ -4,7 +4,7 @@
 
 import { createServerFn } from "@tanstack/react-start";
 import { tursoClient } from "./turso.server";
-import { sanitizeSearchInput, sanitizeText, sanitizeSlug } from "./api";
+import { sanitizeSearchInput, sanitizeText, sanitizeSlug, sanitizeNumero } from "./api";
 import type { Depute, Scrutin } from "./api";
 
 // ─── Mapping partagé (une seule source de vérité pour le format des lignes) ──
@@ -85,6 +85,31 @@ export const getScrutinsFromDb = createServerFn({ method: "GET" }).handler(
     return r.rows.map(mapScrutinRow);
   },
 );
+
+// ─── Requête légère : un seul scrutin par numéro ─────────────────────────────
+// FIX bug 404 SSR : la page /scrutin/:numero chargeait AVANT tout le fichier
+// scrutins-17.json (24 Mo) + votes-17.json (95 Mo) côté serveur pour trouver
+// UN SEUL scrutin. Ça fait planter (mémoire/temps) la fonction serverless à
+// chaque premier chargement direct → notFound() → 404. Cette requête Turso
+// ne récupère que la ligne demandée (métadonnées uniquement, pas les votes
+// nominatifs qui restent hors Turso — voir scripts/migrate-to-turso.mjs).
+export const getScrutinByNumero = createServerFn({ method: "GET" })
+  .validator((data: unknown): { numero: string } => {
+    const raw =
+      data && typeof data === "object" && "numero" in data
+        ? String((data as Record<string, unknown>).numero ?? "")
+        : "";
+    return { numero: sanitizeNumero(raw) || raw };
+  })
+  .handler(async ({ data }): Promise<Scrutin | null> => {
+    const c = tursoClient();
+    const r = await c.execute({
+      sql: `SELECT * FROM scrutins WHERE numero = ? OR uid = ? LIMIT 1`,
+      args: [data.numero, data.numero],
+    });
+    if (!r.rows.length) return null;
+    return mapScrutinRow(r.rows[0]);
+  });
 
 // ─── Requêtes légères (page d'accueil) ───────────────────────────────────────
 // La page d'accueil n'affiche que des compteurs + les 6 derniers scrutins.
