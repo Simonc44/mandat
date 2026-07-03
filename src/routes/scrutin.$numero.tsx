@@ -85,8 +85,10 @@ function resolveGroupeSigle(
 function ScrutinPage() {
   const { numero: numeroRaw } = Route.useParams();
   const numero = sanitizeNumero(numeroRaw) || numeroRaw;
-  const { data } = useSuspenseQuery(scrutinDetailQuery(numero));
-  const { meta, votes, votesNominatifs } = data;
+  const { data: meta } = useSuspenseQuery(scrutinMetaQuery(numero));
+  const { data: votesData } = useQuery(scrutinVotesQuery(numero));
+  const votes = votesData?.votes ?? [];
+  const votesNominatifs = votesData?.votesNominatifs ?? null;
 
   const [filter, setFilter] = useState<{
     groupe: string;
