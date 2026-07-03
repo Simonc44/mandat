@@ -235,11 +235,31 @@ async function fetchJson<T>(url: string, timeoutMs = 15_000): Promise<T> {
 }
 
 /** Fetch un fichier JSON local depuis /public — pas de validation de domaine */
+// FIX : en SSR (Node/edge), fetch() ne peut pas résoudre une URL relative
+// comme "/scrutins-17.json" faute de "page courante" pour la résolution.
+// Ça faisait échouer silencieusement le tout premier chargement direct
+// d'une page /scrutin/:numero ou /depute/:slug (rendu serveur), qui tombait
+// ensuite en cascade sur les fallbacks externes puis finissait en 404.
+// Côté client (navigateur), la même URL relative se résout normalement par
+// rapport à window.location, d'où le "ça marche" après une navigation
+// interne (liste → détail → retour → détail).
+function resolveLocalUrl(path: string): string {
+  if (typeof window !== "undefined") return path; // navigateur : relatif OK
+  const vercelUrl = process.env.VERCEL_URL;
+  const base = vercelUrl
+    ? `https://${vercelUrl}`
+    : "https://mandat-fr.vercel.app";
+  return `${base}${path}`;
+}
+
 async function fetchLocal<T>(path: string, timeoutMs = 10_000): Promise<T> {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    const r = await fetch(path, { signal: ctrl.signal, credentials: "omit" });
+    const r = await fetch(resolveLocalUrl(path), {
+      signal: ctrl.signal,
+      credentials: "omit",
+    });
     clearTimeout(t);
     if (!r.ok) throw new Error(`Fichier local HTTP ${r.status}: ${path}`);
     const text = await r.text();
