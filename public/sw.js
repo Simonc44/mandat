@@ -21,7 +21,12 @@ const STATIC_ASSETS = [
 ];
 
 // Patterns d'URL à mettre en cache côté données
-const DATA_PATTERNS = ["/deputes-17.json", "/scrutins-17.json", "/deputes-16.json", "/scrutins-16.json"];
+const DATA_PATTERNS = [
+  "/deputes-17.json",
+  "/scrutins-17.json",
+  "/deputes-16.json",
+  "/scrutins-16.json",
+];
 
 // ── Install ──────────────────────────────────────────────────
 self.addEventListener("install", (event) => {
