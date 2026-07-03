@@ -21,6 +21,7 @@ import {
   getDeputesFromDb,
   getScrutinsFromDb,
   getScrutinByNumero,
+  getDeputeBySlug,
 } from "./data.functions";
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
