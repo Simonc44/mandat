@@ -1102,6 +1102,26 @@ export const deputeVotesQuery = (slugRaw: string, idAn?: string) => {
   });
 };
 
+
+/**
+ * Vérifie si un député existait dans la 16e législature
+ */
+export const deputeExists16Query = (slugRaw: string) => {
+  const slug = sanitizeSlug(slugRaw);
+  return queryOptions({
+    queryKey: ["depute-exists-16", slug],
+    staleTime: 1000 * 60 * 60 * 24,
+    queryFn: async (): Promise<boolean> => {
+      try {
+        const data = await fetchLocal<any[]>("/deputes-16.json");
+        return Array.isArray(data) && data.some((d) => sanitizeSlug(d.slug) === slug);
+      } catch {
+        return false;
+      }
+    },
+  });
+};
+
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 
 function buildVoteEntries(

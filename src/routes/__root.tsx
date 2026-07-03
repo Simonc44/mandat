@@ -24,7 +24,7 @@ import { LoadingOverlay } from "../components/LoadingOverlay";
 
 export const SITE_URL = "https://mandat-fr.vercel.app";
 export const SITE_NAME =
-  "Mandat — Le moteur de recherche citoyen des votes de l'Assemblée nationale";
+  "Mandat — Qui a voté quoi ? Suivez les députés de l'Assemblée nationale";
 export const SITE_DESCRIPTION =
   "Cherchez un·e député·e, un texte de loi, un scrutin. Les votes de l'Assemblée nationale 17e législature, enfin lisibles et accessibles à tous sans étiquette politique.";
 export const KEYWORDS = [
@@ -84,7 +84,7 @@ export function createSeoMeta(config: SeoConfig) {
       content:
         "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
     },
-    { name: "theme-color", content: "#5B4FCF" },
+    { name: "theme-color", content: "#ffffff" },
     { name: "keywords", content: keywords.join(", ") },
     { name: "application-name", content: SITE_NAME },
     { name: "apple-mobile-web-app-title", content: SITE_NAME },

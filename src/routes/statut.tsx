@@ -19,14 +19,14 @@ const REFRESH_MS = 30_000;
 export const Route = createFileRoute("/statut")({
   head: () => ({
     meta: [
-      { title: "Statut du service — Mandat" },
+      { title: "État technique des services — Mandat" },
       {
         name: "description",
         content:
           "État en temps réel de Mandat : disponibilité du site, base de données et dernière synchronisation des données de l'Assemblée nationale.",
       },
       { name: "robots", content: "noindex, follow" },
-      { property: "og:title", content: "Statut du service — Mandat" },
+      { property: "og:title", content: "État technique des services — Mandat" },
       {
         property: "og:description",
         content: "Vert = tout fonctionne. Rouge = incident en cours.",
@@ -101,7 +101,7 @@ function StatusPage() {
           Monitoring
         </p>
         <h1 className="font-display text-3xl md:text-4xl font-semibold tracking-tight text-ink">
-          Statut du service
+          État technique des services
         </h1>
         <p className="text-sm text-muted-foreground max-w-2xl">
           Cette page vérifie automatiquement toutes les {REFRESH_MS / 1000}{" "}

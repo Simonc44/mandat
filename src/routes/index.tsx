@@ -101,7 +101,7 @@ function Home() {
                 className="w-2 h-2 rounded-full bg-primary animate-pulse"
                 aria-hidden="true"
               />
-              17e législature · Session 2024–2029
+              17e législature · Mis à jour quotidiennement
             </div>
 
             {/* H1 */}
@@ -109,9 +109,9 @@ function Home() {
               className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.95] sm:leading-[0.92] mb-6 animate-fade-up tracking-tight"
               style={{ animationDelay: "80ms" }}
             >
-              Qui a voté quoi —
+              La démocratie,
               <br />
-              <span className="text-gradient italic">et pourquoi.</span>
+              <span className="text-gradient italic">en toute clarté.</span>
             </h1>
 
             {/* Sous-titre */}
@@ -119,7 +119,7 @@ function Home() {
               className="text-lg text-muted-foreground max-w-2xl mb-8 leading-relaxed animate-fade-up"
               style={{ animationDelay: "160ms" }}
             >
-              Mandat rend lisibles les{" "}
+              Mandat décode les{" "}
               <strong className="text-foreground">
                 {stats.scrutinsCount.toLocaleString("fr-FR")} scrutins
               </strong>{" "}
@@ -133,6 +133,18 @@ function Home() {
               style={{ animationDelay: "240ms" }}
             >
               <SearchBar />
+            </div>
+
+            <div className="animate-fade-up flex flex-wrap gap-6 text-sm text-muted-foreground mt-8" style={{ animationDelay: '320ms' }}>
+              <div className="flex items-center gap-2">
+                <Unlock className="w-4 h-4" /> 100% Open Data
+              </div>
+              <div className="flex items-center gap-2">
+                <Scale className="w-4 h-4" /> Sans étiquette
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4" /> Sans publicité
+              </div>
             </div>
           </div>
         </div>
@@ -401,9 +413,9 @@ function TrustSection() {
             className="font-display text-3xl md:text-5xl mb-12 text-center leading-[1.05]"
             data-rise
           >
-            La transparence,
+            Pourquoi utiliser
             <br />
-            <span className="text-gradient italic">sans compromis.</span>
+            <span className="text-gradient italic">Mandat ?</span>
           </h2>
         </ScrollScene>
         <ScrollScene variant="tilt" className="grid md:grid-cols-3 gap-5">

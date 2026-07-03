@@ -22,7 +22,7 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/scrutins")({
   head: () => ({
     meta: createSeoMeta({
-      title: "Tous les scrutins — Mandat",
+      title: "Derniers votes à l'Assemblée : les scrutins décryptés — Mandat",
       description:
         "Liste complète des scrutins publics à l'Assemblée nationale (17e législature). Résultats, votes, textes de loi.",
       canonical: `${SITE_URL}/scrutins`,
