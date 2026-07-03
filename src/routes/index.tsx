@@ -23,9 +23,9 @@ import { createSeoMeta, SITE_URL } from "./__root";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: createSeoMeta({
-      title: "Mandat — Qui a voté quoi, et pourquoi à l'Assemblée ?",
+      title: "Mandat — Cherchez comment votre député a voté à l'Assemblée",
       description:
-        "Découvrez les votes des 577 députés de la 17e législature. Un outil citoyen pour suivre l'actualité législative avec transparence et sans parti pris.",
+        "Trouvez en quelques secondes le vote de n'importe quel député sur n'importe quel texte. 577 élus, toutes les lois de la 17e législature, sans étiquette politique.",
       canonical: SITE_URL,
       ogType: "website",
     }),
@@ -109,9 +109,9 @@ function Home() {
               className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.95] sm:leading-[0.92] mb-6 animate-fade-up tracking-tight"
               style={{ animationDelay: "80ms" }}
             >
-              La démocratie,
+              Cherchez comment
               <br />
-              <span className="text-gradient italic">en toute clarté.</span>
+              <span className="text-gradient italic">votre député a voté.</span>
             </h1>
 
             {/* Sous-titre */}
@@ -119,12 +119,15 @@ function Home() {
               className="text-lg text-muted-foreground max-w-2xl mb-8 leading-relaxed animate-fade-up"
               style={{ animationDelay: "160ms" }}
             >
-              Mandat décode les{" "}
+              Sur n'importe quel texte de loi, en quelques secondes.{" "}
               <strong className="text-foreground">
                 {stats.scrutinsCount.toLocaleString("fr-FR")} scrutins
               </strong>{" "}
-              de la XVIIe législature. Cherchez un·e député·e, un texte de loi.
-              Sans étiquette, sans score idéologique.
+              et{" "}
+              <strong className="text-foreground">
+                {stats.deputesCount.toLocaleString("fr-FR")} député·es
+              </strong>{" "}
+              de la 17e législature — sans étiquette, sans filtre politique.
             </p>
 
             {/* Search */}
@@ -135,15 +138,18 @@ function Home() {
               <SearchBar />
             </div>
 
-            <div className="animate-fade-up flex flex-wrap gap-6 text-sm text-muted-foreground mt-8" style={{ animationDelay: '320ms' }}>
+            <div
+              className="animate-fade-up flex flex-wrap gap-6 text-sm text-muted-foreground mt-8"
+              style={{ animationDelay: "320ms" }}
+            >
               <div className="flex items-center gap-2">
-                <Unlock className="w-4 h-4" /> 100% Open Data
+                <Unlock className="w-4 h-4" aria-hidden="true" /> 100% Open Data
               </div>
               <div className="flex items-center gap-2">
-                <Scale className="w-4 h-4" /> Sans étiquette
+                <Scale className="w-4 h-4" aria-hidden="true" /> Sans étiquette
               </div>
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4" /> Sans publicité
+                <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Sans publicité
               </div>
             </div>
           </div>
@@ -209,6 +215,9 @@ function Home() {
         </div>
       </section>
 
+      {/* ── SECTION CONFIANCE (remontée) ── */}
+      <TrustSection />
+
       {/* ── SECTION EXPLICATION SEO ── */}
       <section className="container-app py-16 border-t border-border/40">
         <div className="max-w-4xl mx-auto">
@@ -241,21 +250,21 @@ function Home() {
                 les données officielles en Open Data, nous permettons de
                 vérifier les positions réelles des élus, loin de la
                 communication politique habituelle. Qui a voté pour ? Qui s'est
-                abstenu ? Et surtout, pourquoi ce vote est-il crucial ?
+                abstenu ?
               </p>
               <p>
                 Que vous cherchiez un·e député·e spécifique ou que vous
-                souhaitiez explorer les derniers amendements, Mandat regroupe
+                souhaitiez explorer les derniers votes, Mandat regroupe
                 toutes les informations en un lieu unique, lisible et mis à jour
-                en temps réel selon les publications officielles de l'Assemblée.
+                en temps réel selon les publications officielles de l'Assemblée.{" "}
+                <Link to="/a-propos" className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors">
+                  En savoir plus sur le projet →
+                </Link>
               </p>
             </div>
           </div>
         </div>
       </section>
-
-      {/* ── SECTION CONFIANCE ── */}
-      <TrustSection />
     </div>
   );
 }
@@ -391,17 +400,17 @@ function TrustSection() {
     {
       Icon: Unlock,
       title: "100 % opendata",
-      desc: "Sources officielles AN, API CLAIR et CIVIX. Aucune donnée inventée.",
+      desc: "Sources officielles AN, API CLAIR et CIVIX. Aucune donnée inventée, aucune interprétation politique.",
     },
     {
       Icon: Scale,
       title: "Zéro biais politique",
-      desc: "Pas de score idéologique, pas de classement. Les faits bruts.",
+      desc: "Pas de score idéologique, pas de classement partisan. Les faits bruts, tels que votés dans l'hémicycle.",
     },
     {
       Icon: ShieldCheck,
       title: "Vie privée respectée",
-      desc: "Aucun cookie publicitaire. Aucun tracker. Conformité RGPD.",
+      desc: "Aucun cookie publicitaire. Aucun tracker tiers. Projet indépendant, sans financeur politique.",
     },
   ];
 
@@ -413,9 +422,9 @@ function TrustSection() {
             className="font-display text-3xl md:text-5xl mb-12 text-center leading-[1.05]"
             data-rise
           >
-            Pourquoi utiliser
+            Pourquoi faire confiance
             <br />
-            <span className="text-gradient italic">Mandat ?</span>
+            <span className="text-gradient italic">à Mandat ?</span>
           </h2>
         </ScrollScene>
         <ScrollScene variant="tilt" className="grid md:grid-cols-3 gap-5">
@@ -445,14 +454,20 @@ function TrustSection() {
             </div>
           ))}
         </ScrollScene>
+        <div className="text-center mt-10">
+          <Link
+            to="/a-propos"
+            className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
+          >
+            Découvrir l'équipe et les sources →
+          </Link>
+        </div>
       </div>
     </section>
   );
 }
 
 // ── SEARCH BAR ──────────────────────────────────────────────
-// Recherche côté serveur (searchHome) : n'exige plus de télécharger
-// la liste complète des député·es/scrutins pour filtrer en local.
 
 function SearchBar() {
   const [q, setQ] = useState("");
@@ -532,7 +547,7 @@ function SearchBar() {
               setOpen(true);
             }}
             onFocus={() => setOpen(true)}
-            placeholder="Cherchez un·e député·e, un texte de loi…"
+            placeholder="Ex : Macron, budget 2025, loi immigration…"
             className="flex-1 min-w-0 py-3.5 sm:py-4 px-2 bg-transparent outline-none text-sm sm:text-base placeholder:text-muted-foreground"
             aria-label="Terme de recherche"
             maxLength={150}
@@ -560,12 +575,12 @@ function SearchBar() {
         </div>
       </form>
 
-      {/* Dropdown résultats — au-dessus de tout, opaque */}
+      {/* Dropdown résultats */}
       {open && hasResults && (
         <div
           id="search-results"
-          className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden max-h-[50vh] sm:max-h-[65vh] overflow-y-auto border border-border/60 bg-white"
-          style={{ zIndex: 9999, backgroundColor: "oklch(1 0 0)" }}
+          className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden max-h-[50vh] sm:max-h-[65vh] overflow-y-auto border border-border/60"
+          style={{ zIndex: 9999, backgroundColor: "var(--color-background, #fff)" }}
           role="listbox"
           aria-label="Suggestions"
         >
@@ -579,7 +594,7 @@ function SearchBar() {
                   key={d.slug}
                   to="/depute/$slug"
                   params={{ slug: d.slug }}
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-2xl hover:bg-white/20 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-2xl hover:bg-muted/40 transition-colors"
                   onClick={() => setOpen(false)}
                 >
                   <DeputeAvatarSmall d={d} />
@@ -605,7 +620,7 @@ function SearchBar() {
                   key={s.numero}
                   to="/scrutin/$numero"
                   params={{ numero: s.numero }}
-                  className="block px-4 py-2.5 rounded-2xl hover:bg-white/20 transition-colors"
+                  className="block px-4 py-2.5 rounded-2xl hover:bg-muted/40 transition-colors"
                   onClick={() => setOpen(false)}
                 >
                   <div className="flex items-center gap-2 mb-0.5">
