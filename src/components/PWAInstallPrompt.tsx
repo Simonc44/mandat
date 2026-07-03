@@ -36,26 +36,32 @@ export function PWAInstallPrompt() {
   const handleInstall = async () => {
     if (!deferredPrompt) return;
 
-    // Affiche la boîte de dialogue d'installation du navigateur
-    await deferredPrompt.prompt();
+    try {
+      // Affiche la boîte de dialogue d'installation du navigateur
+      await deferredPrompt.prompt();
 
-    // Attend la réponse de l'utilisateur
-    const { outcome } = await deferredPrompt.userChoice;
+      // Attend la réponse de l'utilisateur
+      const { outcome } = await deferredPrompt.userChoice;
 
-    if (outcome === "accepted") {
-      console.log("L'utilisateur a accepté l'installation de la PWA");
-    } else {
-      console.log("L'utilisateur a refusé l'installation de la PWA");
+      if (outcome === "accepted") {
+        console.log("L'utilisateur a accepté l'installation de la PWA");
+      } else {
+        console.log("L'utilisateur a refusé l'installation de la PWA");
+      }
+
+      // Réinitialise l'événement
+      setDeferredPrompt(null);
+      setVisible(false);
+    } catch (error) {
+      console.error("Erreur lors de l'installation PWA:", error);
     }
-
-    // Réinitialise l'événement
-    setDeferredPrompt(null);
-    setVisible(false);
   };
 
   const handleDismiss = () => {
     setVisible(false);
     sessionStorage.setItem("pwa_prompt_dismissed", "true");
+    // Important: Ne pas appeler preventDefault() sur le beforeinstallprompt
+    // pour laisser le navigateur gérer l'événement suivant
   };
 
   if (!visible || !deferredPrompt) return null;
