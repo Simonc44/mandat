@@ -273,6 +273,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700&family=Inter:wght@300;400;500;600;700&display=swap",
         },
         { rel: "alternate", hrefLang: "fr-FR", href: SITE_URL },
+        // Perf : ouvrir la connexion au CDN photo de l'AN dès le premier paint
+        // pour que les <img> des députés arrivent sans handshake TLS supplémentaire.
+        { rel: "preconnect", href: "https://www2.assemblee-nationale.fr", crossOrigin: "anonymous" },
+        { rel: "dns-prefetch", href: "https://www2.assemblee-nationale.fr" },
       ],
     }),
     shellComponent: RootShell,
