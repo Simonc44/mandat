@@ -3,9 +3,24 @@
 // Utilisées en SSR pour éviter les fetch HTTP de fichiers statiques.
 
 import { createServerFn } from "@tanstack/react-start";
+import { setResponseHeader } from "@tanstack/react-start/server";
 import { tursoClient } from "./turso.server";
 import { sanitizeSearchInput, sanitizeText, sanitizeSlug, sanitizeNumero } from "./api";
 import type { Depute, Scrutin } from "./api";
+
+// Cache CDN + navigateur : les données ne changent qu'une fois par jour
+// (deploy hook à 04h00). On peut donc servir la même réponse depuis le
+// edge cache pendant 5 min, avec revalidation en arrière-plan pendant 1h.
+function setEdgeCache(maxAge = 300, swr = 3600) {
+  try {
+    setResponseHeader(
+      "cache-control",
+      `public, max-age=60, s-maxage=${maxAge}, stale-while-revalidate=${swr}`,
+    );
+  } catch {
+    /* ignore : appelé hors contexte requête (ex : loader client) */
+  }
+}
 
 // ─── Mapping partagé (une seule source de vérité pour le format des lignes) ──
 
