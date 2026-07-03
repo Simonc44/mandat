@@ -166,6 +166,7 @@ export type HomeStats = {
 
 export const getHomeStats = createServerFn({ method: "GET" }).handler(
   async (): Promise<HomeStats> => {
+    setEdgeCache(300, 3600);
     const c = tursoClient();
     const [d, s, g] = await Promise.all([
       c.execute(`SELECT COUNT(*) as n FROM deputes`),
@@ -184,6 +185,7 @@ export const getHomeStats = createServerFn({ method: "GET" }).handler(
 
 export const getLatestScrutins = createServerFn({ method: "GET" }).handler(
   async (): Promise<Scrutin[]> => {
+    setEdgeCache(300, 3600);
     const c = tursoClient();
     const r = await c.execute(
       `SELECT * FROM scrutins ORDER BY date DESC LIMIT 6`,
