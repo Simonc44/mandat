@@ -320,9 +320,15 @@ function chip(active: boolean) {
 
 function Depute16Card({ d }: { d: Depute16 }) {
   const g = groupeMeta(d.groupe_sigle);
-  const [err, setErr] = useState(false);
-  const [fallbackErr, setFallbackErr] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
+
+  // Tente photo nosdeputes.fr, puis fallback SVG, puis initiales
+  const photoSrc = d.photo || "";
   const fallbackSrc = "/images/depute-placeholder.svg";
+  const initials =
+    `${d.prenom?.[0] ?? ""}${d.nom_de_famille?.[0] ?? ""}`.toUpperCase();
+  const nom = `${d.prenom || ""} ${d.nom_de_famille || ""}`.trim();
 
   return (
     <a
@@ -331,36 +337,45 @@ function Depute16Card({ d }: { d: Depute16 }) {
       rel="noreferrer noopener"
       className="card-glass group p-4 rounded-[2rem] flex items-center gap-3 hover:border-primary/40 transition-all"
     >
-      {!err ? (
-        <img
-          src={d.photo}
-          alt=""
-          aria-hidden="true"
-          className="w-12 h-12 rounded-2xl object-cover shrink-0"
-          onError={() => setErr(true)}
-        />
-      ) : !fallbackErr ? (
-        <img
-          src={fallbackSrc}
-          alt=""
-          aria-hidden="true"
-          className="w-12 h-12 rounded-2xl object-cover shrink-0 opacity-20 grayscale"
-          onError={() => setFallbackErr(true)}
-        />
-      ) : (
-        <div
-          className="w-12 h-12 rounded-2xl flex items-center justify-center text-xs font-bold shrink-0"
-          style={{
-            background: `color-mix(in oklch, ${g.couleur} 18%, white)`,
-            color: g.couleur,
-          }}
-        >
-          {`${d.prenom?.[0] ?? ""}${d.nom_de_famille?.[0] ?? ""}`}
-        </div>
-      )}
+      <div className="w-12 h-12 rounded-2xl overflow-hidden shrink-0 bg-muted ring-1 ring-black/5">
+        {!imgError && photoSrc ? (
+          <img
+            src={photoSrc}
+            alt={`Photo de ${nom}`}
+            loading="lazy"
+            width={48}
+            height={48}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : !useFallback ? (
+          <img
+            src={fallbackSrc}
+            alt=""
+            loading="lazy"
+            width={48}
+            height={48}
+            className="w-full h-full object-cover opacity-20 grayscale"
+            onError={() => setUseFallback(true)}
+          />
+        ) : (
+          /* Initiales colorées fallback */
+          <div
+            className="w-full h-full flex items-center justify-center font-display font-semibold text-xs"
+            style={{
+              background: `color-mix(in oklch, ${g.couleur} 18%, white)`,
+              color: g.couleur,
+            }}
+            aria-hidden="true"
+          >
+            {initials || "?"}
+          </div>
+        )}
+      </div>
+
       <div className="min-w-0 flex-1">
         <div className="font-medium text-sm truncate text-foreground group-hover:text-primary transition-colors">
-          {d.prenom} {d.nom_de_famille}
+          {nom || "Inconnu"}
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground truncate">
           <span
@@ -371,7 +386,7 @@ function Depute16Card({ d }: { d: Depute16 }) {
           <span className="truncate">{g.nom}</span>
         </div>
         <div className="text-[11px] text-muted-foreground truncate">
-          {d.num_deptmt} · {d.nom_circo}
+          {d.num_deptmt || "?"} · {d.nom_circo || "Inconnue"}
         </div>
       </div>
       <ExternalLink className="w-4 h-4 text-muted-foreground shrink-0" />
