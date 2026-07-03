@@ -1,10 +1,11 @@
 // routes/scrutin.$numero.tsx — données locales 17e, votes nominatifs réels
 
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import {
-  scrutinDetailQuery,
+  scrutinMetaQuery,
+  scrutinVotesQuery,
   groupeMeta,
   positionColor,
   positionLabel,
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/scrutin/$numero")({
   loader: async ({ context, params }) => {
     const numero = sanitizeNumero(params.numero) || params.numero;
     try {
-      await context.queryClient.ensureQueryData(scrutinDetailQuery(numero));
+      await context.queryClient.ensureQueryData(scrutinMetaQuery(numero));
     } catch {
       throw notFound();
     }
@@ -84,8 +85,10 @@ function resolveGroupeSigle(
 function ScrutinPage() {
   const { numero: numeroRaw } = Route.useParams();
   const numero = sanitizeNumero(numeroRaw) || numeroRaw;
-  const { data } = useSuspenseQuery(scrutinDetailQuery(numero));
-  const { meta, votes, votesNominatifs } = data;
+  const { data: meta } = useSuspenseQuery(scrutinMetaQuery(numero));
+  const { data: votesData } = useQuery(scrutinVotesQuery(numero));
+  const votes = votesData?.votes ?? [];
+  const votesNominatifs = votesData?.votesNominatifs ?? null;
 
   const [filter, setFilter] = useState<{
     groupe: string;

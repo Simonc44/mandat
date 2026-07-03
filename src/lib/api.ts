@@ -21,6 +21,7 @@ import {
   getDeputesFromDb,
   getScrutinsFromDb,
   getScrutinByNumero,
+  getDeputeBySlug,
 } from "./data.functions";
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
@@ -925,7 +926,10 @@ export const scrutinDetailQuery = (numeroRaw: string) => {
 };
 
 /**
- * Détail d'un député — fichier local prioritaire (acteur/PA*.json via deputes-17.json)
+ * Détail léger d'un député via Turso — SSR-safe (une seule ligne DB).
+ * À utiliser dans le loader ET pour l'affichage du profil (contient toutes
+ * les métadonnées : nom, groupe, circo, mandat, twitter, url_an…).
+ * Évite le bug 404 causé par le chargement de deputes-17.json en SSR.
  */
 export const deputeDetailQuery = (slugRaw: string) => {
   const slug = sanitizeSlug(slugRaw);
@@ -934,7 +938,24 @@ export const deputeDetailQuery = (slugRaw: string) => {
     enabled: !!slug,
     staleTime: 1000 * 60 * 60 * 4,
     queryFn: async (): Promise<Depute> => {
-      // ① Depuis la liste locale
+      // ⓪ Turso — SSR-safe, une seule ligne
+      try {
+        const row = await getDeputeBySlug({ data: { slug } });
+        if (row)
+          return {
+            ...row,
+            nom: sanitizeText(row.nom, 200),
+            nom_de_famille: sanitizeText(row.nom_de_famille, 100),
+            prenom: sanitizeText(row.prenom, 100),
+            slug: sanitizeSlug(row.slug),
+            photo_url: row.id_an ? photoUrl(row.id_an, 17) : undefined,
+          };
+      } catch {
+        /* fallback */
+      }
+
+
+      // ① Fichier local (fallback si Turso indisponible)
       try {
         const data = await fetchLocal<Depute[]>("/deputes-17.json");
         const found = Array.isArray(data)
