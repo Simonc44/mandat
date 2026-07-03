@@ -1,10 +1,11 @@
 // routes/scrutin.$numero.tsx — données locales 17e, votes nominatifs réels
 
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import {
-  scrutinDetailQuery,
+  scrutinMetaQuery,
+  scrutinVotesQuery,
   groupeMeta,
   positionColor,
   positionLabel,
