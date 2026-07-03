@@ -50,11 +50,12 @@ export const Route = createFileRoute("/api/status")({
             { status: 200, headers: HEADERS },
           );
         } catch (e) {
+          console.error("[API/status] Error:", e);
           return new Response(
             JSON.stringify({
               ok: false,
               db: "down",
-              error: (e as Error).message,
+              error: "Internal Server Error",
               checkedAt,
               responseMs: Date.now() - start,
             }),

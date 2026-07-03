@@ -126,7 +126,8 @@ function safeJsonLd(json: string): string {
   return json
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
-    .replace(/&/g, "\\u0026");
+    .replace(/&/g, "\\u0026")
+    .replace(/\//g, "\\/");
 }
 
 export function createBreadcrumbSchema(
