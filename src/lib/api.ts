@@ -17,7 +17,11 @@
 // ══════════════════════════════════════════════════════════════════════
 
 import { queryOptions } from "@tanstack/react-query";
-import { getDeputesFromDb, getScrutinsFromDb } from "./data.functions";
+import {
+  getDeputesFromDb,
+  getScrutinsFromDb,
+  getScrutinByNumero,
+} from "./data.functions";
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 export const LEGISLATURE = 17;
@@ -646,7 +650,132 @@ export const scrutinsQuery = queryOptions({
 });
 
 /**
+ * Métadonnées d'un scrutin — LÉGER, safe pour le loader SSR.
+ * FIX bug 404 : contrairement à scrutinDetailQuery (ci-dessous), cette query
+ * ne touche jamais scrutins-17.json (24 Mo) ni votes-17.json (95 Mo). Elle
+ * interroge Turso pour UNE seule ligne. C'est cette query qu'il faut utiliser
+ * dans le loader de la route (`ensureQueryData`) et pour l'affichage
+ * immédiat (titre, résultat, groupes) — pas scrutinDetailQuery.
+ */
+export const scrutinMetaQuery = (numeroRaw: string) => {
+  const numero = sanitizeNumero(numeroRaw) || numeroRaw;
+  return queryOptions({
+    queryKey: ["scrutin-meta", 17, numero],
+    staleTime: 1000 * 60 * 60,
+    queryFn: async (): Promise<Scrutin> => {
+      // ⓪ Turso — une seule ligne, rapide et sûr en SSR
+      try {
+        const row = await getScrutinByNumero({ data: { numero } });
+        if (row) return recomputeAdoption(row);
+      } catch {
+        /* fallback */
+      }
+
+      // ① Fallback : fichier local complet (seulement si Turso indisponible)
+      try {
+        const scrutins = await fetchLocal<Scrutin[]>("/scrutins-17.json");
+        const found = scrutins?.find(
+          (s) => s.numero === numero || s.uid === numero,
+        );
+        if (found) return recomputeAdoption(found);
+      } catch {
+        /* fallback */
+      }
+
+      // ② CLAIR
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const raw = await fetchJson<any>(
+          `${CLAIR}/api/v1/scrutins/${encodeURIComponent(numero)}`,
+        );
+        return normalizeExternalScrutin(raw);
+      } catch {
+        /* fallback */
+      }
+
+      // ③ CIVIX
+      try {
+        const uid = numero.startsWith("VTANR") ? numero : `VTANR5L17V${numero}`;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const raw = await fetchJson<any>(
+          `${CIVIX}/api/v1/scrutins/detail?uid=${encodeURIComponent(uid)}`,
+        );
+        return normalizeExternalScrutin(raw);
+      } catch {
+        /* fallback */
+      }
+
+      throw new Error(`Scrutin n°${numero} introuvable`);
+    },
+  });
+};
+
+/**
+ * Votes nominatifs d'un scrutin — chargé UNIQUEMENT côté navigateur
+ * (jamais dans le loader SSR). C'est ce qui évite de faire télécharger et
+ * parser 95 Mo de JSON par la fonction serverless à chaque premier
+ * chargement direct d'une page /scrutin/:numero.
+ */
+export const scrutinVotesQuery = (numeroRaw: string) => {
+  const numero = sanitizeNumero(numeroRaw) || numeroRaw;
+  return queryOptions({
+    queryKey: ["scrutin-votes", 17, numero],
+    staleTime: 1000 * 60 * 60,
+    queryFn: async (): Promise<{
+      votes: VoteEntry[];
+      votesNominatifs: VotesScrutin | null;
+    }> => {
+      try {
+        const votesIndex = await fetchLocal<Record<string, VotesScrutin>>(
+          "/votes-17.json",
+        );
+        const votesNominatifs = votesIndex ? (votesIndex[numero] ?? null) : null;
+        const votes: VoteEntry[] = [];
+        if (votesNominatifs) {
+          const stubScrutin: Scrutin = {
+            numero,
+            date: "",
+            type: "",
+            sort: "",
+            titre: "",
+            nombre_votants: "",
+            nombre_pours: "",
+            nombre_contres: "",
+            nombre_abstentions: "",
+            url_institution: "",
+          };
+          const addVotes = (list: VoteNominatif[], position: VotePosition) => {
+            for (const v of list) {
+              votes.push({
+                scrutin: stubScrutin,
+                parlementaire_groupe_acronyme: sanitizeText(v.groupe, 20),
+                parlementaire_slug: sanitizeSlug(v.slug),
+                parlementaire_nom: sanitizeText(v.nom, 100),
+                parlementaire_prenom: "",
+                position,
+                position_groupe: position,
+                par_delegation: null,
+                mise_au_point_position: null,
+              });
+            }
+          };
+          addVotes(votesNominatifs.pours, "pour");
+          addVotes(votesNominatifs.contres, "contre");
+          addVotes(votesNominatifs.abstentions, "abstention");
+          addVotes(votesNominatifs.nonVotants, "nonVotant");
+        }
+        return { votes, votesNominatifs };
+      } catch {
+        return { votes: [], votesNominatifs: null };
+      }
+    },
+  });
+};
+
+/**
  * Détail d'un scrutin avec votes nominatifs — votes-17.json prioritaire
+ * @deprecated pour le rendu de page : préférer scrutinMetaQuery (SSR-safe)
+ * + scrutinVotesQuery (client-only). Conservée pour compat éventuelle.
  */
 export const scrutinDetailQuery = (numeroRaw: string) => {
   const numero = sanitizeNumero(numeroRaw) || numeroRaw;
