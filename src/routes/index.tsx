@@ -103,13 +103,6 @@ function Home() {
                 </Link>
               </div>
             </div>
-
-            {/* Trust — même ligne, séparée des raccourcis */}
-            <div className="animate-fade-up flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground mt-6" style={{ animationDelay: "320ms" }}>
-              <span className="flex items-center gap-1.5"><Unlock className="w-3.5 h-3.5" aria-hidden="true" />100% Open Data</span>
-              <span className="flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" aria-hidden="true" />Sans étiquette</span>
-              <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />Sans publicité</span>
-            </div>
           </div>
         </div>
       </section>
