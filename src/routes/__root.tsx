@@ -122,7 +122,7 @@ export function createSeoMeta(config: SeoConfig) {
  * Sécurise une chaîne JSON pour injection dans une balise <script type="application/ld+json">.
  * Échappe les caractères '<', '>', '&' pour éviter l'injection de scripts (XSS).
  */
-function safeJsonLd(json: string): string {
+export function safeJsonLd(json: string): string {
   return json
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")

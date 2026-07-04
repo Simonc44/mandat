@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { getPostBySlug, getAllPosts, type BlogPost } from "@/lib/blog";
-import { createSeoMeta, SITE_URL } from "./__root";
+import { createSeoMeta, SITE_URL, safeJsonLd } from "./__root";
+import { sanitizeText } from "@/lib/api";
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: ({ params }) => {
@@ -25,16 +26,18 @@ export const Route = createFileRoute("/blog/$slug")({
       scripts: [
         {
           type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: post.title,
-            description: post.description,
-            datePublished: post.date,
-            author: { "@type": "Organization", name: post.author },
-            publisher: { "@type": "Organization", name: "Mandat" },
-            mainEntityOfPage: url,
-          }),
+          children: safeJsonLd(
+            JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              headline: post.title,
+              description: post.description,
+              datePublished: post.date,
+              author: { "@type": "Organization", name: post.author },
+              publisher: { "@type": "Organization", name: "Mandat" },
+              mainEntityOfPage: url,
+            }),
+          ),
         },
       ],
     };
@@ -59,7 +62,7 @@ function renderContent(md: string) {
           key={i}
           className="font-display text-2xl md:text-3xl font-medium tracking-tight mt-12 mb-4 text-ink"
         >
-          {b.replace(/^##\s+/, "")}
+          {sanitizeText(b.replace(/^##\s+/, ""))}
         </h2>
       );
     }
@@ -71,10 +74,20 @@ function renderContent(md: string) {
             <li
               key={j}
               dangerouslySetInnerHTML={{
-                __html: it.replace(
-                  /\*\*(.+?)\*\*/g,
-                  '<strong class="text-ink">$1</strong>',
-                ),
+                __html: sanitizeText(it)
+                  .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, (match, text, url) => {
+                    return `<a href="${url}" class="text-primary underline underline-offset-4 hover:opacity-80">${text}</a>`;
+                  })
+                  .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+                    if (url.startsWith("/") || url.startsWith("#")) {
+                      return `<a href="${url}" class="text-primary underline underline-offset-4 hover:opacity-80">${text}</a>`;
+                    }
+                    return text;
+                  })
+                  .replace(
+                    /\*\*(.+?)\*\*/g,
+                    '<strong class="text-ink">$1</strong>',
+                  ),
               }}
             />
           ))}
@@ -86,11 +99,16 @@ function renderContent(md: string) {
         key={i}
         className="my-5 text-lg leading-relaxed text-ink/85"
         dangerouslySetInnerHTML={{
-          __html: b
-            .replace(
-              /\[([^\]]+)\]\(([^)]+)\)/g,
-              '<a href="$2" class="text-primary underline underline-offset-4 hover:opacity-80">$1</a>',
-            )
+          __html: sanitizeText(b)
+            .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, (match, text, url) => {
+              return `<a href="${url}" class="text-primary underline underline-offset-4 hover:opacity-80">${text}</a>`;
+            })
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+              if (url.startsWith("/") || url.startsWith("#")) {
+                return `<a href="${url}" class="text-primary underline underline-offset-4 hover:opacity-80">${text}</a>`;
+              }
+              return text;
+            })
             .replace(
               /\*\*(.+?)\*\*/g,
               '<strong class="text-ink font-medium">$1</strong>',
