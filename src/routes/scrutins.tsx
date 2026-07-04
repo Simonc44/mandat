@@ -11,7 +11,7 @@ import {
   sanitizeSearchInput,
   type Scrutin,
 } from "@/lib/api";
-import { createSeoMeta, SITE_URL } from "./__root";
+import { createSeoMeta, createSeoLinks, SITE_URL } from "./__root";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/scrutins")({
         "Liste complète des scrutins publics à l'Assemblée nationale (17e législature). Résultats, votes, textes de loi.",
       canonical: `${SITE_URL}/scrutins`,
     }),
+    links: createSeoLinks(`${SITE_URL}/scrutins`),
   }),
   validateSearch: zodValidator(searchSchema),
   loader: ({ context }) => context.queryClient.ensureQueryData(scrutinsQuery),

@@ -18,7 +18,7 @@ import {
 import { GroupBadge } from "@/components/GroupBadge";
 import { ScrollScene } from "@/components/ScrollScene";
 import { Unlock, Scale, ShieldCheck } from "lucide-react";
-import { createSeoMeta, SITE_URL } from "./__root";
+import { createSeoMeta, createSeoLinks, SITE_URL } from "./__root";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,6 +29,7 @@ export const Route = createFileRoute("/")({
       canonical: SITE_URL,
       ogType: "website",
     }),
+    links: createSeoLinks(SITE_URL),
   }),
   loader: async () => {
     const [stats, latest] = await Promise.all([

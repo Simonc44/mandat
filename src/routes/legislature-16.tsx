@@ -15,7 +15,7 @@ import {
 } from "@/lib/legislature16.functions";
 import { groupeMeta, normalize, sanitizeSearchInput } from "@/lib/api";
 import { Archive, ExternalLink, RefreshCw, AlertTriangle } from "lucide-react";
-import { createSeoMeta, SITE_URL } from "./__root";
+import { createSeoMeta, createSeoLinks, SITE_URL } from "./__root";
 
 const deputes16Query = queryOptions({
   queryKey: ["deputes", 16],
@@ -43,6 +43,7 @@ export const Route = createFileRoute("/legislature-16")({
         "Archive complète des 577 député·es et des scrutins de la 16e législature de l'Assemblée nationale (2022-2024). Données ouvertes nosdeputes.fr.",
       canonical: `${SITE_URL}/legislature-16`,
     }),
+    links: createSeoLinks(`${SITE_URL}/legislature-16`),
   }),
   validateSearch: zodValidator(searchSchema),
   loader: ({ context }) =>
