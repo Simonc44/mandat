@@ -21,6 +21,7 @@ const NAV_LINKS = [
   { to: "/scrutins", label: "Scrutins" },
   { to: "/blog", label: "Blog" },
   { to: "/recherche", label: "Recherche" },
+  { to: "/a-propos", label: "À propos" },
 ] as const;
 
 export function Header() {
@@ -35,12 +36,10 @@ export function Header() {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
-  // Ferme le menu mobile à chaque changement de page
   useEffect(() => {
     setMobileOpen(false);
   }, [location]);
 
-  // Bloque le scroll du body quand le panneau mobile est ouvert
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden";
@@ -54,7 +53,6 @@ export function Header() {
 
   return (
     <>
-      {/* Barre de progression de navigation */}
       {isLoading && <div className="nav-progress" aria-hidden="true" />}
 
       <header
@@ -90,7 +88,7 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Nav desktop — cachée sous md */}
+          {/* Nav desktop */}
           <nav
             className="hidden md:flex items-center gap-1 text-sm"
             aria-label="Navigation principale"
@@ -108,26 +106,9 @@ export function Header() {
                 {l.label}
               </Link>
             ))}
-
-            {/* Bouton 16e législature → page interne (nosdeputes proxifié) */}
-            <Link
-              to="/legislature-16"
-              className="ml-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium glass border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
-              activeProps={{
-                className:
-                  "ml-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium btn-primary",
-              }}
-              title="Voir les députés de la 16e législature (2022-2024)"
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full bg-current opacity-70"
-                aria-hidden="true"
-              />
-              16<sup>e</sup> législature
-            </Link>
           </nav>
 
-          {/* Bouton burger — visible seulement sous md */}
+          {/* Burger mobile */}
           <button
             type="button"
             onClick={() => setMobileOpen((v) => !v)}
@@ -165,20 +146,6 @@ export function Header() {
                   {l.label}
                 </Link>
               ))}
-              <Link
-                to="/legislature-16"
-                className="mt-1 inline-flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium glass border border-primary/30 text-primary hover:bg-primary/10 transition-colors"
-                activeProps={{
-                  className:
-                    "mt-1 inline-flex items-center gap-1.5 px-4 py-3 rounded-xl text-sm font-medium btn-primary",
-                }}
-              >
-                <span
-                  className="w-1.5 h-1.5 rounded-full bg-current opacity-70"
-                  aria-hidden="true"
-                />
-                16<sup>e</sup> législature
-              </Link>
             </div>
           </nav>
         )}
@@ -188,14 +155,13 @@ export function Header() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// COOKIE BANNER RGPD — Liquid Glass
+// COOKIE BANNER RGPD
 // ═══════════════════════════════════════════════════════════
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Affiche la bannière si pas encore de consentement
     const stored = localStorage.getItem("mandat_cookie_consent");
     if (!stored) setVisible(true);
   }, []);
@@ -220,67 +186,38 @@ export function CookieBanner() {
       aria-label="Consentement aux cookies"
     >
       <div className="glass-strong rounded-3xl p-5 space-y-4">
-        {/* Icon + Titre */}
         <div className="flex items-start gap-3">
-          <span className="text-2xl" aria-hidden="true">
-            🔒
-          </span>
+          <span className="text-2xl" aria-hidden="true">🔒</span>
           <div>
             <h3 className="font-semibold text-foreground text-sm">
               Respect de votre vie privée
             </h3>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
               Mandat n'utilise{" "}
-              <strong className="text-foreground">
-                aucun cookie publicitaire
-              </strong>{" "}
+              <strong className="text-foreground">aucun cookie publicitaire</strong>{" "}
               ni tracker tiers. Seuls des cookies techniques essentiels au
-              fonctionnement du site sont utilisés. Aucune donnée personnelle
-              n'est vendue.
+              fonctionnement du site sont utilisés.
             </p>
           </div>
         </div>
 
-        {/* Détails */}
         <div className="rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground space-y-1">
           <div className="flex items-center gap-2">
-            <span
-              className="w-1.5 h-1.5 rounded-full bg-green-500"
-              aria-hidden="true"
-            />
-            Cookies essentiels (préférences, session)
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500" aria-hidden="true" />
+            Cookies essentiels uniquement (préférences, session)
           </div>
           <div className="flex items-center gap-2">
-            <span
-              className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"
-              aria-hidden="true"
-            />
+            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" aria-hidden="true" />
             Aucun cookie publicitaire ou de tracking
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"
-              aria-hidden="true"
-            />
-            Analytics anonymes uniquement (si activé)
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-2">
-          <button
-            onClick={accept}
-            className="btn-primary flex-1 py-2.5 rounded-2xl text-sm font-medium text-center"
-          >
-            Accepter l'essentiel
-          </button>
-          <button
-            onClick={decline}
-            className="flex-1 py-2.5 rounded-2xl text-sm font-medium text-center glass border border-border/60 text-foreground/80 hover:text-foreground transition-colors"
-          >
-            Refuser tout
-          </button>
-        </div>
+        <button
+          onClick={accept}
+          className="btn-primary w-full py-2.5 rounded-2xl text-sm font-medium text-center"
+        >
+          Compris — continuer
+        </button>
 
         <p className="text-[10px] text-muted-foreground text-center">
           Conformément au RGPD ·{" "}
@@ -294,22 +231,19 @@ export function CookieBanner() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// VISIT COUNTER — Persistant via Turso, incrément 1×/visiteur
+// VISIT COUNTER
 // ═══════════════════════════════════════════════════════════
 
 function VisitCounter() {
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
-    // POST incrémente côté serveur (cookie httpOnly garantit 1×/visiteur)
     fetch("/api/visits", { method: "POST" })
       .then((r) => r.json())
       .then((d: { count: number }) => {
         if (typeof d.count === "number" && d.count > 0) setCount(d.count);
       })
-      .catch(() => {
-        /* silencieux */
-      });
+      .catch(() => {});
   }, []);
 
   if (count === null) return null;
@@ -334,7 +268,6 @@ export function Footer() {
   return (
     <footer className="mt-24 border-t border-border/50">
       <div className="container-app py-12 space-y-8">
-        {/* Ligne principale */}
         <div className="flex flex-col md:flex-row gap-10 md:gap-16">
           {/* Brand */}
           <div className="space-y-4 max-w-sm">
@@ -373,121 +306,36 @@ export function Footer() {
             className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm self-start"
             aria-label="Navigation secondaire"
           >
-            <Link
-              to="/deputes"
-              className="text-muted-foreground hover:text-primary transition-colors py-1"
-            >
-              Les député·es
-            </Link>
-            <Link
-              to="/scrutins"
-              className="text-muted-foreground hover:text-primary transition-colors py-1"
-            >
-              Les scrutins
-            </Link>
-            <Link
-              to="/recherche"
-              className="text-muted-foreground hover:text-primary transition-colors py-1"
-            >
-              Recherche
-            </Link>
-            <Link
-              to="/blog"
-              className="text-muted-foreground hover:text-primary transition-colors py-1"
-            >
-              Blog
-            </Link>
-            <Link
-              to="/confidentialite"
-              className="text-muted-foreground hover:text-primary transition-colors py-1"
-            >
-              Confidentialité
-            </Link>
-            <Link
-              to="/statut"
-              className="text-muted-foreground hover:text-primary transition-colors py-1"
-            >
-              Statut du service
-            </Link>
-            <a
-              href="https://data.assemblee-nationale.fr"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="text-muted-foreground hover:text-primary transition-colors py-1"
-            >
-              Données AN ↗
-            </a>
-            <a
-              href="https://clair-production.up.railway.app/docs"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="text-muted-foreground hover:text-primary transition-colors py-1"
-            >
-              API CLAIR ↗
-            </a>
-            <a
-              href="https://www.civix.fr"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="text-muted-foreground hover:text-primary transition-colors py-1"
-            >
-              API CIVIX ↗
-            </a>
-            <a
-              href={GITHUB_REPO_URL}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="text-muted-foreground hover:text-primary transition-colors py-1 inline-flex items-center gap-1.5"
-            >
-              <Github className="w-3.5 h-3.5" aria-hidden="true" />
-              GitHub ↗
+            <Link to="/deputes" className="text-muted-foreground hover:text-primary transition-colors py-1">Les député·es</Link>
+            <Link to="/scrutins" className="text-muted-foreground hover:text-primary transition-colors py-1">Les scrutins</Link>
+            <Link to="/recherche" className="text-muted-foreground hover:text-primary transition-colors py-1">Recherche</Link>
+            <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors py-1">Blog</Link>
+            <Link to="/a-propos" className="text-muted-foreground hover:text-primary transition-colors py-1">À propos</Link>
+            <Link to="/confidentialite" className="text-muted-foreground hover:text-primary transition-colors py-1">Confidentialité</Link>
+            <Link to="/statut" className="text-muted-foreground hover:text-primary transition-colors py-1">Statut du service</Link>
+            <a href="https://data.assemblee-nationale.fr" target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-primary transition-colors py-1">Données AN ↗</a>
+            <a href="https://clair-production.up.railway.app/docs" target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-primary transition-colors py-1">API CLAIR ↗</a>
+            <a href={GITHUB_REPO_URL} target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-primary transition-colors py-1 inline-flex items-center gap-1.5">
+              <Github className="w-3.5 h-3.5" aria-hidden="true" /> GitHub ↗
             </a>
           </nav>
         </div>
 
-        {/* Bas de footer */}
         <div className="pt-6 border-t border-border/40 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex flex-wrap gap-4 items-center">
-            <span>© {new Date().getFullYear()} Mandat</span>
+            <span>© {new Date().getFullYear()} Mandat · Simon Chusseau</span>
             <span>·</span>
-            <a
-              href={GITHUB_REPO_URL}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
-            >
-              <Github className="w-3.5 h-3.5" aria-hidden="true" />
-              Simonc44/mandat
+            <a href={GITHUB_REPO_URL} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1.5 hover:text-primary transition-colors">
+              <Github className="w-3.5 h-3.5" aria-hidden="true" /> Simonc44/mandat
             </a>
             <span>·</span>
             <span>
               Sources :{" "}
-              <a
-                href="https://clair-production.up.railway.app"
-                target="_blank"
-                rel="noreferrer noopener"
-                className="hover:text-primary underline"
-              >
-                CLAIR
-              </a>
+              <a href="https://clair-production.up.railway.app" target="_blank" rel="noreferrer noopener" className="hover:text-primary underline">CLAIR</a>
               {" · "}
-              <a
-                href="https://www.civix.fr"
-                target="_blank"
-                rel="noreferrer noopener"
-                className="hover:text-primary underline"
-              >
-                CIVIX
-              </a>
+              <a href="https://www.civix.fr" target="_blank" rel="noreferrer noopener" className="hover:text-primary underline">CIVIX</a>
               {" · "}
-              <a
-                href="https://data.assemblee-nationale.fr"
-                target="_blank"
-                rel="noreferrer noopener"
-                className="hover:text-primary underline"
-              >
-                AN Open Data
-              </a>
+              <a href="https://data.assemblee-nationale.fr" target="_blank" rel="noreferrer noopener" className="hover:text-primary underline">AN Open Data</a>
             </span>
           </div>
           <span>Projet citoyen indépendant · Aucune affiliation politique</span>

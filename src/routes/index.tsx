@@ -46,47 +46,40 @@ function Home() {
     latest: Scrutin[];
   };
 
+  // Scrutin le plus récent pour l'accroche éditoriale
+  const spotlight = latest?.[0] ?? null;
+
   return (
     <div>
       {/* ── HERO LIQUID GLASS ── */}
       <section className="relative z-20">
-        {/* Orbes de fond animés */}
         <div
           className="absolute inset-0 -z-10 pointer-events-none overflow-hidden"
           aria-hidden="true"
         >
           <div
             className="hero-orb w-[600px] h-[600px] -top-32 -left-32 opacity-30"
-            style={
-              {
-                background:
-                  "radial-gradient(circle, oklch(0.50 0.20 285), transparent 70%)",
-                "--duration": "7s",
-                "--delay": "0s",
-              } as React.CSSProperties
-            }
+            style={{
+              background: "radial-gradient(circle, oklch(0.50 0.20 285), transparent 70%)",
+              "--duration": "7s",
+              "--delay": "0s",
+            } as React.CSSProperties}
           />
           <div
             className="hero-orb w-[400px] h-[400px] top-1/3 right-0 opacity-20"
-            style={
-              {
-                background:
-                  "radial-gradient(circle, oklch(0.55 0.18 215), transparent 70%)",
-                "--duration": "9s",
-                "--delay": "2s",
-              } as React.CSSProperties
-            }
+            style={{
+              background: "radial-gradient(circle, oklch(0.55 0.18 215), transparent 70%)",
+              "--duration": "9s",
+              "--delay": "2s",
+            } as React.CSSProperties}
           />
           <div
             className="hero-orb w-[300px] h-[300px] bottom-0 left-1/3 opacity-15"
-            style={
-              {
-                background:
-                  "radial-gradient(circle, oklch(0.60 0.16 165), transparent 70%)",
-                "--duration": "11s",
-                "--delay": "4s",
-              } as React.CSSProperties
-            }
+            style={{
+              background: "radial-gradient(circle, oklch(0.60 0.16 165), transparent 70%)",
+              "--duration": "11s",
+              "--delay": "4s",
+            } as React.CSSProperties}
           />
         </div>
 
@@ -97,10 +90,7 @@ function Home() {
               className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-6 animate-fade-up"
               style={{ animationDelay: "0ms" }}
             >
-              <span
-                className="w-2 h-2 rounded-full bg-primary animate-pulse"
-                aria-hidden="true"
-              />
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
               17e législature · Mis à jour quotidiennement
             </div>
 
@@ -131,10 +121,7 @@ function Home() {
             </p>
 
             {/* Search */}
-            <div
-              className="animate-fade-up"
-              style={{ animationDelay: "240ms" }}
-            >
+            <div className="animate-fade-up" style={{ animationDelay: "240ms" }}>
               <SearchBar />
             </div>
 
@@ -156,8 +143,81 @@ function Home() {
         </div>
       </section>
 
-      {/* ── DERNIERS SCRUTINS (mis en avant) ── */}
-      <section className="container-app pb-16 pt-4 relative z-10 -mt-8 md:-mt-12">
+      {/* ── ACCROCHE ÉDITORIALE — scrutin en vedette ── */}
+      {spotlight && (
+        <section className="container-app pb-10 relative z-10">
+          <div className="animate-fade-up">
+            <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-3 font-medium">
+              À la une cette semaine
+            </div>
+            <Link
+              to="/scrutin/$numero"
+              params={{ numero: spotlight.numero }}
+              className="scrutin-card card-glass group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 rounded-[2rem] border border-primary/20 hover:border-primary/40 transition-colors"
+              aria-label={`Scrutin en vedette : ${spotlight.titre}`}
+            >
+              {/* Badge résultat */}
+              <div
+                className="shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-xl"
+                style={{
+                  background: /adopt/i.test(spotlight.sort)
+                    ? "color-mix(in oklch, var(--color-pour) 14%, transparent)"
+                    : "color-mix(in oklch, var(--color-contre) 14%, transparent)",
+                }}
+                aria-hidden="true"
+              >
+                {/adopt/i.test(spotlight.sort) ? "✓" : "✗"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-1">
+                  {spotlight.date && (
+                    <time dateTime={spotlight.date}>
+                      {new Date(spotlight.date).toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </time>
+                  )}
+                  <span
+                    className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider"
+                    style={{
+                      color: /adopt/i.test(spotlight.sort) ? "var(--color-pour)" : "var(--color-contre)",
+                      backgroundColor: /adopt/i.test(spotlight.sort)
+                        ? "color-mix(in oklch, var(--color-pour) 12%, transparent)"
+                        : "color-mix(in oklch, var(--color-contre) 12%, transparent)",
+                    }}
+                  >
+                    {/adopt/i.test(spotlight.sort) ? "Adopté" : "Rejeté"}
+                  </span>
+                </div>
+                <p className="text-foreground font-medium leading-snug group-hover:text-primary transition-colors duration-200 line-clamp-2">
+                  {spotlight.titre
+                    ? spotlight.titre.charAt(0).toUpperCase() + spotlight.titre.slice(1)
+                    : `Scrutin n°${spotlight.numero}`}
+                </p>
+                {(() => {
+                  const p = Math.max(0, parseInt(spotlight.nombre_pours) || 0);
+                  const c = Math.max(0, parseInt(spotlight.nombre_contres) || 0);
+                  const a = Math.max(0, parseInt(spotlight.nombre_abstentions) || 0);
+                  if (p + c + a === 0) return null;
+                  return (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {p} pour · {c} contre · {a} abstentions
+                    </p>
+                  );
+                })()}
+              </div>
+              <div className="text-primary text-sm font-medium shrink-0 group-hover:translate-x-1 transition-transform">
+                Voir le détail →
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* ── DERNIERS SCRUTINS ── */}
+      <section className="container-app pb-16 pt-4 relative z-10 -mt-4">
         <ScrollScene variant="rise">
           <div className="flex items-end justify-between mb-8 mt-2" data-rise>
             <div>
@@ -173,18 +233,7 @@ function Home() {
               className="text-sm text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 group"
             >
               Tout voir
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="transition-transform group-hover:translate-x-0.5"
-                aria-hidden="true"
-              >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
                 <path d="m9 18 6-6-6-6" />
               </svg>
             </Link>
@@ -192,7 +241,7 @@ function Home() {
         </ScrollScene>
 
         <ScrollScene variant="tilt" className="grid md:grid-cols-2 gap-4">
-          {latest.map((s, i) => (
+          {latest.slice(1).map((s, i) => (
             <div key={s.numero} data-tilt className="will-change-transform">
               <ScrutinCard s={s} index={i} />
             </div>
@@ -200,22 +249,16 @@ function Home() {
         </ScrollScene>
       </section>
 
-      {/* ── STATS — discrètes, sous les résultats ── */}
+      {/* ── STATS ── */}
       <section className="container-app pb-16">
         <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 animate-fade-up">
-          <StatPill
-            value={stats.deputesCount.toLocaleString("fr-FR")}
-            label="Député·es"
-          />
-          <StatPill
-            value={stats.scrutinsCount.toLocaleString("fr-FR")}
-            label="Scrutins"
-          />
+          <StatPill value={stats.deputesCount.toLocaleString("fr-FR")} label="Député·es" />
+          <StatPill value={stats.scrutinsCount.toLocaleString("fr-FR")} label="Scrutins" />
           <StatPill value={stats.groupesCount.toString()} label="Groupes" />
         </div>
       </section>
 
-      {/* ── SECTION CONFIANCE (remontée) ── */}
+      {/* ── SECTION CONFIANCE (remontée avant SEO) ── */}
       <TrustSection />
 
       {/* ── SECTION EXPLICATION SEO ── */}
@@ -249,14 +292,13 @@ function Home() {
                 <strong>transparence démocratique</strong> totale. En utilisant
                 les données officielles en Open Data, nous permettons de
                 vérifier les positions réelles des élus, loin de la
-                communication politique habituelle. Qui a voté pour ? Qui s'est
-                abstenu ?
+                communication politique habituelle.
               </p>
               <p>
                 Que vous cherchiez un·e député·e spécifique ou que vous
                 souhaitiez explorer les derniers votes, Mandat regroupe
                 toutes les informations en un lieu unique, lisible et mis à jour
-                en temps réel selon les publications officielles de l'Assemblée.{" "}
+                en temps réel.{" "}
                 <Link to="/a-propos" className="text-primary underline underline-offset-2 hover:text-primary/80 transition-colors">
                   En savoir plus sur le projet →
                 </Link>
@@ -269,20 +311,18 @@ function Home() {
   );
 }
 
-// ── STAT PILL ───────────────────────────────────────────────
+// ── STAT PILL ────────────────────────────────────────────────────────────────
 
 function StatPill({ value, label }: { value: string; label: string }) {
   return (
     <div className="stat-box glass rounded-full px-5 py-2.5 border border-border/40 inline-flex items-center gap-2">
       <span className="stat-value font-display text-lg text-ink">{value}</span>
-      <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-        {label}
-      </span>
+      <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</span>
     </div>
   );
 }
 
-// ── SCRUTIN CARD ────────────────────────────────────────────
+// ── SCRUTIN CARD ─────────────────────────────────────────────────────────────
 
 function SortBadge({ sort }: { sort: string }) {
   const isAdopted = /adopt/i.test(sort);
@@ -356,44 +396,20 @@ function ResultMiniBar({ s }: { s: Scrutin }) {
   return (
     <div className="space-y-1.5">
       <div className="flex h-1.5 rounded-full overflow-hidden bg-muted/60">
-        <div
-          style={{
-            width: mounted ? `${(p / total) * 100}%` : "0%",
-            backgroundColor: "var(--color-pour)",
-            transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-          }}
-        />
-        <div
-          style={{
-            width: mounted ? `${(c / total) * 100}%` : "0%",
-            backgroundColor: "var(--color-contre)",
-            transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 80ms",
-          }}
-        />
-        <div
-          style={{
-            width: mounted ? `${(a / total) * 100}%` : "0%",
-            backgroundColor: "var(--color-abstention)",
-            transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 160ms",
-          }}
-        />
+        <div style={{ width: mounted ? `${(p / total) * 100}%` : "0%", backgroundColor: "var(--color-pour)", transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1)" }} />
+        <div style={{ width: mounted ? `${(c / total) * 100}%` : "0%", backgroundColor: "var(--color-contre)", transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 80ms" }} />
+        <div style={{ width: mounted ? `${(a / total) * 100}%` : "0%", backgroundColor: "var(--color-abstention)", transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 160ms" }} />
       </div>
       <div className="flex gap-4 text-xs text-muted-foreground">
-        <span>
-          <strong className="text-foreground">{p}</strong> pour
-        </span>
-        <span>
-          <strong className="text-foreground">{c}</strong> contre
-        </span>
-        <span>
-          <strong className="text-foreground">{a}</strong> abst.
-        </span>
+        <span><strong className="text-foreground">{p}</strong> pour</span>
+        <span><strong className="text-foreground">{c}</strong> contre</span>
+        <span><strong className="text-foreground">{a}</strong> abst.</span>
       </div>
     </div>
   );
 }
 
-// ── TRUST SECTION ───────────────────────────────────────────
+// ── TRUST SECTION ────────────────────────────────────────────────────────────
 
 function TrustSection() {
   const points = [
@@ -429,28 +445,19 @@ function TrustSection() {
         </ScrollScene>
         <ScrollScene variant="tilt" className="grid md:grid-cols-3 gap-5">
           {points.map(({ Icon, title, desc }, i) => (
-            <div
-              key={i}
-              data-tilt
-              className="card-glass rounded-[2rem] p-7 will-change-transform"
-            >
+            <div key={i} data-tilt className="card-glass rounded-[2rem] p-7 will-change-transform">
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
                 style={{
-                  background:
-                    "linear-gradient(135deg, oklch(0.50 0.20 285 / 14%), oklch(0.42 0.22 260 / 22%))",
+                  background: "linear-gradient(135deg, oklch(0.50 0.20 285 / 14%), oklch(0.42 0.22 260 / 22%))",
                   color: "oklch(0.50 0.20 285)",
                 }}
                 aria-hidden="true"
               >
                 <Icon className="w-6 h-6" strokeWidth={1.75} />
               </div>
-              <h3 className="font-display text-xl text-foreground mb-2 tracking-tight">
-                {title}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {desc}
-              </p>
+              <h3 className="font-display text-xl text-foreground mb-2 tracking-tight">{title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
             </div>
           ))}
         </ScrollScene>
@@ -467,7 +474,7 @@ function TrustSection() {
   );
 }
 
-// ── SEARCH BAR ──────────────────────────────────────────────
+// ── SEARCH BAR ───────────────────────────────────────────────────────────────
 
 function SearchBar() {
   const [q, setQ] = useState("");
@@ -528,24 +535,14 @@ function SearchBar() {
           aria-haspopup="listbox"
           aria-controls="search-results"
         >
-          <svg
-            className="ml-3 sm:ml-4 w-5 h-5 text-muted-foreground shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            aria-hidden="true"
-          >
+          <svg className="ml-3 sm:ml-4 w-5 h-5 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3.5-3.5" strokeLinecap="round" />
           </svg>
           <input
             autoFocus
             value={q}
-            onChange={(e) => {
-              setQ(e.target.value);
-              setOpen(true);
-            }}
+            onChange={(e) => { setQ(e.target.value); setOpen(true); }}
             onFocus={() => setOpen(true)}
             placeholder="Ex : Macron, budget 2025, loi immigration…"
             className="flex-1 min-w-0 py-3.5 sm:py-4 px-2 bg-transparent outline-none text-sm sm:text-base placeholder:text-muted-foreground"
@@ -560,14 +557,7 @@ function SearchBar() {
             aria-label="Lancer la recherche"
           >
             <span className="hidden sm:inline">Rechercher</span>
-            <svg
-              className="sm:hidden w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
+            <svg className="sm:hidden w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.5-3.5" strokeLinecap="round" />
             </svg>
@@ -575,12 +565,12 @@ function SearchBar() {
         </div>
       </form>
 
-      {/* Dropdown résultats */}
+      {/* Dropdown résultats — fix dark mode : CSS var au lieu de bg-white hardcodé */}
       {open && hasResults && (
         <div
           id="search-results"
-          className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden max-h-[50vh] sm:max-h-[65vh] overflow-y-auto border border-border/60"
-          style={{ zIndex: 9999, backgroundColor: "var(--color-background, #fff)" }}
+          className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden max-h-[50vh] sm:max-h-[65vh] overflow-y-auto border border-border/60 bg-background"
+          style={{ zIndex: 9999 }}
           role="listbox"
           aria-label="Suggestions"
         >
@@ -598,13 +588,9 @@ function SearchBar() {
                   onClick={() => setOpen(false)}
                 >
                   <DeputeAvatarSmall d={d} />
-                  <span className="font-medium text-sm">
-                    {d.prenom} {d.nom_de_famille}
-                  </span>
+                  <span className="font-medium text-sm">{d.prenom} {d.nom_de_famille}</span>
                   <GroupBadge sigle={d.groupe_sigle} size="sm" />
-                  <span className="text-xs text-muted-foreground ml-auto truncate hidden sm:block">
-                    {d.nom_circo}
-                  </span>
+                  <span className="text-xs text-muted-foreground ml-auto truncate hidden sm:block">{d.nom_circo}</span>
                 </Link>
               ))}
             </div>
@@ -626,17 +612,11 @@ function SearchBar() {
                   <div className="flex items-center gap-2 mb-0.5">
                     <span
                       className="w-2 h-2 rounded-full shrink-0"
-                      style={{
-                        backgroundColor: /adopt/i.test(s.sort)
-                          ? "var(--color-pour)"
-                          : "var(--color-contre)",
-                      }}
+                      style={{ backgroundColor: /adopt/i.test(s.sort) ? "var(--color-pour)" : "var(--color-contre)" }}
                       aria-hidden="true"
                     />
                     <span className="text-sm line-clamp-1 font-medium">
-                      {s.titre
-                        ? s.titre.charAt(0).toUpperCase() + s.titre.slice(1)
-                        : `Scrutin n°${s.numero}`}
+                      {s.titre ? s.titre.charAt(0).toUpperCase() + s.titre.slice(1) : `Scrutin n°${s.numero}`}
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground pl-4">
@@ -662,8 +642,7 @@ function DeputeAvatarSmall({ d }: { d: Depute }) {
       <div
         className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
         style={{
-          background:
-            "linear-gradient(135deg, oklch(0.50 0.20 285 / 15%), oklch(0.42 0.22 215 / 20%))",
+          background: "linear-gradient(135deg, oklch(0.50 0.20 285 / 15%), oklch(0.42 0.22 215 / 20%))",
           color: "oklch(0.50 0.20 285)",
         }}
         aria-hidden="true"
@@ -683,5 +662,4 @@ function DeputeAvatarSmall({ d }: { d: Depute }) {
   );
 }
 
-// Nécessaire pour le type JSX dans les orbes
 import type React from "react";

@@ -113,11 +113,22 @@ function DeputesPage() {
       {/* Header */}
       <div className="mb-8 animate-fade-up">
         <h1 className="font-display text-4xl md:text-5xl mb-2">Député·es</h1>
-        <p className="text-muted-foreground">
-          {filtered.length.toLocaleString("fr-FR")} résultat
-          {filtered.length > 1 ? "s" : ""} sur {deputes.length} député·es ·
-          XVIIe législature
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-muted-foreground">
+            {filtered.length.toLocaleString("fr-FR")} résultat
+            {filtered.length > 1 ? "s" : ""} sur {deputes.length} député·es ·
+            XVIIe législature
+          </p>
+          {/* Lien 16e législature — accessible mais discret */}
+          <Link
+            to="/legislature-16"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium glass border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
+            title="Voir les députés de la 16e législature (2022-2024)"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" aria-hidden="true" />
+            16<sup>e</sup> législature
+          </Link>
+        </div>
       </div>
 
       {/* Recherche */}
@@ -176,7 +187,6 @@ function DeputesPage() {
           )}
         </form>
 
-        {/* Filtres groupes */}
         <div
           className="flex flex-wrap gap-2"
           role="group"
@@ -211,7 +221,6 @@ function DeputesPage() {
           ))}
         </div>
 
-        {/* Filtre département */}
         <div className="w-full sm:w-72">
           <Select
             value={dept || "all"}
@@ -239,7 +248,6 @@ function DeputesPage() {
         </div>
       </div>
 
-      {/* Carte département (quand un département est sélectionné) */}
       {dept && (
         <DepartementCard
           numero={dept}
@@ -247,8 +255,6 @@ function DeputesPage() {
           nomDepartement={departments.find(([n]) => n === dept)?.[1] ?? ""}
         />
       )}
-
-      {/* Résultats */}
 
       {slice.length === 0 ? (
         <div className="py-16 text-center glass rounded-3xl border border-border/50">
@@ -280,7 +286,6 @@ function DeputesPage() {
         </div>
       )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <nav
           className="mt-10 flex items-center justify-center gap-2"
@@ -294,7 +299,6 @@ function DeputesPage() {
             ← Préc.
           </button>
 
-          {/* Pages numérotées */}
           <div className="flex items-center gap-1">
             {buildPageRange(safePage, totalPages).map((p, i) =>
               p === "…" ? (
@@ -344,10 +348,6 @@ function chipCls(active: boolean) {
   }`;
 }
 
-// ── CARTE DÉPARTEMENT ──────────────────────────────────────
-// Cartogramme moderne : chaque circonscription est un hexagone teinté
-// par la couleur du groupe politique de son·sa député·e.
-
 function DepartementCard({
   numero,
   nomDepartement,
@@ -371,9 +371,7 @@ function DepartementCard({
       const dataUrl = await toPng(cardRef.current, {
         cacheBust: true,
         backgroundColor: "white",
-        style: {
-          borderRadius: "0",
-        },
+        style: { borderRadius: "0" },
       });
       const link = document.createElement("a");
       link.download = `mandat-carte-dept-${numero}.png`;
@@ -388,7 +386,6 @@ function DepartementCard({
     }
   };
 
-  // Layout hexagonal — calcul des positions pour un cluster compact
   const n = circos.length;
   const cols = Math.ceil(Math.sqrt(n * 1.3));
   const hexW = 88;
@@ -412,7 +409,6 @@ function DepartementCard({
       />
 
       <div className="grid md:grid-cols-[auto_1fr] gap-8 p-8 md:p-12">
-        {/* Numéro géant */}
         <div className="flex flex-col items-center md:items-start">
           <div className="text-[10px] uppercase tracking-[0.28em] text-primary/80 font-medium mb-2">
             Département
@@ -429,7 +425,6 @@ function DepartementCard({
           <div className="text-xs text-muted-foreground mt-1">
             {circos.length} circonscription{circos.length > 1 ? "s" : ""}
           </div>
-
           <button
             onClick={handleDownload}
             disabled={downloading}
@@ -444,19 +439,14 @@ function DepartementCard({
           </button>
         </div>
 
-        {/* Cartogramme hexagonal */}
         <div className="flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
-              <MapIcon className="w-3.5 h-3.5" />
-              Circonscriptions
+              <MapIcon className="w-3.5 h-3.5" /> Circonscriptions
             </div>
-            <div className="text-[10px] text-muted-foreground">
-              Couleur = groupe politique
-            </div>
+            <div className="text-[10px] text-muted-foreground">Couleur = groupe politique</div>
           </div>
 
-          {/* SVG hex grid */}
           <div className="relative w-full overflow-x-auto">
             <svg
               viewBox={`0 0 ${cols * xStep + hexW * 0.2} ${Math.ceil(n / cols) * yStep + hexH * 0.35}`}
@@ -465,19 +455,8 @@ function DepartementCard({
               aria-label={`Carte des ${n} circonscriptions du département ${numero}`}
             >
               <defs>
-                <filter
-                  id="hexShadow"
-                  x="-20%"
-                  y="-20%"
-                  width="140%"
-                  height="140%"
-                >
-                  <feDropShadow
-                    dx="0"
-                    dy="2"
-                    stdDeviation="2"
-                    floodOpacity="0.15"
-                  />
+                <filter id="hexShadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.15" />
                 </filter>
               </defs>
               {circos.map((d, i) => {
@@ -508,28 +487,12 @@ function DepartementCard({
                       filter="url(#hexShadow)"
                       className="transition-all duration-200 group-hover/hex:fill-opacity-100 group-hover/hex:stroke-primary"
                     />
-                    <text
-                      x={x}
-                      y={y - 6}
-                      textAnchor="middle"
-                      fill="white"
-                      fontSize="20"
-                      fontWeight="700"
-                      style={{ fontFamily: "Fraunces, serif" }}
-                      className="pointer-events-none"
-                    >
+                    <text x={x} y={y - 6} textAnchor="middle" fill="white" fontSize="20" fontWeight="700"
+                      style={{ fontFamily: "Fraunces, serif" }} className="pointer-events-none">
                       {d.num_circo}
                     </text>
-                    <text
-                      x={x}
-                      y={y + 14}
-                      textAnchor="middle"
-                      fill="white"
-                      fontSize="8"
-                      fontWeight="600"
-                      opacity="0.95"
-                      className="pointer-events-none"
-                    >
+                    <text x={x} y={y + 14} textAnchor="middle" fill="white" fontSize="8" fontWeight="600"
+                      opacity="0.95" className="pointer-events-none">
                       {(d.nom_de_famille || "").slice(0, 10).toUpperCase()}
                     </text>
                   </Link>
@@ -538,7 +501,6 @@ function DepartementCard({
             </svg>
           </div>
 
-          {/* Liste détaillée — noms complets, sans abréviations */}
           <ul className="mt-5 grid sm:grid-cols-2 gap-2">
             {circos.map((d) => {
               const g = groupeMeta(d.groupe_sigle);
@@ -547,10 +509,7 @@ function DepartementCard({
                   key={`row-${d.id || d.slug}`}
                   className="flex items-center gap-3 rounded-xl glass border border-white/30 p-2.5"
                 >
-                  <span
-                    className="font-display text-lg w-8 text-center text-primary"
-                    aria-hidden="true"
-                  >
+                  <span className="font-display text-lg w-8 text-center text-primary" aria-hidden="true">
                     {d.num_circo}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -558,11 +517,7 @@ function DepartementCard({
                       {d.prenom} {d.nom_de_famille}
                     </div>
                     <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground truncate">
-                      <span
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: g.couleur }}
-                        aria-hidden="true"
-                      />
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: g.couleur }} aria-hidden="true" />
                       <span className="truncate">{g.nom}</span>
                     </div>
                   </div>
@@ -571,27 +526,13 @@ function DepartementCard({
             })}
           </ul>
 
-          {/* Signature Mandat */}
           <div className="mt-6 pt-5 border-t border-white/40 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <img
-                src="/favicon.svg"
-                alt=""
-                aria-hidden="true"
-                className="w-6 h-6"
-                width={24}
-                height={24}
-              />
-              <span className="font-display text-base text-ink tracking-tight">
-                Mandat
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground hidden sm:inline">
-                · Transparence citoyenne
-              </span>
+              <img src="/favicon.svg" alt="" aria-hidden="true" className="w-6 h-6" width={24} height={24} />
+              <span className="font-display text-base text-ink tracking-tight">Mandat</span>
+              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground hidden sm:inline">· Transparence citoyenne</span>
             </div>
-            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-              17<sup>e</sup> législature
-            </span>
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">17<sup>e</sup> législature</span>
           </div>
         </div>
       </div>
