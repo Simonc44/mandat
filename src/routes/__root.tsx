@@ -258,7 +258,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         description: SITE_DESCRIPTION,
       }),
       links: [
-        { rel: "canonical", href: SITE_URL },
+        // canonical est défini par route (SEO: leaf-only) — pas ici
+        // { rel: "canonical", href: SITE_URL },
         { rel: "stylesheet", href: appCss },
         { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
         { rel: "apple-touch-icon", href: "/favicon.svg" },
