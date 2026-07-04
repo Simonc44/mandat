@@ -12,7 +12,7 @@ import {
   sanitizeSearchInput,
 } from "@/lib/api";
 import { DeputeCard } from "@/components/DeputeCard";
-import { createSeoMeta, SITE_URL } from "./__root";
+import { createSeoMeta, createSeoLinks, SITE_URL } from "./__root";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -26,6 +26,7 @@ export const Route = createFileRoute("/recherche")({
         "Cherchez un·e député·e ou un texte de loi à l'Assemblée nationale. Résultats instantanés.",
       canonical: `${SITE_URL}/recherche`,
     }),
+    links: createSeoLinks(`${SITE_URL}/recherche`),
   }),
   validateSearch: zodValidator(searchSchema),
   loader: ({ context }) =>

@@ -2,7 +2,7 @@
 
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Github, Unlock, Scale, ShieldCheck, Database, RefreshCw, Heart } from "lucide-react";
-import { createSeoMeta, SITE_URL, SITE_NAME } from "./__root";
+import { createSeoMeta, createSeoLinks, SITE_URL, SITE_NAME } from "./__root";
 import { GITHUB_REPO_URL } from "../components/Header";
 
 export const Route = createFileRoute("/a-propos")({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/a-propos")({
         "Qui est derrière Mandat ? Simon Chusseau, développeur indépendant. Découvrez les motivations, les sources de données et la philosophie du projet.",
       canonical: `${SITE_URL}/a-propos`,
     }),
+    links: createSeoLinks(`${SITE_URL}/a-propos`),
   }),
   component: APropos,
 });

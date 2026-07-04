@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Shield, Lock, Eye, FileText, ArrowLeft } from "lucide-react";
-import { createSeoMeta, SITE_URL } from "./__root";
+import { createSeoMeta, createSeoLinks, SITE_URL } from "./__root";
 
 export const Route = createFileRoute("/confidentialite")({
   head: () => ({
@@ -10,6 +10,7 @@ export const Route = createFileRoute("/confidentialite")({
         "Apprenez-en plus sur la manière dont Mandat protège votre vie privée et vos données personnelles.",
       canonical: `${SITE_URL}/confidentialite`,
     }),
+    links: createSeoLinks(`${SITE_URL}/confidentialite`),
   }),
   component: PrivacyPage,
 });

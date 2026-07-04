@@ -4,7 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { scrutinsQuery, allDeputesQuery, GROUPES, groupeMeta, sanitizeText } from "@/lib/api";
-import { createSeoMeta, SITE_URL } from "./__root";
+import { createSeoMeta, createSeoLinks, SITE_URL } from "./__root";
 
 export const Route = createFileRoute("/groupes")({
   head: () => ({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/groupes")({
       description: "Analysez la proximité de vote entre les groupes politiques de l'Assemblée nationale. Simulez des coalitions et calculez leur majorité.",
       canonical: `${SITE_URL}/groupes`,
     }),
+    links: createSeoLinks(`${SITE_URL}/groupes`),
   }),
   loader: ({ context }) =>
     Promise.all([

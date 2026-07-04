@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
 import { getAllPosts } from "@/lib/blog";
-import { createSeoMeta, SITE_URL } from "./__root";
+import { createSeoMeta, createSeoLinks, SITE_URL } from "./__root";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/blog/")({
         "Guides, analyses et méthodologie sur les votes des députés, la 17e législature et l'open data parlementaire. Sans étiquette politique.",
       canonical: `${SITE_URL}/blog`,
     }),
-    links: [{ rel: "canonical", href: `${SITE_URL}/blog` }],
+    links: createSeoLinks(`${SITE_URL}/blog`),
   }),
   component: BlogIndex,
 });

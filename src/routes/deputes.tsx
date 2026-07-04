@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SearchX, Download, Map as MapIcon } from "lucide-react";
-import { createSeoMeta, SITE_URL } from "./__root";
+import { createSeoMeta, createSeoLinks, SITE_URL } from "./__root";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 
@@ -41,6 +41,7 @@ export const Route = createFileRoute("/deputes")({
         "Cherchez et filtrez les député·es à l'Assemblée nationale par groupe politique, département ou nom. Suivez l'activité de vos élus durant la 17e législature.",
       canonical: `${SITE_URL}/deputes`,
     }),
+    links: createSeoLinks(`${SITE_URL}/deputes`),
   }),
   validateSearch: zodValidator(searchSchema),
   loader: ({ context }) => context.queryClient.ensureQueryData(allDeputesQuery),
