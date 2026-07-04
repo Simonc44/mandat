@@ -68,6 +68,10 @@ interface SeoConfig {
 
 // ─── SEO ───────────────────────────────────────────────────────────
 
+export function createSeoLinks(canonical?: string) {
+  return [{ rel: "canonical", href: canonical ?? SITE_URL }];
+}
+
 export function createSeoMeta(config: SeoConfig) {
   const canonical = config.canonical ?? SITE_URL;
   const ogImage = config.ogImage ?? `${SITE_URL}/og-image.png`;
