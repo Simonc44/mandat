@@ -19,22 +19,37 @@ import {
 } from "@/lib/api";
 import { summarizeScrutin } from "@/lib/ai-summary.functions";
 import { GroupBadge } from "@/components/GroupBadge";
-import { createSeoMeta, createBreadcrumbSchema, createVoteEventSchema, SITE_URL } from "./__root";
+import { createSeoMeta, createSeoLinks, createBreadcrumbSchema, createVoteEventSchema, SITE_URL } from "./__root";
 
 export const Route = createFileRoute("/scrutin/$numero")({
   loader: async ({ context, params }) => {
     const numero = sanitizeNumero(params.numero) || params.numero;
-    try { await context.queryClient.ensureQueryData(scrutinMetaQuery(numero)); }
-    catch { throw notFound(); }
+    try {
+      const meta = await context.queryClient.ensureQueryData(scrutinMetaQuery(numero));
+      return {
+        titre: sanitizeText(meta?.titre) || `Scrutin n°${numero}`,
+        sort: sanitizeText(meta?.sort) || "",
+        date: meta?.date || "",
+      };
+    } catch {
+      throw notFound();
+    }
   },
-  head: ({ params }) => ({
-    meta: createSeoMeta({
-      title: `Scrutin n°${params.numero} — Analyse complète du vote à l'Assemblée nationale · Mandat`,
-      description: `Résultats détaillés du scrutin n°${params.numero} à l'Assemblée nationale. Découvrez qui a voté pour ou contre, l'analyse par groupe politique et l'issue du vote.`,
-      canonical: `${SITE_URL}/scrutin/${params.numero}`,
-      ogType: "article",
-    }),
-  }),
+  head: ({ params, loaderData }) => {
+    const titreRaw = loaderData?.titre || `Scrutin n°${params.numero}`;
+    const titre = titreRaw.length > 90 ? titreRaw.slice(0, 87) + "…" : titreRaw;
+    const sort = loaderData?.sort ? ` — ${loaderData.sort}` : "";
+    const canonical = `${SITE_URL}/scrutin/${params.numero}`;
+    return {
+      meta: createSeoMeta({
+        title: `Scrutin n°${params.numero} : ${titre}${sort} · Mandat`,
+        description: `Résultats du scrutin n°${params.numero} à l'Assemblée nationale : « ${titre} ». Qui a voté pour, contre, s'est abstenu, par groupe politique.`,
+        canonical,
+        ogType: "article",
+      }),
+      links: createSeoLinks(canonical),
+    };
+  },
   notFoundComponent: () => (
     <div className="container-app py-24 text-center animate-fade-up">
       <h1 className="font-display text-4xl mb-3">Scrutin introuvable</h1>

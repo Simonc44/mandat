@@ -16,6 +16,7 @@ import {
 import { GroupBadge } from "@/components/GroupBadge";
 import {
   createSeoMeta,
+  createSeoLinks,
   createPersonSchema,
   createBreadcrumbSchema,
   SITE_URL,
@@ -25,31 +26,33 @@ export const Route = createFileRoute("/depute/$slug")({
   loader: async ({ context, params }) => {
     const slug = sanitizeSlug(params.slug);
     try {
-      await context.queryClient.ensureQueryData(deputeDetailQuery(slug));
+      const d = await context.queryClient.ensureQueryData(deputeDetailQuery(slug));
+      return {
+        name: sanitizeText(d?.nom) || slug.replace(/-/g, " "),
+        groupe: sanitizeText(d?.groupe_sigle) || "",
+        circo: sanitizeText(d?.nom_circo) || "",
+      };
     } catch {
       throw notFound();
     }
   },
-  head: ({ params }) => {
-    const name = decodeURIComponent(params.slug)
+  head: ({ params, loaderData }) => {
+    const fallback = decodeURIComponent(params.slug)
       .replace(/-/g, " ")
       .replace(/\b\w/g, (c) => c.toUpperCase());
+    const name = loaderData?.name || fallback;
+    const groupe = loaderData?.groupe ? ` (${loaderData.groupe})` : "";
+    const circo = loaderData?.circo ? ` — ${loaderData.circo}` : "";
+    const canonical = `${SITE_URL}/depute/${params.slug}`;
     return {
       meta: createSeoMeta({
-        title: `${name} — Député·e : ses votes, ses positions et sa présence à l'Assemblée nationale`,
-        description: `Découvrez comment vote ${name} à l'Assemblée nationale. Analyse complète de ses positions, taux de présence et historique de vote durant la 17e législature.`,
-        canonical: `${SITE_URL}/depute/${params.slug}`,
+        title: `${name}${groupe} — Ses votes à l'Assemblée nationale · Mandat`,
+        description: `Comment vote ${name}${circo} ? Positions, taux de présence et historique complet des scrutins durant la 17e législature.`,
+        canonical,
         ogType: "profile",
-        keywords: [
-          name,
-          "député",
-          "votes",
-          "mandat",
-          "assemblée nationale",
-          "circonscription",
-          "transparence",
-        ],
+        keywords: [name, "député", "votes", "mandat", "assemblée nationale", "circonscription", "transparence"],
       }),
+      links: createSeoLinks(canonical),
     };
   },
   notFoundComponent: () => (
