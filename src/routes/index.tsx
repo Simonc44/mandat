@@ -1,4 +1,4 @@
-// routes/index.tsx — Page d'accueil Liquid Glass + orbes + 17e législature
+// routes/index.tsx
 
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
@@ -45,7 +45,6 @@ function Home() {
     stats: HomeStats;
     latest: Scrutin[];
   };
-
   const spotlight = latest?.[0] ?? null;
 
   return (
@@ -61,12 +60,9 @@ function Home() {
             style={{ background: "radial-gradient(circle, oklch(0.60 0.16 165), transparent 70%)", "--duration": "11s", "--delay": "4s" } as React.CSSProperties} />
         </div>
 
-        <div className="container-app pt-6 md:pt-8 pb-16 md:pb-20 w-full">
+        <div className="container-app pt-6 md:pt-8 pb-12 md:pb-16 w-full">
           <div className="max-w-3xl">
-            <div
-              className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-6 animate-fade-up"
-              style={{ animationDelay: "0ms" }}
-            >
+            <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-6 animate-fade-up" style={{ animationDelay: "0ms" }}>
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
               17e législature · Mis à jour quotidiennement
             </div>
@@ -80,10 +76,7 @@ function Home() {
               <span className="text-gradient italic">votre député a voté.</span>
             </h1>
 
-            <p
-              className="text-lg text-muted-foreground max-w-2xl mb-8 leading-relaxed animate-fade-up"
-              style={{ animationDelay: "160ms" }}
-            >
+            <p className="text-lg text-muted-foreground max-w-2xl mb-8 leading-relaxed animate-fade-up" style={{ animationDelay: "160ms" }}>
               Sur n'importe quel texte de loi, en quelques secondes.{" "}
               <strong className="text-foreground">{stats.scrutinsCount.toLocaleString("fr-FR")} scrutins</strong>{" "}
               et{" "}
@@ -91,45 +84,31 @@ function Home() {
               de la 17e législature — sans étiquette, sans filtre politique.
             </p>
 
+            {/* Search + trust inline — compacts, pas de CTA redondants */}
             <div className="animate-fade-up" style={{ animationDelay: "240ms" }}>
               <SearchBar />
+              {/* Raccourcis discrets juste sous la search — petits, pas de bloc */}
+              <div className="flex flex-wrap gap-2 mt-4">
+                <Link to="/deputes" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-muted-foreground hover:text-primary glass border border-border/40 hover:border-primary/30 transition-colors">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+                  577 député·es
+                </Link>
+                <Link to="/scrutins" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-muted-foreground hover:text-primary glass border border-border/40 hover:border-primary/30 transition-colors">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  Scrutins
+                </Link>
+                <Link to="/groupes" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-muted-foreground hover:text-primary glass border border-border/40 hover:border-primary/30 transition-colors">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  Groupes
+                </Link>
+              </div>
             </div>
 
-            {/* ── CTA SECONDAIRES post-search ── */}
-            <div
-              className="animate-fade-up flex flex-wrap gap-3 mt-6"
-              style={{ animationDelay: "320ms" }}
-            >
-              <Link
-                to="/deputes"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 text-sm text-foreground/70 hover:text-primary hover:border-primary/30 transition-colors"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
-                Voir les 577 député·es
-              </Link>
-              <Link
-                to="/scrutins"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 text-sm text-foreground/70 hover:text-primary hover:border-primary/30 transition-colors"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                Derniers scrutins
-              </Link>
-              <Link
-                to="/a-propos"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 text-sm text-foreground/70 hover:text-primary hover:border-primary/30 transition-colors"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-                À propos du projet
-              </Link>
-            </div>
-
-            <div
-              className="animate-fade-up flex flex-wrap gap-6 text-sm text-muted-foreground mt-6"
-              style={{ animationDelay: "400ms" }}
-            >
-              <div className="flex items-center gap-2"><Unlock className="w-4 h-4" aria-hidden="true" /> 100% Open Data</div>
-              <div className="flex items-center gap-2"><Scale className="w-4 h-4" aria-hidden="true" /> Sans étiquette</div>
-              <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4" aria-hidden="true" /> Sans publicité</div>
+            {/* Trust — même ligne, séparée des raccourcis */}
+            <div className="animate-fade-up flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground mt-6" style={{ animationDelay: "320ms" }}>
+              <span className="flex items-center gap-1.5"><Unlock className="w-3.5 h-3.5" aria-hidden="true" />100% Open Data</span>
+              <span className="flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" aria-hidden="true" />Sans étiquette</span>
+              <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />Sans publicité</span>
             </div>
           </div>
         </div>
@@ -144,44 +123,24 @@ function Home() {
               to="/scrutin/$numero"
               params={{ numero: spotlight.numero }}
               className="scrutin-card card-glass group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 rounded-[2rem] border border-primary/20 hover:border-primary/40 transition-colors"
-              aria-label={`Scrutin en vedette : ${spotlight.titre}`}
             >
-              <div
-                className="shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-xl"
+              <div className="shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-xl"
                 style={{ background: /adopt/i.test(spotlight.sort) ? "color-mix(in oklch, var(--color-pour) 14%, transparent)" : "color-mix(in oklch, var(--color-contre) 14%, transparent)" }}
-                aria-hidden="true"
-              >
+                aria-hidden="true">
                 {/adopt/i.test(spotlight.sort) ? "✓" : "✗"}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-1">
-                  {spotlight.date && (
-                    <time dateTime={spotlight.date}>
-                      {new Date(spotlight.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
-                    </time>
-                  )}
-                  <span
-                    className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider"
-                    style={{
-                      color: /adopt/i.test(spotlight.sort) ? "var(--color-pour)" : "var(--color-contre)",
-                      backgroundColor: /adopt/i.test(spotlight.sort) ? "color-mix(in oklch, var(--color-pour) 12%, transparent)" : "color-mix(in oklch, var(--color-contre) 12%, transparent)",
-                    }}
-                  >
+                  {spotlight.date && <time dateTime={spotlight.date}>{new Date(spotlight.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</time>}
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider"
+                    style={{ color: /adopt/i.test(spotlight.sort) ? "var(--color-pour)" : "var(--color-contre)", backgroundColor: /adopt/i.test(spotlight.sort) ? "color-mix(in oklch, var(--color-pour) 12%, transparent)" : "color-mix(in oklch, var(--color-contre) 12%, transparent)" }}>
                     {/adopt/i.test(spotlight.sort) ? "Adopté" : "Rejeté"}
                   </span>
                 </div>
                 <p className="text-foreground font-medium leading-snug group-hover:text-primary transition-colors duration-200 line-clamp-2">
-                  {spotlight.titre
-                    ? spotlight.titre.charAt(0).toUpperCase() + spotlight.titre.slice(1)
-                    : `Scrutin n°${spotlight.numero}`}
+                  {spotlight.titre ? spotlight.titre.charAt(0).toUpperCase() + spotlight.titre.slice(1) : `Scrutin n°${spotlight.numero}`}
                 </p>
-                {(() => {
-                  const p = Math.max(0, parseInt(spotlight.nombre_pours) || 0);
-                  const c = Math.max(0, parseInt(spotlight.nombre_contres) || 0);
-                  const a = Math.max(0, parseInt(spotlight.nombre_abstentions) || 0);
-                  if (p + c + a === 0) return null;
-                  return <p className="text-xs text-muted-foreground mt-1">{p} pour · {c} contre · {a} abstentions</p>;
-                })()}
+                {(() => { const p = parseInt(spotlight.nombre_pours)||0, c = parseInt(spotlight.nombre_contres)||0, a = parseInt(spotlight.nombre_abstentions)||0; if(!p&&!c&&!a) return null; return <p className="text-xs text-muted-foreground mt-1">{p} pour · {c} contre · {a} abstentions</p>; })()}
               </div>
               <div className="text-primary text-sm font-medium shrink-0 group-hover:translate-x-1 transition-transform">Voir le détail →</div>
             </Link>
@@ -203,12 +162,9 @@ function Home() {
             </Link>
           </div>
         </ScrollScene>
-
         <ScrollScene variant="tilt" className="grid md:grid-cols-2 gap-4">
           {latest.slice(1).map((s, i) => (
-            <div key={s.numero} data-tilt className="will-change-transform">
-              <ScrutinCard s={s} index={i} />
-            </div>
+            <div key={s.numero} data-tilt className="will-change-transform"><ScrutinCard s={s} index={i} /></div>
           ))}
         </ScrollScene>
       </section>
@@ -222,7 +178,6 @@ function Home() {
         </div>
       </section>
 
-      {/* ── TRUST SECTION ── */}
       <TrustSection />
     </div>
   );
@@ -240,13 +195,8 @@ function StatPill({ value, label }: { value: string; label: string }) {
 function SortBadge({ sort }: { sort: string }) {
   const isAdopted = /adopt/i.test(sort);
   return (
-    <span
-      className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider"
-      style={{
-        color: isAdopted ? "var(--color-pour)" : "var(--color-contre)",
-        backgroundColor: isAdopted ? "color-mix(in oklch, var(--color-pour) 12%, transparent)" : "color-mix(in oklch, var(--color-contre) 12%, transparent)",
-      }}
-    >
+    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider"
+      style={{ color: isAdopted ? "var(--color-pour)" : "var(--color-contre)", backgroundColor: isAdopted ? "color-mix(in oklch, var(--color-pour) 12%, transparent)" : "color-mix(in oklch, var(--color-contre) 12%, transparent)" }}>
       {isAdopted ? "✓ Adopté" : "✗ Rejeté"}
     </span>
   );
@@ -254,19 +204,12 @@ function SortBadge({ sort }: { sort: string }) {
 
 function ScrutinCard({ s, index = 0 }: { s: Scrutin; index?: number }) {
   return (
-    <Link
-      to="/scrutin/$numero"
-      params={{ numero: s.numero }}
+    <Link to="/scrutin/$numero" params={{ numero: s.numero }}
       className="scrutin-card card-glass group block p-5 rounded-[2rem] animate-fade-up"
       style={{ animationDelay: `${index * 70}ms` }}
-      aria-label={`Scrutin n°${s.numero} : ${s.titre}`}
-    >
+      aria-label={`Scrutin n°${s.numero} : ${s.titre}`}>
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-2">
-        {s.date && (
-          <time dateTime={s.date}>
-            {new Date(s.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
-          </time>
-        )}
+        {s.date && <time dateTime={s.date}>{new Date(s.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</time>}
         {s.sort && (<><span aria-hidden="true">·</span><SortBadge sort={s.sort} /></>)}
       </div>
       <p className="text-foreground text-sm leading-snug line-clamp-3 group-hover:text-primary transition-colors duration-200 mb-3 font-medium">
@@ -278,19 +221,19 @@ function ScrutinCard({ s, index = 0 }: { s: Scrutin; index?: number }) {
 }
 
 function ResultMiniBar({ s }: { s: Scrutin }) {
-  const p = Math.max(0, parseInt(s.nombre_pours) || 0);
-  const c = Math.max(0, parseInt(s.nombre_contres) || 0);
-  const a = Math.max(0, parseInt(s.nombre_abstentions) || 0);
-  const total = Math.max(1, p + c + a);
+  const p = Math.max(0, parseInt(s.nombre_pours)||0);
+  const c = Math.max(0, parseInt(s.nombre_contres)||0);
+  const a = Math.max(0, parseInt(s.nombre_abstentions)||0);
+  const total = Math.max(1, p+c+a);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { const t = setTimeout(() => setMounted(true), 200); return () => clearTimeout(t); }, []);
-  if (p === 0 && c === 0 && a === 0) return null;
+  if (!p && !c && !a) return null;
   return (
     <div className="space-y-1.5">
       <div className="flex h-1.5 rounded-full overflow-hidden bg-muted/60">
-        <div style={{ width: mounted ? `${(p / total) * 100}%` : "0%", backgroundColor: "var(--color-pour)", transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1)" }} />
-        <div style={{ width: mounted ? `${(c / total) * 100}%` : "0%", backgroundColor: "var(--color-contre)", transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 80ms" }} />
-        <div style={{ width: mounted ? `${(a / total) * 100}%` : "0%", backgroundColor: "var(--color-abstention)", transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 160ms" }} />
+        <div style={{ width: mounted ? `${(p/total)*100}%` : "0%", backgroundColor: "var(--color-pour)", transition: "width 700ms cubic-bezier(0.34,1.56,0.64,1)" }} />
+        <div style={{ width: mounted ? `${(c/total)*100}%` : "0%", backgroundColor: "var(--color-contre)", transition: "width 700ms cubic-bezier(0.34,1.56,0.64,1) 80ms" }} />
+        <div style={{ width: mounted ? `${(a/total)*100}%` : "0%", backgroundColor: "var(--color-abstention)", transition: "width 700ms cubic-bezier(0.34,1.56,0.64,1) 160ms" }} />
       </div>
       <div className="flex gap-4 text-xs text-muted-foreground">
         <span><strong className="text-foreground">{p}</strong> pour</span>
@@ -312,16 +255,13 @@ function TrustSection() {
       <div className="container-app py-20">
         <ScrollScene variant="rise">
           <h2 className="font-display text-3xl md:text-5xl mb-12 text-center leading-[1.05]" data-rise>
-            Pourquoi faire confiance<br />
-            <span className="text-gradient italic">à Mandat ?</span>
+            Pourquoi faire confiance<br /><span className="text-gradient italic">à Mandat ?</span>
           </h2>
         </ScrollScene>
         <ScrollScene variant="tilt" className="grid md:grid-cols-3 gap-5">
           {points.map(({ Icon, title, desc }, i) => (
             <div key={i} data-tilt className="card-glass rounded-[2rem] p-7 will-change-transform">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
-                style={{ background: "linear-gradient(135deg, oklch(0.50 0.20 285 / 14%), oklch(0.42 0.22 260 / 22%))", color: "oklch(0.50 0.20 285)" }}
-                aria-hidden="true">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style={{ background: "linear-gradient(135deg, oklch(0.50 0.20 285 / 14%), oklch(0.42 0.22 260 / 22%))", color: "oklch(0.50 0.20 285)" }} aria-hidden="true">
                 <Icon className="w-6 h-6" strokeWidth={1.75} />
               </div>
               <h3 className="font-display text-xl text-foreground mb-2 tracking-tight">{title}</h3>
@@ -330,9 +270,7 @@ function TrustSection() {
           ))}
         </ScrollScene>
         <div className="text-center mt-10">
-          <Link to="/a-propos" className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
-            Découvrir l'équipe et les sources →
-          </Link>
+          <Link to="/a-propos" className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">Découvrir l'équipe et les sources →</Link>
         </div>
       </div>
     </section>
@@ -350,67 +288,41 @@ function SearchBar() {
   useEffect(() => {
     const n = normalize(safeQ);
     if (n.length < 2) { setResults(null); return; }
-    const t = setTimeout(() => {
-      searchHome({ data: { q: safeQ } }).then((r) => setResults(r)).catch(() => setResults(null));
-    }, 200);
+    const t = setTimeout(() => searchHome({ data: { q: safeQ } }).then(r => setResults(r)).catch(() => setResults(null)), 200);
     return () => clearTimeout(t);
   }, [safeQ]);
 
   useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
+    const fn = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", fn);
+    return () => document.removeEventListener("mousedown", fn);
   }, []);
 
   const hasResults = results && (results.deputes.length > 0 || results.scrutins.length > 0);
 
   return (
     <div ref={ref} className="relative" style={{ zIndex: 9999 }}>
-      <form
-        onSubmit={(e) => { e.preventDefault(); const safe = sanitizeSearchInput(q.trim()); if (safe) { setOpen(false); nav({ to: "/recherche", search: { q: safe } }); } }}
-        role="search" aria-label="Rechercher un député ou un scrutin"
-      >
-        <div
-          className="search-ring flex items-center gap-1 sm:gap-2 glass-strong rounded-full border border-white/30 shadow-lg px-1.5 sm:px-2"
-          role="combobox" aria-expanded={open && hasResults ? "true" : "false"} aria-haspopup="listbox" aria-controls="search-results"
-        >
-          <svg className="ml-3 sm:ml-4 w-5 h-5 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" strokeLinecap="round" />
-          </svg>
-          <input
-            autoFocus
-            value={q}
-            onChange={(e) => { setQ(e.target.value); setOpen(true); }}
-            onFocus={() => setOpen(true)}
-            placeholder="Ex : Macron, budget 2025, loi immigration…"
+      <form onSubmit={e => { e.preventDefault(); const s = sanitizeSearchInput(q.trim()); if (s) { setOpen(false); nav({ to: "/recherche", search: { q: s } }); } }} role="search" aria-label="Rechercher">
+        <div className="search-ring flex items-center gap-1 sm:gap-2 glass-strong rounded-full border border-white/30 shadow-lg px-1.5 sm:px-2"
+          role="combobox" aria-expanded={open && hasResults ? "true" : "false"} aria-haspopup="listbox" aria-controls="search-results">
+          <svg className="ml-3 sm:ml-4 w-5 h-5 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" strokeLinecap="round" /></svg>
+          <input autoFocus value={q} onChange={e => { setQ(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)}
+            placeholder="Ex : Macron, budget 2025, loi immigration…"
             className="flex-1 min-w-0 py-3.5 sm:py-4 px-2 bg-transparent outline-none text-sm sm:text-base placeholder:text-muted-foreground"
-            aria-label="Terme de recherche"
-            maxLength={150} autoComplete="off" spellCheck="false"
-          />
+            aria-label="Terme de recherche" maxLength={150} autoComplete="off" spellCheck="false" />
           <button type="submit" className="btn-primary m-1 sm:m-1.5 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-medium shrink-0" aria-label="Lancer la recherche">
             <span className="hidden sm:inline">Rechercher</span>
             <svg className="sm:hidden w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" strokeLinecap="round" /></svg>
           </button>
         </div>
       </form>
-
-      {/* Dropdown — bg-background suit le thème light/dark */}
       {open && hasResults && (
-        <div
-          id="search-results"
-          className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden max-h-[50vh] sm:max-h-[65vh] overflow-y-auto border border-border/60 bg-background"
-          style={{ zIndex: 9999 }}
-          role="listbox" aria-label="Suggestions"
-        >
+        <div id="search-results" className="animate-slide-down absolute left-0 right-0 top-full mt-2 rounded-2xl sm:rounded-[2rem] shadow-2xl overflow-hidden max-h-[50vh] sm:max-h-[65vh] overflow-y-auto border border-border/60 bg-background" style={{ zIndex: 9999 }} role="listbox" aria-label="Suggestions">
           {results!.deputes.length > 0 && (
             <div className="p-2">
               <div className="px-4 py-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Député·es</div>
-              {results!.deputes.map((d) => (
-                <Link key={d.slug} to="/depute/$slug" params={{ slug: d.slug }}
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-2xl hover:bg-muted/40 transition-colors"
-                  onClick={() => setOpen(false)}>
+              {results!.deputes.map(d => (
+                <Link key={d.slug} to="/depute/$slug" params={{ slug: d.slug }} className="flex items-center gap-3 px-4 py-2.5 rounded-2xl hover:bg-muted/40 transition-colors" onClick={() => setOpen(false)}>
                   <DeputeAvatarSmall d={d} />
                   <span className="font-medium text-sm">{d.prenom} {d.nom_de_famille}</span>
                   <GroupBadge sigle={d.groupe_sigle} size="sm" />
@@ -422,17 +334,13 @@ function SearchBar() {
           {results!.scrutins.length > 0 && (
             <div className="p-2 border-t border-border/30">
               <div className="px-4 py-2 text-[10px] uppercase tracking-widest text-muted-foreground font-medium">Scrutins</div>
-              {results!.scrutins.map((s) => (
-                <Link key={s.numero} to="/scrutin/$numero" params={{ numero: s.numero }}
-                  className="block px-4 py-2.5 rounded-2xl hover:bg-muted/40 transition-colors"
-                  onClick={() => setOpen(false)}>
+              {results!.scrutins.map(s => (
+                <Link key={s.numero} to="/scrutin/$numero" params={{ numero: s.numero }} className="block px-4 py-2.5 rounded-2xl hover:bg-muted/40 transition-colors" onClick={() => setOpen(false)}>
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: /adopt/i.test(s.sort) ? "var(--color-pour)" : "var(--color-contre)" }} aria-hidden="true" />
-                    <span className="text-sm line-clamp-1 font-medium">{s.titre ? s.titre.charAt(0).toUpperCase() + s.titre.slice(1) : `Scrutin n°${s.numero}`}</span>
+                    <span className="text-sm line-clamp-1 font-medium">{s.titre ? s.titre.charAt(0).toUpperCase()+s.titre.slice(1) : `Scrutin n°${s.numero}`}</span>
                   </div>
-                  <div className="text-xs text-muted-foreground pl-4">
-                    {s.date ? new Date(s.date).toLocaleDateString("fr-FR") : ""}{" "}{s.sort ? `· ${s.sort}` : ""}
-                  </div>
+                  <div className="text-xs text-muted-foreground pl-4">{s.date ? new Date(s.date).toLocaleDateString("fr-FR") : ""}{s.sort ? ` · ${s.sort}` : ""}</div>
                 </Link>
               ))}
             </div>
@@ -446,15 +354,11 @@ function SearchBar() {
 function DeputeAvatarSmall({ d }: { d: Depute }) {
   const [err, setErr] = useState(false);
   const src = d.id_an ? photoUrl(d.id_an, 17) : "";
-  if (!src || err) {
-    return (
-      <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
-        style={{ background: "linear-gradient(135deg, oklch(0.50 0.20 285 / 15%), oklch(0.42 0.22 215 / 20%))", color: "oklch(0.50 0.20 285)" }}
-        aria-hidden="true">
-        {`${d.prenom?.[0] ?? ""}${d.nom_de_famille?.[0] ?? ""}`.toUpperCase()}
-      </div>
-    );
-  }
+  if (!src || err) return (
+    <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: "linear-gradient(135deg, oklch(0.50 0.20 285 / 15%), oklch(0.42 0.22 215 / 20%))", color: "oklch(0.50 0.20 285)" }} aria-hidden="true">
+      {`${d.prenom?.[0]??"" }${d.nom_de_famille?.[0]??""}`.toUpperCase()}
+    </div>
+  );
   return <img src={src} alt={`${d.prenom} ${d.nom_de_famille}`} className="w-7 h-7 rounded-full object-cover shrink-0" onError={() => setErr(true)} />;
 }
 
