@@ -13,9 +13,11 @@ import { Route as StatutRouteImport } from './routes/statut'
 import { Route as ScrutinsRouteImport } from './routes/scrutins'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as Legislature16RouteImport } from './routes/legislature-16'
+import { Route as GroupesRouteImport } from './routes/groupes'
 import { Route as DeputesRouteImport } from './routes/deputes'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ScrutinNumeroRouteImport } from './routes/scrutin.$numero'
@@ -45,6 +47,11 @@ const Legislature16Route = Legislature16RouteImport.update({
   path: '/legislature-16',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GroupesRoute = GroupesRouteImport.update({
+  id: '/groupes',
+  path: '/groupes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DeputesRoute = DeputesRouteImport.update({
   id: '/deputes',
   path: '/deputes',
@@ -58,6 +65,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
 const BlogRoute = BlogRouteImport.update({
   id: '/blog',
   path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AProposRoute = AProposRouteImport.update({
+  id: '/a-propos',
+  path: '/a-propos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -103,9 +115,11 @@ const ApiMetaRoute = ApiMetaRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/blog': typeof BlogRouteWithChildren
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/groupes': typeof GroupesRoute
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
@@ -120,8 +134,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/groupes': typeof GroupesRoute
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
@@ -137,9 +153,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
   '/blog': typeof BlogRouteWithChildren
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/groupes': typeof GroupesRoute
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
@@ -156,9 +174,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/a-propos'
     | '/blog'
     | '/confidentialite'
     | '/deputes'
+    | '/groupes'
     | '/legislature-16'
     | '/recherche'
     | '/scrutins'
@@ -173,8 +193,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/a-propos'
     | '/confidentialite'
     | '/deputes'
+    | '/groupes'
     | '/legislature-16'
     | '/recherche'
     | '/scrutins'
@@ -189,9 +211,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/a-propos'
     | '/blog'
     | '/confidentialite'
     | '/deputes'
+    | '/groupes'
     | '/legislature-16'
     | '/recherche'
     | '/scrutins'
@@ -207,9 +231,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AProposRoute: typeof AProposRoute
   BlogRoute: typeof BlogRouteWithChildren
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   DeputesRoute: typeof DeputesRoute
+  GroupesRoute: typeof GroupesRoute
   Legislature16Route: typeof Legislature16Route
   RechercheRoute: typeof RechercheRoute
   ScrutinsRoute: typeof ScrutinsRoute
@@ -251,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Legislature16RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/groupes': {
+      id: '/groupes'
+      path: '/groupes'
+      fullPath: '/groupes'
+      preLoaderRoute: typeof GroupesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/deputes': {
       id: '/deputes'
       path: '/deputes'
@@ -270,6 +303,13 @@ declare module '@tanstack/react-router' {
       path: '/blog'
       fullPath: '/blog'
       preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/a-propos': {
+      id: '/a-propos'
+      path: '/a-propos'
+      fullPath: '/a-propos'
+      preLoaderRoute: typeof AProposRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -345,9 +385,11 @@ const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AProposRoute: AProposRoute,
   BlogRoute: BlogRouteWithChildren,
   ConfidentialiteRoute: ConfidentialiteRoute,
   DeputesRoute: DeputesRoute,
+  GroupesRoute: GroupesRoute,
   Legislature16Route: Legislature16Route,
   RechercheRoute: RechercheRoute,
   ScrutinsRoute: ScrutinsRoute,
@@ -361,13 +403,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
