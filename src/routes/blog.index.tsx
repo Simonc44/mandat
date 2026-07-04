@@ -12,7 +12,6 @@ export const Route = createFileRoute("/blog/")({
       canonical: `${SITE_URL}/blog`,
     }),
     links: createSeoLinks(`${SITE_URL}/blog`),
-    links: [{ rel: "canonical", href: `${SITE_URL}/blog` }],
   }),
   component: BlogIndex,
 });
