@@ -2,6 +2,7 @@
 
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState, useEffect } from "react";
 import {
   scrutinMetaQuery,
@@ -16,6 +17,7 @@ import {
   type VotePosition,
   type ScrutinGroupe,
 } from "@/lib/api";
+import { summarizeScrutin } from "@/lib/ai-summary.functions";
 import { GroupBadge } from "@/components/GroupBadge";
 import { createSeoMeta, createBreadcrumbSchema, createVoteEventSchema, SITE_URL } from "./__root";
 
@@ -62,35 +64,19 @@ function AiSummary({ titre, sort, pour, contre, abstention }: {
 }) {
   const [summary, setSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const summarize = useServerFn(summarizeScrutin);
 
   const generate = async () => {
     setLoading(true);
-    setError(false);
+    setErrorMsg(null);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 1000,
-          messages: [{
-            role: "user",
-            content: `Tu es un expert en droit parlementaire français. Explique ce scrutin en 3-4 phrases simples, accessibles à un citoyen non-initié :
-
-Titre du texte : ${titre}
-Résultat : ${sort} (${pour} pour, ${contre} contre, ${abstention} abstentions)
-
-Explique : 1) de quoi parle ce texte en une phrase, 2) pourquoi ce vote était important, 3) ce que son adoption ou son rejet change concrètement. Sois factuel, neutre, et évite tout jargon. Réponds en français.`
-          }]
-        })
+      const { summary: text } = await summarize({
+        data: { titre, sort, pour, contre, abstention },
       });
-      const data = await res.json();
-      const text = data?.content?.[0]?.text ?? null;
-      if (text) setSummary(text);
-      else setError(true);
-    } catch {
-      setError(true);
+      setSummary(text);
+    } catch (e) {
+      setErrorMsg(e instanceof Error ? e.message : "Impossible de générer le résumé.");
     } finally {
       setLoading(false);
     }
@@ -101,9 +87,9 @@ Explique : 1) de quoi parle ce texte en une phrase, 2) pourquoi ce vote était i
       <div className="mb-8 p-6 card-glass rounded-[2rem] border border-primary/20 animate-fade-up">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xs font-semibold uppercase tracking-widest text-primary">Résumé IA</span>
-          <span className="text-[10px] text-muted-foreground">Généré par Claude</span>
+          <span className="text-[10px] text-muted-foreground">Généré par Lovable AI · Gemini</span>
         </div>
-        <p className="text-sm text-foreground leading-relaxed">{summary}</p>
+        <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{summary}</p>
         <button onClick={() => setSummary(null)} className="mt-3 text-xs text-muted-foreground hover:text-primary transition-colors">↺ Générer un nouveau résumé</button>
       </div>
     );
@@ -122,7 +108,7 @@ Explique : 1) de quoi parle ce texte en une phrase, 2) pourquoi ce vote était i
           <><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/></svg>✨ Comprendre ce scrutin en langage simple</>
         )}
       </button>
-      {error && <p className="mt-2 text-xs text-destructive">Impossible de générer le résumé. Vérifiez votre connexion.</p>}
+      {errorMsg && <p className="mt-2 text-xs text-destructive">{errorMsg}</p>}
     </div>
   );
 }
