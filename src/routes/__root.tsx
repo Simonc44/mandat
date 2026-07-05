@@ -308,8 +308,55 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
       <head>
-        {/* Service Worker PWA */}
         <HeadContent />
+
+        {/*
+         * Google Analytics — Consent Mode v2 (RGPD)
+         * 1. Consentement par défaut : tout denied.
+         * 2. wait_for_update 500ms : laisse le CookieBanner appeler update avant le premier hit.
+         * 3. Restauration automatique si l'utilisateur a déjà répondu (localStorage).
+         */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-CMMWPQG5P6"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              // Consentement par défaut : tout refusé (RGPD)
+              gtag('consent', 'default', {
+                'analytics_storage': 'denied',
+                'ad_storage': 'denied',
+                'ad_user_data': 'denied',
+                'ad_personalization': 'denied',
+                'wait_for_update': 500
+              });
+
+              gtag('config', 'G-CMMWPQG5P6');
+
+              // Restaurer le consentement si déjà accepté lors d'une visite précédente
+              (function() {
+                try {
+                  var saved = localStorage.getItem('mandat_analytics_consent');
+                  if (saved === 'granted') {
+                    gtag('consent', 'update', {
+                      'analytics_storage': 'granted',
+                      'ad_storage': 'denied',
+                      'ad_user_data': 'denied',
+                      'ad_personalization': 'denied'
+                    });
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+
+        {/* Service Worker PWA */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -391,6 +438,7 @@ function RootComponent() {
         <Analytics />
         <LoadingOverlay />
         <Header />
+        {/* flex-1 sans pt-20 : le Hero redesign gère son propre espacement */}
         <main className="flex-1">
           <Outlet />
         </main>
