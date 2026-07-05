@@ -91,14 +91,7 @@ function Home() {
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg>
                 Groupes
               </Link>
-            </div>
-
-            {/* Trust — encore plus discret, petite taille */}
-            <div className="animate-fade-up flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted-foreground/70 mt-5" style={{ animationDelay: "380ms" }}>
-              <span className="flex items-center gap-1.5"><Unlock className="w-3 h-3" aria-hidden="true" />100% Open Data</span>
-              <span className="flex items-center gap-1.5"><Scale className="w-3 h-3" aria-hidden="true" />Sans étiquette</span>
-              <span className="flex items-center gap-1.5"><ShieldCheck className="w-3 h-3" aria-hidden="true" />Sans publicité</span>
-            </div>
+            </div>    
           </div>
         </div>
       </section>
