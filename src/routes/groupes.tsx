@@ -1,9 +1,9 @@
-// routes/groupes.tsx — Heatmap de proximité + simulateur de coalition
+// routes/groupes.tsx — Heatmap de proximité + simulateur de coalition hémicycle
 
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { scrutinsQuery, allDeputesQuery, GROUPES, groupeMeta, sanitizeText } from "@/lib/api";
+import { scrutinsQuery, allDeputesQuery, groupeMeta } from "@/lib/api";
 import { createSeoMeta, createSeoLinks, SITE_URL } from "./__root";
 
 export const Route = createFileRoute("/groupes")({
@@ -23,19 +23,20 @@ export const Route = createFileRoute("/groupes")({
   component: GroupesPage,
 });
 
-// ── TYPES ──
-type GroupeStats = {
-  sigle: string;
-  nom: string;
-  couleur: string;
-  sieges: number;
-};
+type GroupeStats = { sigle: string; nom: string; couleur: string; sieges: number; };
+
+const MAJORITE_ABSOLUE = 289;
+const TOTAL_SIEGES = 577;
+
+// Hémicycle : rangées de sièges (approximation)
+// L'AN a 577 sièges répartis sur ~10 rangées en demi-cercle
+const ROWS = [34, 44, 53, 58, 62, 67, 70, 74, 59, 56];
+// total = 577
 
 function GroupesPage() {
   const { data: scrutins } = useSuspenseQuery(scrutinsQuery);
   const { data: deputes } = useSuspenseQuery(allDeputesQuery);
 
-  // ── Liste des groupes avec nombre de sièges ──
   const groupes: GroupeStats[] = useMemo(() => {
     const map = new Map<string, number>();
     deputes.forEach(d => { if (d.groupe_sigle) map.set(d.groupe_sigle, (map.get(d.groupe_sigle) ?? 0) + 1); });
@@ -44,16 +45,11 @@ function GroupesPage() {
       .sort((a, b) => b.sieges - a.sieges);
   }, [deputes]);
 
-  // ── Matrice de proximité ──
-  // Pour chaque paire de groupes, ratio de scrutins où les deux ont voté dans le même sens
-  const proximite: Map<string, Map<string, number>> = useMemo(() => {
+  const proximite = useMemo(() => {
     const mat = new Map<string, Map<string, number>>();
     const sigles = groupes.map(g => g.sigle);
-
-    // Pour chaque scrutin avec données groupes, on compte les votes convergents
     const concordance = new Map<string, Map<string, { same: number; total: number }>>();
     sigles.forEach(a => { concordance.set(a, new Map()); sigles.forEach(b => concordance.get(a)!.set(b, { same: 0, total: 0 })); });
-
     for (const s of scrutins) {
       if (!s.groupes || s.groupes.length < 2) continue;
       const positions = new Map<string, string>();
@@ -70,7 +66,6 @@ function GroupesPage() {
         }
       }
     }
-
     sigles.forEach(a => {
       mat.set(a, new Map());
       sigles.forEach(b => {
@@ -79,7 +74,6 @@ function GroupesPage() {
         mat.get(a)!.set(b, pct ?? -1);
       });
     });
-
     return mat;
   }, [scrutins, groupes]);
 
@@ -88,25 +82,21 @@ function GroupesPage() {
       <div className="mb-10 animate-fade-up">
         <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-3 font-medium">Analyse politique</div>
         <h1 className="font-display text-4xl md:text-5xl mb-3 tracking-tight">Groupes politiques</h1>
-        <p className="text-muted-foreground max-w-2xl">
-          Proximité de vote entre groupes et simulateur de coalition — basés sur les scrutins réels de la 17e législature.
-        </p>
+        <p className="text-muted-foreground max-w-2xl">Proximité de vote entre groupes et simulateur de coalition — basés sur les scrutins réels de la 17e législature.</p>
       </div>
 
-      {/* ── HEATMAP ── */}
       <section className="mb-14 animate-fade-up" style={{ animationDelay: "80ms" }}>
         <h2 className="font-display text-2xl mb-2">Proximité de vote</h2>
         <p className="text-xs text-muted-foreground mb-6">
-          Pourcentage de scrutins où deux groupes ont voté dans le même sens. Plus c'est élevé, plus ils votent ensemble.
+          Pourcentage de scrutins où deux groupes ont voté dans le même sens. Vert = souvent d'accord, rouge = souvent opposés.
         </p>
         <ProximiteHeatmap groupes={groupes} proximite={proximite} />
       </section>
 
-      {/* ── SIMULATEUR ── */}
       <section className="mb-14 animate-fade-up" style={{ animationDelay: "160ms" }}>
         <h2 className="font-display text-2xl mb-2">Simulateur de coalition</h2>
         <p className="text-xs text-muted-foreground mb-6">
-          Sélectionnez des groupes pour calculer leur poids combiné. La majorité absolue est à 289 sièges.
+          Cliquez sur les groupes pour les ajouter à la coalition. La ligne rouge marque les 289 sièges de majorité absolue.
         </p>
         <CoalitionSimulator groupes={groupes} />
       </section>
@@ -114,29 +104,32 @@ function GroupesPage() {
   );
 }
 
-// ── HEATMAP ──────────────────────────────────────────────────────────────────────
+// ── HEATMAP ────────────────────────────────────────────────────────────────────
 
 function heatColor(pct: number): string {
-  if (pct < 0) return "oklch(0.92 0 0 / 30%)";
-  if (pct >= 70) return `oklch(${0.35 + (pct - 70) * 0.003} 0.18 145 / ${40 + (pct - 70) * 1.5}%)`;
-  if (pct >= 40) return `oklch(0.65 0.18 60 / ${20 + (pct - 40) * 0.8}%)`;
-  return `oklch(0.55 0.20 15 / ${15 + (100 - pct) * 0.4}%)`;
+  if (pct < 0) return "oklch(0.88 0.01 0 / 40%)";
+  // vert foncé ≥ 70, orange 40-70, rouge < 40
+  if (pct >= 70) return `color-mix(in oklch, oklch(0.52 0.17 145) ${Math.round(40 + (pct - 70) * 2)}%, transparent)`;
+  if (pct >= 40) return `color-mix(in oklch, oklch(0.65 0.18 60) ${Math.round(15 + (pct - 40) * 0.8)}%, transparent)`;
+  return `color-mix(in oklch, oklch(0.55 0.20 15) ${Math.round(20 + (100 - pct) * 0.5)}%, transparent)`;
 }
 
 function ProximiteHeatmap({ groupes, proximite }: { groupes: GroupeStats[]; proximite: Map<string, Map<string, number>> }) {
-  const top = groupes.slice(0, 10); // On affiche les 10 plus grands groupes pour la lisibilité
+  const [hovered, setHovered] = useState<[string, string] | null>(null);
+  const top = groupes.slice(0, 10);
 
   return (
-    <div className="card-glass rounded-[2rem] p-4 overflow-x-auto">
-      <table className="text-xs border-collapse w-full" aria-label="Matrice de proximité entre groupes">
+    <div className="card-glass rounded-[2rem] p-5 overflow-x-auto">
+      <table className="border-collapse" style={{ fontSize: 11 }} aria-label="Matrice de proximité entre groupes">
         <thead>
           <tr>
-            <th className="w-8 h-8" />
+            {/* Coin vide */}
+            <th className="pb-3" style={{ minWidth: 120 }} />
             {top.map(g => (
-              <th key={g.sigle} className="pb-3 text-center font-medium" style={{ minWidth: 48 }}>
+              <th key={g.sigle} className="pb-3 text-center" style={{ minWidth: 52 }}>
                 <div className="flex flex-col items-center gap-1">
-                  <span className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: g.couleur }} aria-hidden="true" />
-                  <span className="text-muted-foreground" style={{ fontSize: 10 }}>{g.sigle}</span>
+                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: g.couleur }} aria-hidden="true" />
+                  <span className="font-semibold text-foreground" style={{ fontSize: 10 }}>{g.sigle}</span>
                 </div>
               </th>
             ))}
@@ -145,28 +138,34 @@ function ProximiteHeatmap({ groupes, proximite }: { groupes: GroupeStats[]; prox
         <tbody>
           {top.map(rowG => (
             <tr key={rowG.sigle}>
-              <td className="pr-3 text-right" style={{ minWidth: 48 }}>
-                <div className="flex items-center justify-end gap-1.5">
-                  <span className="text-muted-foreground font-medium" style={{ fontSize: 10 }}>{rowG.sigle}</span>
-                  <span className="w-3 h-3 rounded-full inline-block shrink-0" style={{ backgroundColor: rowG.couleur }} aria-hidden="true" />
+              {/* Libellé ligne — nom complet */}
+              <td className="pr-4 py-0.5">
+                <div className="flex items-center gap-2 justify-end">
+                  <span className="text-right font-medium text-foreground/80" style={{ fontSize: 11, maxWidth: 110 }}>{rowG.nom}</span>
+                  <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: rowG.couleur }} aria-hidden="true" />
                 </div>
               </td>
               {top.map(colG => {
-                const pct = rowG.sigle === colG.sigle ? 100 : (proximite.get(rowG.sigle)?.get(colG.sigle) ?? -1);
                 const isDiag = rowG.sigle === colG.sigle;
+                const pct = isDiag ? 100 : (proximite.get(rowG.sigle)?.get(colG.sigle) ?? -1);
+                const isHov = hovered && ((hovered[0]===rowG.sigle && hovered[1]===colG.sigle) || (hovered[0]===colG.sigle && hovered[1]===rowG.sigle));
                 return (
                   <td key={colG.sigle} className="text-center" style={{ padding: "2px" }}>
                     <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center font-semibold mx-auto"
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold mx-auto cursor-default transition-transform duration-150 ${isHov ? "scale-110 ring-2 ring-primary/50" : ""}`}
                       style={{
-                        background: isDiag ? `color-mix(in oklch, ${rowG.couleur} 30%, transparent)` : heatColor(pct),
-                        color: pct >= 60 || isDiag ? "oklch(0.2 0 0)" : "var(--text-foreground)",
-                        fontSize: 11,
+                        background: isDiag
+                          ? `color-mix(in oklch, ${rowG.couleur} 35%, transparent)`
+                          : heatColor(pct),
+                        fontSize: isDiag ? 9 : 12,
+                        color: pct >= 65 && !isDiag ? "oklch(0.15 0 0)" : "var(--foreground)",
                       }}
-                      title={pct >= 0 ? `${rowG.sigle} / ${colG.sigle} : ${isDiag ? "100" : pct}%` : "Données insuffisantes"}
-                      aria-label={`${rowG.sigle} et ${colG.sigle} : ${isDiag ? "même groupe" : pct >= 0 ? `${pct}% de votes convergents` : "données insuffisantes"}`}
+                      onMouseEnter={() => !isDiag && setHovered([rowG.sigle, colG.sigle])}
+                      onMouseLeave={() => setHovered(null)}
+                      title={isDiag ? rowG.nom : pct >= 0 ? `${rowG.sigle} / ${colG.sigle} : ${pct}% de scrutins convergents` : "Données insuffisantes (<5 scrutins communs)"}
+                      aria-label={isDiag ? rowG.nom : pct >= 0 ? `${rowG.sigle} et ${colG.sigle} : ${pct}%` : "—"}
                     >
-                      {isDiag ? rowG.sigle.slice(0, 2) : pct >= 0 ? `${pct}%` : "—"}
+                      {isDiag ? rowG.sigle : pct >= 0 ? `${pct}%` : "—"}
                     </div>
                   </td>
                 );
@@ -175,69 +174,132 @@ function ProximiteHeatmap({ groupes, proximite }: { groupes: GroupeStats[]; prox
           ))}
         </tbody>
       </table>
-      <div className="mt-4 flex flex-wrap items-center gap-4 text-[10px] text-muted-foreground px-1">
-        <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(80) }} />≥ 70 % — Votes très convergents</div>
-        <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(50) }} />40–70 % — Neutres</div>
-        <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(20) }} />≤ 40 % — Votes divergents</div>
-        <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(-1) }} />— Données insuffisantes</div>
+
+      {/* Tooltip hover */}
+      {hovered && (() => {
+        const pct = proximite.get(hovered[0])?.get(hovered[1]) ?? -1;
+        const gA = groupes.find(g => g.sigle === hovered[0]);
+        const gB = groupes.find(g => g.sigle === hovered[1]);
+        if (!gA || !gB) return null;
+        const label = pct < 0 ? "Données insuffisantes" : pct >= 70 ? "Votes très convergents" : pct >= 40 ? "Votes modérément convergents" : "Votes souvent opposés";
+        return (
+          <div className="mt-4 px-4 py-3 rounded-2xl glass border border-border/50 text-sm animate-fade-up" style={{ maxWidth: 420 }}>
+            <span className="font-semibold" style={{ color: gA.couleur }}>{gA.nom}</span>
+            <span className="text-muted-foreground mx-2">+</span>
+            <span className="font-semibold" style={{ color: gB.couleur }}>{gB.nom}</span>
+            <span className="mx-2 text-muted-foreground">—</span>
+            {pct >= 0 ? <><span className="font-bold">{pct}%</span> <span className="text-muted-foreground text-xs">{label}</span></> : <span className="text-muted-foreground text-xs">{label}</span>}
+          </div>
+        );
+      })()}
+
+      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] text-muted-foreground">
+        <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(80) }} />≥ 70 % — Souvent d'accord</div>
+        <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(50) }} />40–70 % — Neutres</div>
+        <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(20) }} />< 40 % — Souvent opposés</div>
+        <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(-1) }} />— Données insuffisantes</div>
       </div>
     </div>
   );
 }
 
-// ── SIMULATEUR COALITION ───────────────────────────────────────────────────────────
-
-const MAJORITE_ABSOLUE = 289;
-const TOTAL_SIEGES = 577;
+// ── SIMULATEUR COALITION — HÉMICYCLE ──────────────────────────────────────────
 
 function CoalitionSimulator({ groupes }: { groupes: GroupeStats[] }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const toggle = (sigle: string) => {
+  const toggle = (sigle: string) =>
     setSelected(prev => { const n = new Set(prev); n.has(sigle) ? n.delete(sigle) : n.add(sigle); return n; });
-  };
 
   const totalSieges = groupes.filter(g => selected.has(g.sigle)).reduce((s, g) => s + g.sieges, 0);
   const hasMajorite = totalSieges >= MAJORITE_ABSOLUE;
-  const pct = Math.round((totalSieges / TOTAL_SIEGES) * 100);
+
+  // Construire la liste ordonnée des sièges (gauche→droite politiquement)
+  // On distribue les sièges par groupe dans l'ordre de la grille
+  const seatList: { couleur: string; sigle: string; inCoalition: boolean }[] = useMemo(() => {
+    const seats: { couleur: string; sigle: string; inCoalition: boolean }[] = [];
+    for (const g of groupes) {
+      for (let i = 0; i < g.sieges; i++) {
+        seats.push({ couleur: g.couleur, sigle: g.sigle, inCoalition: selected.has(g.sigle) });
+      }
+    }
+    return seats;
+  }, [groupes, selected]);
+
+  // Placement en hémicycle SVG
+  // On place les sièges sur des arcs concentriques
+  const W = 560, H = 300;
+  const CX = W / 2, CY = H - 10;
+  const ROWS_RADII = [90, 115, 140, 165, 190, 215, 240, 265, 290, 315];
+
+  const seatPositions: { x: number; y: number; couleur: string; sigle: string; inCoalition: boolean; idx: number }[] = useMemo(() => {
+    const positions: { x: number; y: number; couleur: string; sigle: string; inCoalition: boolean; idx: number }[] = [];
+    let seatIdx = 0;
+    ROWS.forEach((count, row) => {
+      const r = ROWS_RADII[row];
+      for (let i = 0; i < count; i++) {
+        if (seatIdx >= seatList.length) break;
+        // Angle : de PI (gauche) à 0 (droite), réparti uniformément
+        const angle = Math.PI - (i / (count - 1)) * Math.PI;
+        const x = CX + r * Math.cos(angle);
+        const y = CY - r * Math.sin(angle);
+        positions.push({ x, y, ...seatList[seatIdx], idx: seatIdx });
+        seatIdx++;
+      }
+    });
+    return positions;
+  }, [seatList]);
 
   return (
-    <div className="card-glass rounded-[2rem] p-6">
-      {/* Barre de l'hémicycle */}
-      <div className="mb-6">
-        <div className="flex justify-between text-sm mb-2">
-          <span className="font-medium">{totalSieges} sièges sélectionnés</span>
-          <span className={`font-semibold ${ hasMajorite ? "text-green-600" : "text-muted-foreground" }`}>
-            {hasMajorite ? `✓ Majorité absolue (+${totalSieges - MAJORITE_ABSOLUE})` : `${MAJORITE_ABSOLUE - totalSieges} manquants pour la majorité`}
-          </span>
-        </div>
-        <div className="relative h-5 rounded-full overflow-hidden bg-muted/60">
-          {/* Segments par groupe */}
-          {(() => {
-            let left = 0;
-            return groupes.filter(g => selected.has(g.sigle)).map(g => {
-              const w = (g.sieges / TOTAL_SIEGES) * 100;
-              const el = (
-                <div key={g.sigle} className="absolute top-0 bottom-0 transition-all duration-500"
-                  style={{ left: `${left}%`, width: `${w}%`, backgroundColor: g.couleur }}
-                  title={`${g.sigle} : ${g.sieges} sièges`} />
-              );
-              left += w;
-              return el;
-            });
-          })()}
+    <div className="card-glass rounded-[2rem] p-6 space-y-6">
+      {/* Hémicycle SVG */}
+      <div className="w-full overflow-x-auto">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full max-w-2xl mx-auto" style={{ minWidth: 320 }} role="img" aria-label="Hémicycle de l'Assemblée nationale — simulation de coalition">
+          {/* Fond arc */}
+          <path d={`M ${CX - 330} ${CY} A 330 330 0 0 1 ${CX + 330} ${CY}`} fill="none" stroke="var(--border)" strokeWidth="1" opacity="0.4" />
+
           {/* Ligne majorité absolue */}
-          <div className="absolute top-0 bottom-0 w-0.5 bg-foreground/60 z-10" style={{ left: `${(MAJORITE_ABSOLUE / TOTAL_SIEGES) * 100}%` }}
-            title="Majorité absolue : 289 sièges" aria-label="Seuil de majorité absolue" />
-        </div>
-        <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
-          <span>0</span>
-          <span style={{ marginLeft: `${(MAJORITE_ABSOLUE / TOTAL_SIEGES) * 100 - 10}%` }}>289</span>
-          <span>{TOTAL_SIEGES}</span>
-        </div>
+          {(() => {
+            // Le siège numéro 289 (majorité absolue)
+            const majSeat = seatPositions[MAJORITE_ABSOLUE - 1];
+            if (!majSeat) return null;
+            return (
+              <>
+                <line x1={CX} y1={CY} x2={majSeat.x} y2={majSeat.y} stroke="oklch(0.6 0.18 30)" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.7" />
+                <text x={majSeat.x + 4} y={majSeat.y - 4} fontSize="9" fill="oklch(0.6 0.18 30)" fontWeight="600">289 (maj.)</text>
+              </>
+            );
+          })()}
+
+          {/* Sièges */}
+          {seatPositions.map(s => (
+            <circle
+              key={s.idx}
+              cx={s.x}
+              cy={s.y}
+              r={4.2}
+              fill={s.inCoalition ? s.couleur : "oklch(0.88 0.01 0 / 50%)"}
+              stroke={s.inCoalition ? "white" : "transparent"}
+              strokeWidth={s.inCoalition ? 0.8 : 0}
+              style={{ transition: "fill 300ms ease, stroke 300ms ease" }}
+              aria-hidden="true"
+            />
+          ))}
+
+          {/* Centre — score */}
+          <text x={CX} y={CY - 18} textAnchor="middle" fontSize="28" fontWeight="700"
+            fill={hasMajorite ? "oklch(0.45 0.18 145)" : "var(--foreground)"}
+            style={{ fontFamily: "var(--font-display, serif)" }}>
+            {totalSieges}
+          </text>
+          <text x={CX} y={CY - 4} textAnchor="middle" fontSize="10"
+            fill={hasMajorite ? "oklch(0.45 0.18 145)" : "oklch(0.55 0.02 0)"} fontWeight="500">
+            {hasMajorite ? `✓ Majorité absolue (+${totalSieges - MAJORITE_ABSOLUE})` : totalSieges === 0 ? "Sélectionnez des groupes" : `${MAJORITE_ABSOLUE - totalSieges} sièges manquants`}
+          </text>
+        </svg>
       </div>
 
-      {/* Grille des groupes — boutons toggles */}
+      {/* Groupes — boutons toggle */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
         {groupes.map(g => {
           const active = selected.has(g.sigle);
@@ -249,11 +311,12 @@ function CoalitionSimulator({ groupes }: { groupes: GroupeStats[] }) {
               className={`flex items-center gap-2.5 p-3 rounded-2xl border text-left transition-all duration-200 ${
                 active ? "border-2 shadow-md" : "glass border-border/40 hover:border-primary/30"
               }`}
-              style={active ? { borderColor: g.couleur, backgroundColor: `color-mix(in oklch, ${g.couleur} 10%, transparent)` } : {}}
+              style={active ? { borderColor: g.couleur, backgroundColor: `color-mix(in oklch, ${g.couleur} 12%, transparent)` } : {}}
             >
               <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: g.couleur }} aria-hidden="true" />
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="font-semibold text-xs truncate" style={{ color: active ? g.couleur : "var(--foreground)" }}>{g.sigle}</div>
+                <div className="text-[10px] text-muted-foreground truncate">{g.nom}</div>
                 <div className="text-[10px] text-muted-foreground">{g.sieges} sièges</div>
               </div>
               {active && <span className="ml-auto text-[10px] font-bold" style={{ color: g.couleur }}>✓</span>}
@@ -262,18 +325,12 @@ function CoalitionSimulator({ groupes }: { groupes: GroupeStats[] }) {
         })}
       </div>
 
-      {selected.size === 0 && (
-        <p className="text-center text-sm text-muted-foreground mt-4">Sélectionnez des groupes pour simuler une coalition.</p>
-      )}
-
       {selected.size > 0 && (
-        <div className="mt-4 pt-4 border-t border-border/40 flex flex-wrap items-center gap-3 text-sm">
-          <span className="text-muted-foreground">
-            Coalition : {groupes.filter(g => selected.has(g.sigle)).map(g => g.sigle).join(" + ")}
+        <div className="pt-4 border-t border-border/40 flex flex-wrap items-center gap-3 text-sm">
+          <span className="text-muted-foreground text-xs">
+            Coalition : {groupes.filter(g => selected.has(g.sigle)).map(g => g.nom).join(" + ")}
           </span>
-          <span className="ml-auto font-semibold" style={{ color: hasMajorite ? "var(--color-pour)" : "var(--color-contre)" }}>
-            {pct} % des sièges — {hasMajorite ? "Majorité absolue" : "Minorité"}
-          </span>
+          <button onClick={() => setSelected(new Set())} className="ml-auto text-xs text-muted-foreground hover:text-primary transition-colors">Réinitialiser</button>
         </div>
       )}
     </div>

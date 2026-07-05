@@ -1,8 +1,7 @@
-// routes/scrutin.$numero.tsx — avec résumé IA + filtres thématiques
+// routes/scrutin.$numero.tsx
 
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState, useEffect } from "react";
 import {
   scrutinMetaQuery,
@@ -17,7 +16,6 @@ import {
   type VotePosition,
   type ScrutinGroupe,
 } from "@/lib/api";
-import { summarizeScrutin } from "@/lib/ai-summary.functions";
 import { GroupBadge } from "@/components/GroupBadge";
 import { createSeoMeta, createSeoLinks, createBreadcrumbSchema, createVoteEventSchema, SITE_URL } from "./__root";
 
@@ -31,9 +29,7 @@ export const Route = createFileRoute("/scrutin/$numero")({
         sort: sanitizeText(meta?.sort) || "",
         date: meta?.date || "",
       };
-    } catch {
-      throw notFound();
-    }
+    } catch { throw notFound(); }
   },
   head: ({ params, loaderData }) => {
     const titreRaw = loaderData?.titre || `Scrutin n°${params.numero}`;
@@ -66,78 +62,13 @@ export const Route = createFileRoute("/scrutin/$numero")({
   component: ScrutinPage,
 });
 
-function resolveGroupeSigle(organeRef: string, groupes?: ScrutinGroupe[]): string {
-  if (!groupes) return "NI";
-  const g = groupes.find(g => g.organeRef === organeRef);
-  return g ? organeRef : "NI";
-}
-
-// ── RÉSUMÉ IA ──────────────────────────────────────────────────────────────────
-
-function AiSummary({ titre, sort, pour, contre, abstention }: {
-  titre: string; sort: string; pour: number; contre: number; abstention: number;
-}) {
-  const [summary, setSummary] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const summarize = useServerFn(summarizeScrutin);
-
-  const generate = async () => {
-    setLoading(true);
-    setErrorMsg(null);
-    try {
-      const { summary: text } = await summarize({
-        data: { titre, sort, pour, contre, abstention },
-      });
-      setSummary(text);
-    } catch (e) {
-      setErrorMsg(e instanceof Error ? e.message : "Impossible de générer le résumé.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (summary) {
-    return (
-      <div className="mb-8 p-6 card-glass rounded-[2rem] border border-primary/20 animate-fade-up">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs font-semibold uppercase tracking-widest text-primary">Résumé IA</span>
-          <span className="text-[10px] text-muted-foreground">Généré par Lovable AI · Gemini</span>
-        </div>
-        <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{summary}</p>
-        <button onClick={() => setSummary(null)} className="mt-3 text-xs text-muted-foreground hover:text-primary transition-colors">↺ Générer un nouveau résumé</button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mb-8">
-      <button
-        onClick={generate}
-        disabled={loading}
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass border border-primary/30 text-sm text-primary hover:bg-primary/5 transition-colors disabled:opacity-60"
-      >
-        {loading ? (
-          <><svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="10" opacity=".25"/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg>Génération en cours…</>
-        ) : (
-          <><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" strokeLinecap="round" strokeLinejoin="round"/></svg>✨ Comprendre ce scrutin en langage simple</>
-        )}
-      </button>
-      {errorMsg && <p className="mt-2 text-xs text-destructive">{errorMsg}</p>}
-    </div>
-  );
-}
-
-// ── PAGE PRINCIPALE ────────────────────────────────────────────────────────────────────
-
-// Thématiques basées sur les tags + mots-clés du titre
+// ── THÉMATIQUES ────────────────────────────────────────────────────────────────
 const THEMES = [
-  { key: "budget", label: "💰 Budget", terms: ["budget", "fiscal", "finances", "crédit", "dépense", "loi de finances"] },
-  { key: "social", label: "👥 Social", terms: ["social", "travail", "retraite", "emploi", "cmu", "sécurité sociale", "plfss"] },
-  { key: "ecologie", label: "🌿 Écologie", terms: ["climat", "environnement", "écologie", "énergie", "carbone", "transition"] },
-  { key: "securite", label: "🛡️ Sécurité", terms: ["sécurité", "police", "justice", "pénitentiaire", "terrorisme", "immigration"] },
-  { key: "education", label: "🏫 Éducation", terms: ["education", "enseignement", "école", "université", "recherche"] },
-  { key: "sante", label: "🏥 Santé", terms: ["santé", "médecin", "hôpital", "pharmacie", "médicament"] },
+  { key: "budget",    label: "💰 Budget",    terms: ["budget","fiscal","finances","crédit","dépense","loi de finances"] },
+  { key: "social",   label: "👥 Social",    terms: ["social","travail","retraite","emploi","cmu","sécurité sociale","plfss"] },
+  { key: "ecologie", label: "🌿 Écologie",  terms: ["climat","environnement","écologie","énergie","carbone","transition"] },
+  { key: "education",label: "🏫 Éducation", terms: ["education","enseignement","école","université","recherche"] },
+  { key: "sante",    label: "🏥 Santé",     terms: ["santé","médecin","hôpital","pharmacie","médicament"] },
 ] as const;
 
 function detectTheme(titre: string, tags?: string[]): string | null {
@@ -148,21 +79,24 @@ function detectTheme(titre: string, tags?: string[]): string | null {
   return null;
 }
 
+// ── PAGE ───────────────────────────────────────────────────────────────────────
 function ScrutinPage() {
   const { numero: numeroRaw } = Route.useParams();
   const numero = sanitizeNumero(numeroRaw) || numeroRaw;
   const { data: meta } = useSuspenseQuery(scrutinMetaQuery(numero));
   const { data: votesData } = useQuery(scrutinVotesQuery(numero));
   const votes = votesData?.votes ?? [];
-  const votesNominatifs = votesData?.votesNominatifs ?? null;
 
   const [filter, setFilter] = useState<{ groupe: string; pos: VotePosition | "all" }>({ groupe: "", pos: "all" });
 
+  // Calcul par groupe — noms lisibles prioritaires
   const byGroup = useMemo(() => {
     if (meta.groupes && meta.groupes.length > 0) {
       return meta.groupes.map(g => ({
         organeRef: g.organeRef,
-        positionMajoritaire: g.positionMajoritaire,
+        nom: groupeMeta(g.organeRef).nom,          // nom complet lisible
+        couleur: groupeMeta(g.organeRef).couleur,
+        positionMajoritaire: g.positionMajoritaire, // on GARDE pour les barres, on SUPPRIME le badge texte
         pour: g.pour, contre: g.contre, abstentions: g.abstentions, nonVotants: g.nonVotants,
         total: g.pour + g.contre + g.abstentions + g.nonVotants,
       })).filter(g => g.total > 0).sort((a, b) => b.total - a.total);
@@ -178,21 +112,36 @@ function ScrutinPage() {
       m.set(g, cur);
     }
     return Array.from(m.entries()).map(([g, c]) => ({
-      organeRef: g, positionMajoritaire: "", ...c,
+      organeRef: g, nom: groupeMeta(g).nom, couleur: groupeMeta(g).couleur,
+      positionMajoritaire: "", ...c,
       total: c.pour + c.contre + c.abstentions + c.nonVotants,
     })).sort((a, b) => b.total - a.total);
   }, [meta.groupes, votes]);
 
-  const filteredVotes = useMemo(() => {
-    return votes.filter(v => {
-      if (filter.groupe && (v.parlementaire_groupe_acronyme || "NI") !== filter.groupe) return false;
-      if (filter.pos !== "all") {
-        if (filter.pos === "nonVotant") return v.position === "nonVotant" || v.position === "nonVotantVolontaire";
-        return v.position === filter.pos;
-      }
-      return true;
-    });
-  }, [votes, filter]);
+  // Votes filtrés pour la liste des député·es
+  const filteredVotes = useMemo(() => votes.filter(v => {
+    if (filter.groupe && (v.parlementaire_groupe_acronyme || "NI") !== filter.groupe) return false;
+    if (filter.pos !== "all") {
+      if (filter.pos === "nonVotant") return v.position === "nonVotant" || v.position === "nonVotantVolontaire";
+      return v.position === filter.pos;
+    }
+    return true;
+  }), [votes, filter]);
+
+  // Groupes par position pour la liste complète en bas
+  const votesByPosition = useMemo(() => {
+    const pour: typeof votes = [];
+    const contre: typeof votes = [];
+    const abstention: typeof votes = [];
+    const absent: typeof votes = [];
+    for (const v of votes) {
+      if (v.position === "pour") pour.push(v);
+      else if (v.position === "contre") contre.push(v);
+      else if (v.position === "abstention") abstention.push(v);
+      else absent.push(v);
+    }
+    return { pour, contre, abstention, absent };
+  }, [votes]);
 
   const pFinal = Math.max(0, parseInt(meta.nombre_pours) || votes.filter(v => v.position === "pour").length);
   const cFinal = Math.max(0, parseInt(meta.nombre_contres) || votes.filter(v => v.position === "contre").length);
@@ -200,8 +149,6 @@ function ScrutinPage() {
   const titre = sanitizeText(meta.titre) || `Scrutin n°${numero}`;
   const sort = sanitizeText(meta.sort) || "—";
   const isAdopte = meta.isAdopte ?? (/adopt/i.test(sort) && !/non/i.test(sort));
-
-  // Détection thématique
   const theme = detectTheme(titre, meta.tags);
   const themeObj = theme ? THEMES.find(t => t.key === theme) : null;
 
@@ -218,6 +165,7 @@ function ScrutinPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbJsonLd }} />
 
       <div className="container-app py-12">
+        {/* Breadcrumb */}
         <nav aria-label="Fil d'Ariane" className="mb-6 animate-fade-in">
           <Link to="/scrutins" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -231,18 +179,18 @@ function ScrutinPage() {
             <span className="font-mono text-foreground/50">n°{meta.numero}</span>
             {meta.date && (<><span aria-hidden="true">·</span><time dateTime={meta.date}>{new Date(meta.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</time></>)}
             {meta.type && (<><span aria-hidden="true">·</span><span>{sanitizeText(meta.type)}</span></>)}
-            {/* Badge thématique */}
             {themeObj && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full glass border border-border/40 text-muted-foreground" style={{ fontSize: 10 }}>
                 {themeObj.label}
               </span>
             )}
+            {/* PAS de badge sécurité — retiré */}
           </div>
           <h1 className="font-display text-3xl md:text-4xl leading-tight mb-5">
             {titre.charAt(0).toUpperCase() + titre.slice(1)}
           </h1>
-          {meta.dossier && <p className="text-sm text-muted-foreground mb-3">Dossier : <strong>{sanitizeText(meta.dossier)}</strong></p>}
-          {meta.demandeur && <p className="text-sm text-muted-foreground mb-3">Demandeur : {sanitizeText(meta.demandeur)}</p>}
+          {meta.dossier && <p className="text-sm text-muted-foreground mb-3">Dossier : <strong>{sanitizeText(meta.dossier)}</strong></p>}
+          {meta.demandeur && <p className="text-sm text-muted-foreground mb-3">Demandeur : {sanitizeText(meta.demandeur)}</p>}
           <div className="flex flex-wrap items-center gap-3">
             <span
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold glass shadow-sm"
@@ -256,9 +204,6 @@ function ScrutinPage() {
             )}
           </div>
         </div>
-
-        {/* RÉSUMÉ IA */}
-        <AiSummary titre={titre} sort={sort} pour={pFinal} contre={cFinal} abstention={aFinal} />
 
         {/* RÉSULTAT GLOBAL */}
         <section className="mb-10 p-8 rounded-[2rem] card-glass animate-fade-up shadow-md" style={{ animationDelay: "80ms" }} aria-labelledby="result-heading">
@@ -274,30 +219,41 @@ function ScrutinPage() {
           </div>
         </section>
 
-        {/* PAR GROUPE */}
+        {/* PAR GROUPE — noms complets, pas de badge "majoritairement PO845407" */}
         {byGroup.length > 0 && (
           <section className="mb-10 animate-fade-up" style={{ animationDelay: "160ms" }} aria-labelledby="groups-heading">
-            <h2 id="groups-heading" className="font-display text-xl mb-3">Par groupe politique</h2>
-            <p className="text-xs text-muted-foreground mb-5">Cliquez sur un groupe pour filtrer la liste.</p>
+            <h2 id="groups-heading" className="font-display text-xl mb-3">Position par groupe</h2>
+            <p className="text-xs text-muted-foreground mb-5">Cliquez sur un groupe pour filtrer la liste des député·es.</p>
             <div className="space-y-3">
               {byGroup.map((g, i) => {
                 const total = Math.max(1, g.total);
                 const isActive = filter.groupe === g.organeRef;
+                // Position majoritaire : on la déduit des chiffres, pas de l'ID interne
+                const posMaj = g.pour >= g.contre && g.pour >= g.abstentions
+                  ? "pour"
+                  : g.contre >= g.pour && g.contre >= g.abstentions
+                  ? "contre"
+                  : "abstention";
+                const posMajLabel = posMaj === "pour" ? "Majoritairement pour" : posMaj === "contre" ? "Majoritairement contre" : "Majoritairement abstention";
+                const posMajColor = posMaj === "pour" ? "var(--color-pour)" : posMaj === "contre" ? "var(--color-contre)" : "var(--color-abstention)";
                 return (
-                  <button key={g.organeRef} onClick={() => setFilter(f => ({ ...f, groupe: f.groupe === g.organeRef ? "" : g.organeRef }))}
+                  <button key={g.organeRef}
+                    onClick={() => setFilter(f => ({ ...f, groupe: f.groupe === g.organeRef ? "" : g.organeRef }))}
                     aria-pressed={isActive}
                     className={`w-full text-left p-5 rounded-[2rem] border transition-all duration-300 animate-fade-up ${isActive ? "card-glass border-primary/50 shadow-lg ring-1 ring-primary/20" : "glass border-border/50 hover:border-primary/30 hover:shadow-md"}`}
                     style={{ animationDelay: `${i*30}ms` }}>
                     <div className="flex items-center justify-between gap-3 mb-4">
                       <div className="flex items-center gap-3 flex-wrap">
-                        <GroupBadge sigle={g.organeRef} />
-                        <span className="text-sm font-medium text-foreground/90">{groupeMeta(g.organeRef).nom}</span>
-                        {g.positionMajoritaire && (
-                          <span className="text-[10px] uppercase tracking-wider px-3 py-1 rounded-full font-semibold"
-                            style={{ color: g.positionMajoritaire==="pour" ? "var(--color-pour)" : g.positionMajoritaire==="contre" ? "var(--color-contre)" : "var(--color-abstention)", backgroundColor: `color-mix(in oklch, ${g.positionMajoritaire==="pour" ? "var(--color-pour)" : g.positionMajoritaire==="contre" ? "var(--color-contre)" : "var(--color-abstention)"} 10%, transparent)` }}>
-                            majoritairement {g.positionMajoritaire}
-                          </span>
-                        )}
+                        {/* Couleur du groupe */}
+                        <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: g.couleur }} aria-hidden="true" />
+                        {/* Nom complet lisible, pas le sigle cryptique */}
+                        <span className="text-sm font-semibold text-foreground">{g.nom}</span>
+                        <span className="text-xs text-muted-foreground">({g.organeRef})</span>
+                        {/* Badge position lisible — couleur uniquement */}
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                          style={{ color: posMajColor, backgroundColor: `color-mix(in oklch, ${posMajColor} 12%, transparent)` }}>
+                          {posMajLabel}
+                        </span>
                       </div>
                       <span className="text-xs text-muted-foreground shrink-0 font-medium">{g.total} député·es</span>
                     </div>
@@ -310,7 +266,7 @@ function ScrutinPage() {
                     <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mt-3 font-medium">
                       <span><strong className="text-foreground">{g.pour}</strong> pour</span>
                       <span><strong className="text-foreground">{g.contre}</strong> contre</span>
-                      <span><strong className="text-foreground">{g.abstentions}</strong> abst.</span>
+                      <span><strong className="text-foreground">{g.abstentions}</strong> abstentions</span>
                       <span><strong className="text-foreground">{g.nonVotants}</strong> absent·es</span>
                     </div>
                   </button>
@@ -320,47 +276,95 @@ function ScrutinPage() {
           </section>
         )}
 
-        {/* PAR DÉPUTÉ */}
+        {/* LISTE COMPLÈTE DÉPUTÉ·ES PAR POSITION */}
         {votes.length > 0 && (
           <section aria-labelledby="deputies-heading">
             <div className="flex items-end justify-between flex-wrap gap-4 mb-6">
               <h2 id="deputies-heading" className="font-display text-xl">
-                Position des député·es{filter.groupe && <span className="text-base font-sans text-muted-foreground"> — {filter.groupe}</span>}
+                Tous les votes nominatifs
+                {filter.groupe && <span className="text-base font-sans text-muted-foreground"> — {groupeMeta(filter.groupe).nom}</span>}
                 <span className="text-base font-sans text-muted-foreground ml-2">({filteredVotes.length})</span>
               </h2>
               <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtrer par position">
                 {(["all","pour","contre","abstention","nonVotant"] as const).map(k => (
-                  <button key={k} onClick={() => setFilter(f => ({ ...f, pos: k as VotePosition|"all" }))} aria-pressed={filter.pos===k}
+                  <button key={k}
+                    onClick={() => setFilter(f => ({ ...f, pos: k as VotePosition|"all" }))}
+                    aria-pressed={filter.pos===k}
                     className={`px-4 py-2 rounded-full text-xs font-medium border transition-all duration-200 ${filter.pos===k ? "btn-primary border-transparent shadow-sm" : "glass border-border/50 text-foreground/70 hover:text-foreground hover:border-primary/30"}`}>
-                    {k==="all" ? "Tous" : k==="pour" ? "Pour" : k==="contre" ? "Contre" : k==="abstention" ? "Abstention" : "Absent"}
+                    {k==="all" ? `Tous (${votes.length})` : k==="pour" ? `Pour (${votesByPosition.pour.length})` : k==="contre" ? `Contre (${votesByPosition.contre.length})` : k==="abstention" ? `Abstention (${votesByPosition.abstention.length})` : `Absent (${votesByPosition.absent.length})`}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-stagger">
-              {filteredVotes.slice(0,300).map((v, i) => {
-                const nom = v.parlementaire_prenom && v.parlementaire_nom ? `${v.parlementaire_prenom} ${v.parlementaire_nom}` : sanitizeText(v.parlementaire_slug?.replace(/-/g," ")??"");
-                const slug = sanitizeSlug(v.parlementaire_slug);
-                const idAn = v.parlementaire_slug?.startsWith("PA") ? v.parlementaire_slug : undefined;
-                return (
-                  <Link key={`${v.parlementaire_slug}-${i}`} to="/depute/$slug" params={{ slug }}
-                    className="flex items-center gap-3 p-3 rounded-[2rem] card-glass group animate-fade-up shadow-sm"
-                    style={{ animationDelay: `${Math.min(i*15,300)}ms` }}
-                    aria-label={`${nom} — ${positionLabel(v.position)}`}>
-                    <DeputeAvatar nom={nom} idAn={idAn} position={v.position} />
-                    <div className="min-w-0 flex-1">
-                      <span className="text-sm font-semibold truncate block group-hover:text-primary transition-colors">{nom||slug}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: positionColor(v.position) }}>{positionLabel(v.position)}</span>
+
+            {/* Vue groupée par position quand filtre = all */}
+            {filter.pos === "all" && filter.groupe === "" ? (
+              <div className="space-y-8">
+                {([
+                  { label: "✓ Pour", color: "var(--color-pour)", list: votesByPosition.pour },
+                  { label: "✗ Contre", color: "var(--color-contre)", list: votesByPosition.contre },
+                  { label: "Abstention", color: "var(--color-abstention)", list: votesByPosition.abstention },
+                  { label: "Absent·es", color: "var(--color-absent, oklch(0.7 0 0))", list: votesByPosition.absent },
+                ] as const).filter(g => g.list.length > 0).map(({ label, color, list }) => (
+                  <div key={label}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: color }} aria-hidden="true" />
+                      <h3 className="font-semibold text-sm" style={{ color }}>{label}</h3>
+                      <span className="text-xs text-muted-foreground">— {list.length} député·es</span>
                     </div>
-                    <GroupBadge sigle={v.parlementaire_groupe_acronyme} size="sm" />
-                  </Link>
-                );
-              })}
-            </div>
-            {filteredVotes.length > 300 && <p className="text-xs text-muted-foreground text-center mt-8 py-6 border-t border-border/30">Affichage de 300 sur {filteredVotes.length}. Filtrez par groupe ou position pour affiner.</p>}
-            {filteredVotes.length === 0 && <div className="py-16 text-center glass rounded-[2rem] border border-border/50"><p className="text-muted-foreground">Aucun vote dans cette catégorie.</p></div>}
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                      {list.map((v, i) => {
+                        const nom = v.parlementaire_prenom && v.parlementaire_nom
+                          ? `${v.parlementaire_prenom} ${v.parlementaire_nom}`
+                          : sanitizeText(v.parlementaire_slug?.replace(/-/g," ")??"");
+                        const slug = sanitizeSlug(v.parlementaire_slug);
+                        const idAn = v.parlementaire_slug?.startsWith("PA") ? v.parlementaire_slug : undefined;
+                        return (
+                          <Link key={`${v.parlementaire_slug}-${i}`} to="/depute/$slug" params={{ slug }}
+                            className="flex items-center gap-2.5 p-2.5 rounded-2xl card-glass group hover:border-primary/30 border border-border/30 transition-colors"
+                            aria-label={`${nom}`}>
+                            <DeputeAvatar nom={nom} idAn={idAn} position={v.position} />
+                            <div className="min-w-0 flex-1">
+                              <span className="text-xs font-semibold truncate block group-hover:text-primary transition-colors">{nom||slug}</span>
+                              <span className="text-[10px] text-muted-foreground truncate block">{groupeMeta(v.parlementaire_groupe_acronyme||"NI").nom}</span>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* Vue filtrée */
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 animate-stagger">
+                {filteredVotes.slice(0,300).map((v, i) => {
+                  const nom = v.parlementaire_prenom && v.parlementaire_nom
+                    ? `${v.parlementaire_prenom} ${v.parlementaire_nom}`
+                    : sanitizeText(v.parlementaire_slug?.replace(/-/g," ")??"");
+                  const slug = sanitizeSlug(v.parlementaire_slug);
+                  const idAn = v.parlementaire_slug?.startsWith("PA") ? v.parlementaire_slug : undefined;
+                  return (
+                    <Link key={`${v.parlementaire_slug}-${i}`} to="/depute/$slug" params={{ slug }}
+                      className="flex items-center gap-3 p-3 rounded-[2rem] card-glass group animate-fade-up shadow-sm"
+                      style={{ animationDelay: `${Math.min(i*15,300)}ms` }}
+                      aria-label={`${nom} — ${positionLabel(v.position)}`}>
+                      <DeputeAvatar nom={nom} idAn={idAn} position={v.position} />
+                      <div className="min-w-0 flex-1">
+                        <span className="text-sm font-semibold truncate block group-hover:text-primary transition-colors">{nom||slug}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: positionColor(v.position) }}>{positionLabel(v.position)}</span>
+                      </div>
+                      <GroupBadge sigle={v.parlementaire_groupe_acronyme} size="sm" />
+                    </Link>
+                  );
+                })}
+                {filteredVotes.length > 300 && <p className="text-xs text-muted-foreground text-center mt-8 py-6 border-t border-border/30 col-span-full">Affichage de 300 sur {filteredVotes.length}. Filtrez par groupe ou position.</p>}
+                {filteredVotes.length === 0 && <div className="py-16 text-center glass rounded-[2rem] border border-border/50 col-span-full"><p className="text-muted-foreground">Aucun vote dans cette catégorie.</p></div>}
+              </div>
+            )}
           </section>
         )}
+
         {votes.length === 0 && (
           <div className="py-12 text-center glass rounded-[2rem] border border-border/50">
             <p className="text-muted-foreground mb-4 font-medium">Les votes nominatifs ne sont pas encore disponibles pour ce scrutin.</p>
@@ -405,17 +409,18 @@ function DeputeAvatar({ nom, idAn, position }: { nom: string; idAn?: string; pos
   const initials = nom.split(" ").slice(0,2).map(n => n[0]??"").join("").toUpperCase();
   if ((!src17||err17) && (!src16||err16)) {
     return (
-      <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-bold shrink-0 border-2"
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 border-2"
         style={{ backgroundColor: `color-mix(in oklch, ${color} 15%, var(--color-muted))`, borderColor: color, color }} aria-hidden="true">{initials}</div>
     );
   }
   return (
-    <div className="relative w-10 h-10 shrink-0">
-      <div className="w-10 h-10 rounded-2xl overflow-hidden ring-1 ring-black/5 bg-muted">
-        {!err17&&src17 ? <img src={src17} alt={nom} className="w-full h-full object-cover" loading="lazy" onError={() => setErr17(true)} />
+    <div className="relative w-9 h-9 shrink-0">
+      <div className="w-9 h-9 rounded-xl overflow-hidden ring-1 ring-black/5 bg-muted">
+        {!err17&&src17
+          ? <img src={src17} alt={nom} className="w-full h-full object-cover" loading="lazy" onError={() => setErr17(true)} />
           : <img src={src16} alt={nom} className="w-full h-full object-cover" loading="lazy" onError={() => setErr16(true)} />}
       </div>
-      <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: color }} title={positionLabel(position)} aria-hidden="true" />
+      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: color }} aria-hidden="true" />
     </div>
   );
 }
