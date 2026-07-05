@@ -130,6 +130,9 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
   <!-- Pages statiques -->
 ${staticUrls}
 
+  <!-- Groupes politiques -->
+${groupeUrls}
+
   <!-- Profils des député·es -->
 ${deputeUrls}
 
