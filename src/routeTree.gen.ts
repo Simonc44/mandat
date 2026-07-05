@@ -21,6 +21,7 @@ import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ScrutinNumeroRouteImport } from './routes/scrutin.$numero'
+import { Route as GroupesSigleRouteImport } from './routes/groupes.$sigle'
 import { Route as DeputeSlugRouteImport } from './routes/depute.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiVisitsRouteImport } from './routes/api/visits'
@@ -87,6 +88,11 @@ const ScrutinNumeroRoute = ScrutinNumeroRouteImport.update({
   path: '/scrutin/$numero',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GroupesSigleRoute = GroupesSigleRouteImport.update({
+  id: '/$sigle',
+  path: '/$sigle',
+  getParentRoute: () => GroupesRoute,
+} as any)
 const DeputeSlugRoute = DeputeSlugRouteImport.update({
   id: '/depute/$slug',
   path: '/depute/$slug',
@@ -119,7 +125,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRouteWithChildren
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
-  '/groupes': typeof GroupesRoute
+  '/groupes': typeof GroupesRouteWithChildren
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/api/visits': typeof ApiVisitsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
+  '/groupes/$sigle': typeof GroupesSigleRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
   '/blog/': typeof BlogIndexRoute
 }
@@ -137,7 +144,7 @@ export interface FileRoutesByTo {
   '/a-propos': typeof AProposRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
-  '/groupes': typeof GroupesRoute
+  '/groupes': typeof GroupesRouteWithChildren
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/api/visits': typeof ApiVisitsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
+  '/groupes/$sigle': typeof GroupesSigleRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
   '/blog': typeof BlogIndexRoute
 }
@@ -157,7 +165,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRouteWithChildren
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
-  '/groupes': typeof GroupesRoute
+  '/groupes': typeof GroupesRouteWithChildren
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/api/visits': typeof ApiVisitsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
+  '/groupes/$sigle': typeof GroupesSigleRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
   '/blog/': typeof BlogIndexRoute
 }
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/api/visits'
     | '/blog/$slug'
     | '/depute/$slug'
+    | '/groupes/$sigle'
     | '/scrutin/$numero'
     | '/blog/'
   fileRoutesByTo: FileRoutesByTo
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/api/visits'
     | '/blog/$slug'
     | '/depute/$slug'
+    | '/groupes/$sigle'
     | '/scrutin/$numero'
     | '/blog'
   id:
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/api/visits'
     | '/blog/$slug'
     | '/depute/$slug'
+    | '/groupes/$sigle'
     | '/scrutin/$numero'
     | '/blog/'
   fileRoutesById: FileRoutesById
@@ -235,7 +247,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRouteWithChildren
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   DeputesRoute: typeof DeputesRoute
-  GroupesRoute: typeof GroupesRoute
+  GroupesRoute: typeof GroupesRouteWithChildren
   Legislature16Route: typeof Legislature16Route
   RechercheRoute: typeof RechercheRoute
   ScrutinsRoute: typeof ScrutinsRoute
@@ -333,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScrutinNumeroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/groupes/$sigle': {
+      id: '/groupes/$sigle'
+      path: '/$sigle'
+      fullPath: '/groupes/$sigle'
+      preLoaderRoute: typeof GroupesSigleRouteImport
+      parentRoute: typeof GroupesRoute
+    }
     '/depute/$slug': {
       id: '/depute/$slug'
       path: '/depute/$slug'
@@ -383,13 +402,24 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface GroupesRouteChildren {
+  GroupesSigleRoute: typeof GroupesSigleRoute
+}
+
+const GroupesRouteChildren: GroupesRouteChildren = {
+  GroupesSigleRoute: GroupesSigleRoute,
+}
+
+const GroupesRouteWithChildren =
+  GroupesRoute._addFileChildren(GroupesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AProposRoute: AProposRoute,
   BlogRoute: BlogRouteWithChildren,
   ConfidentialiteRoute: ConfidentialiteRoute,
   DeputesRoute: DeputesRoute,
-  GroupesRoute: GroupesRoute,
+  GroupesRoute: GroupesRouteWithChildren,
   Legislature16Route: Legislature16Route,
   RechercheRoute: RechercheRoute,
   ScrutinsRoute: ScrutinsRoute,

@@ -153,6 +153,26 @@ export const getScrutinByNumero = createServerFn({ method: "GET" })
     return mapScrutinRow(r.rows[0]);
   });
 
+// ─── Députés d'un groupe (page /groupes/$sigle) ─────────────────────────────
+export const getDeputesByGroupe = createServerFn({ method: "GET" })
+  .validator((data: unknown): { sigle: string } => {
+    const raw =
+      data && typeof data === "object" && "sigle" in data
+        ? String((data as Record<string, unknown>).sigle ?? "")
+        : "";
+    return { sigle: sanitizeText(raw, 20).toUpperCase() };
+  })
+  .handler(async ({ data }): Promise<Depute[]> => {
+    if (!data.sigle) return [];
+    setEdgeCache(600, 3600);
+    const c = tursoClient();
+    const r = await c.execute({
+      sql: `SELECT * FROM deputes WHERE UPPER(groupe_sigle) = ? ORDER BY nom_de_famille COLLATE NOCASE`,
+      args: [data.sigle],
+    });
+    return r.rows.map(mapDeputeRow);
+  });
+
 // ─── Requêtes légères (page d'accueil) ───────────────────────────────────────
 // La page d'accueil n'affiche que des compteurs + les 6 derniers scrutins.
 // Charger les 577 député·es et ~7900 scrutins en entier pour ça alourdissait
