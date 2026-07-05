@@ -196,7 +196,7 @@ function ProximiteHeatmap({ groupes, proximite }: { groupes: GroupeStats[]; prox
       <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] text-muted-foreground">
         <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(80) }} />≥ 70 % — Souvent d'accord</div>
         <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(50) }} />40–70 % — Neutres</div>
-        <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(20) }} />< 40 % — Souvent opposés</div>
+        <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(20) }} />{"< 40 %"} — Souvent opposés</div>
         <div className="flex items-center gap-1.5"><span className="w-4 h-4 rounded" style={{ background: heatColor(-1) }} />— Données insuffisantes</div>
       </div>
     </div>
