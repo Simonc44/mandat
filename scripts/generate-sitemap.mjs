@@ -43,8 +43,23 @@ const staticPages = [
     changefreq: "monthly",
     priority: "0.7",
   },
+  { loc: "/groupes", changefreq: "weekly", priority: "0.8" },
   { loc: "/recherche", changefreq: "monthly", priority: "0.5" },
 ];
+
+// ── Pages par groupe politique (SEO : composition, votes) ────
+const GROUPES_SIGLES = [
+  "RN", "EPR", "LFI-NFP", "SOC", "DR", "EcoS", "DEM", "HOR",
+  "GDR", "LIOT", "UDR", "NI",
+];
+const groupeUrls = GROUPES_SIGLES.map(
+  (sigle) => `  <url>
+    <loc>${SITE_URL}/groupes/${encodeURIComponent(sigle)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>`,
+).join("\n");
 
 // ── Député·es ────────────────────────────────────────────────
 let deputeUrls = "";
