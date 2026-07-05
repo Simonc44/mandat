@@ -16,7 +16,9 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
-import { Header, Footer, CookieBanner } from "../components/Header";
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
+import { CookieBanner } from "../components/CookieBanner";
 import { PWAInstallPrompt } from "../components/PWAInstallPrompt";
 import { LoadingOverlay } from "../components/LoadingOverlay";
 
@@ -48,51 +50,39 @@ export const KEYWORDS = [
   "qui a voté quoi",
   "démocratie citoyenne",
   "engagement civique",
-  "scrutins publics",
-  "opendata politique",
 ];
 
-// ─── TYPES ───────────────────────────────────────────────────────────
+// ─── SEO META ───────────────────────────────────────────────────────────
 
 interface SeoConfig {
   title: string;
   description: string;
   canonical?: string;
-  ogImage?: string;
-  ogType?: "website" | "article" | "profile";
-  keywords?: string[];
-  author?: string;
+  ogType?: "website" | "article";
   publishedTime?: string;
   modifiedTime?: string;
 }
 
-// ─── SEO ───────────────────────────────────────────────────────────
-
-export function createSeoLinks(canonical?: string) {
-  return [{ rel: "canonical", href: canonical ?? SITE_URL }];
+export function createSeoLinks(canonical: string) {
+  return [
+    { rel: "canonical", href: canonical },
+  ];
 }
 
 export function createSeoMeta(config: SeoConfig) {
   const canonical = config.canonical ?? SITE_URL;
-  const ogImage = config.ogImage ?? `${SITE_URL}/og-image.png`;
-  const keywords = config.keywords ?? KEYWORDS;
+  const ogImage = `${SITE_URL}/og-image.png`;
 
   return [
-    { charSet: "utf-8" },
-    { name: "viewport", content: "width=device-width, initial-scale=1" },
     { title: config.title },
     { name: "description", content: config.description },
-    { name: "author", content: config.author ?? SITE_NAME },
-    {
-      name: "robots",
-      content:
-        "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-    },
-    { name: "theme-color", content: "#ffffff" },
-    { name: "keywords", content: keywords.join(", ") },
-    { name: "application-name", content: SITE_NAME },
-    { name: "apple-mobile-web-app-title", content: SITE_NAME },
-    { name: "mobile-web-app-capable", content: "yes" },
+    { name: "keywords", content: KEYWORDS.join(", ") },
+    { name: "author", content: "Simon Chusseau" },
+    { name: "robots", content: "index, follow" },
+
+    // Apple
+    { name: "apple-mobile-web-app-title", content: "Mandat" },
+    { name: "apple-mobile-web-app-capable", content: "yes" },
     { name: "apple-mobile-web-app-status-bar-style", content: "default" },
 
     // Open Graph
@@ -131,7 +121,7 @@ function safeJsonLd(json: string): string {
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
     .replace(/&/g, "\\u0026")
-    .replace(/\//g, "\\/");
+    .replace(/\\//g, "\\/");
 }
 
 export function createBreadcrumbSchema(
@@ -262,8 +252,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         description: SITE_DESCRIPTION,
       }),
       links: [
-        // canonical est défini par route (SEO: leaf-only) — pas ici
-        // { rel: "canonical", href: SITE_URL },
         { rel: "stylesheet", href: appCss },
         { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
         { rel: "apple-touch-icon", href: "/favicon.svg" },
@@ -279,8 +267,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700&family=Inter:wght@300;400;500;600;700&display=swap",
         },
         { rel: "alternate", hrefLang: "fr-FR", href: SITE_URL },
-        // Perf : ouvrir la connexion au CDN photo de l'AN dès le premier paint
-        // pour que les <img> des députés arrivent sans handshake TLS supplémentaire.
         {
           rel: "preconnect",
           href: "https://www2.assemblee-nationale.fr",
@@ -309,53 +295,6 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="fr">
       <head>
         <HeadContent />
-
-        {/*
-         * Google Analytics — Consent Mode v2 (RGPD)
-         * 1. Consentement par défaut : tout denied.
-         * 2. wait_for_update 500ms : laisse le CookieBanner appeler update avant le premier hit.
-         * 3. Restauration automatique si l'utilisateur a déjà répondu (localStorage).
-         */}
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-CMMWPQG5P6"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-
-              // Consentement par défaut : tout refusé (RGPD)
-              gtag('consent', 'default', {
-                'analytics_storage': 'denied',
-                'ad_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
-                'wait_for_update': 500
-              });
-
-              gtag('config', 'G-CMMWPQG5P6');
-
-              // Restaurer le consentement si déjà accepté lors d'une visite précédente
-              (function() {
-                try {
-                  var saved = localStorage.getItem('mandat_analytics_consent');
-                  if (saved === 'granted') {
-                    gtag('consent', 'update', {
-                      'analytics_storage': 'granted',
-                      'ad_storage': 'denied',
-                      'ad_user_data': 'denied',
-                      'ad_personalization': 'denied'
-                    });
-                  }
-                } catch(e) {}
-              })();
-            `,
-          }}
-        />
-
         {/* Service Worker PWA */}
         <script
           dangerouslySetInnerHTML={{
@@ -438,14 +377,11 @@ function RootComponent() {
         <Analytics />
         <LoadingOverlay />
         <Header />
-        {/* flex-1 sans pt-20 : le Hero redesign gère son propre espacement */}
         <main className="flex-1">
           <Outlet />
         </main>
         <Footer />
-        {/* Cookie Banner RGPD */}
         <CookieBanner />
-        {/* Notification installation PWA */}
         <PWAInstallPrompt />
       </div>
     </QueryClientProvider>
