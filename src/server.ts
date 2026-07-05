@@ -24,7 +24,7 @@ async function getServerEntry(): Promise<ServerEntry> {
 
 const SECURITY_HEADERS: Record<string, string> = {
   "Content-Security-Policy":
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www2.assemblee-nationale.fr https://www.nosdeputes.fr; connect-src 'self' https://vercel.live; frame-src 'self' https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://vitals.vercel-insights.com https://vercel.live https://cdn.gpteng.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://vercel.live; font-src 'self' data: https://fonts.gstatic.com https://cdn.gpteng.co; img-src 'self' data: blob: https://www2.assemblee-nationale.fr https://www.nosdeputes.fr https://cdn.gpteng.co; connect-src 'self' https://va.vercel-scripts.com https://vitals.vercel-insights.com https://vercel.live https://cdn.gpteng.co https://ai.gateway.lovable.dev; frame-src 'self' https://vercel.live; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
   "X-Frame-Options": "DENY",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "strict-origin-when-cross-origin",
