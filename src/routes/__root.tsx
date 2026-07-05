@@ -64,9 +64,7 @@ interface SeoConfig {
 }
 
 export function createSeoLinks(canonical: string) {
-  return [
-    { rel: "canonical", href: canonical },
-  ];
+  return [{ rel: "canonical", href: canonical }];
 }
 
 export function createSeoMeta(config: SeoConfig) {
@@ -79,13 +77,9 @@ export function createSeoMeta(config: SeoConfig) {
     { name: "keywords", content: KEYWORDS.join(", ") },
     { name: "author", content: "Simon Chusseau" },
     { name: "robots", content: "index, follow" },
-
-    // Apple
     { name: "apple-mobile-web-app-title", content: "Mandat" },
     { name: "apple-mobile-web-app-capable", content: "yes" },
     { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-
-    // Open Graph
     { property: "og:site_name", content: SITE_NAME },
     { property: "og:type", content: config.ogType ?? "website" },
     { property: "og:url", content: canonical },
@@ -96,13 +90,10 @@ export function createSeoMeta(config: SeoConfig) {
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { property: "og:image:type", content: "image/png" },
-
-    // Twitter Card
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: config.title },
     { name: "twitter:description", content: config.description },
     { name: "twitter:image", content: ogImage },
-
     ...(config.publishedTime
       ? [{ property: "article:published_time", content: config.publishedTime }]
       : []),
@@ -112,10 +103,6 @@ export function createSeoMeta(config: SeoConfig) {
   ];
 }
 
-/**
- * Sécurise une chaîne JSON pour injection dans une balise <script type="application/ld+json">.
- * Échappe les caractères '<', '>', '&' pour éviter l'injection de scripts (XSS).
- */
 function safeJsonLd(json: string): string {
   return json
     .replace(/</g, "\\u003c")
@@ -183,19 +170,10 @@ export function createVoteEventSchema(vote: any) {
 function NotFoundComponent() {
   return (
     <div className="container-app py-24 text-center animate-fade-up">
-      <Landmark
-        className="w-14 h-14 mx-auto mb-4 text-primary/60"
-        strokeWidth={1.4}
-        aria-hidden="true"
-      />
+      <Landmark className="w-14 h-14 mx-auto mb-4 text-primary/60" strokeWidth={1.4} aria-hidden="true" />
       <h1 className="font-display text-6xl mb-3 tracking-tight">404</h1>
-      <p className="text-muted-foreground mb-8">
-        Cette page n'existe pas ou a été déplacée.
-      </p>
-      <Link
-        to="/"
-        className="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-medium"
-      >
+      <p className="text-muted-foreground mb-8">Cette page n'existe pas ou a été déplacée.</p>
+      <Link to="/" className="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-medium">
         <Home className="w-4 h-4" aria-hidden="true" /> Retour à l'accueil
       </Link>
     </div>
@@ -210,33 +188,17 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
   return (
     <div className="container-app py-24 text-center animate-fade-up">
-      <AlertTriangle
-        className="w-12 h-12 mx-auto mb-4 text-destructive/70"
-        strokeWidth={1.5}
-        aria-hidden="true"
-      />
-      <h1 className="font-display text-3xl mb-3 tracking-tight">
-        Cette page n'a pas chargé
-      </h1>
-      <p className="text-sm text-muted-foreground mb-8">
-        Les données n'ont pas pu être récupérées. Vérifiez votre connexion.
-      </p>
+      <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-destructive/70" strokeWidth={1.5} aria-hidden="true" />
+      <h1 className="font-display text-3xl mb-3 tracking-tight">Cette page n'a pas chargé</h1>
+      <p className="text-sm text-muted-foreground mb-8">Les données n'ont pas pu être récupérées. Vérifiez votre connexion.</p>
       <div className="flex justify-center gap-3">
         <button
-          onClick={() => {
-            router.invalidate();
-            reset();
-          }}
+          onClick={() => { router.invalidate(); reset(); }}
           className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-medium"
         >
           <RotateCcw className="w-4 h-4" aria-hidden="true" /> Réessayer
         </button>
-        <a
-          href="/"
-          className="glass px-5 py-2.5 rounded-2xl text-sm border border-border hover:border-primary/40 transition-colors"
-        >
-          Accueil
-        </a>
+        <a href="/" className="glass px-5 py-2.5 rounded-2xl text-sm border border-border hover:border-primary/40 transition-colors">Accueil</a>
       </div>
     </div>
   );
@@ -257,27 +219,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { rel: "apple-touch-icon", href: "/favicon.svg" },
         { rel: "manifest", href: "/manifest.json" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
-        {
-          rel: "preconnect",
-          href: "https://fonts.gstatic.com",
-          crossOrigin: "anonymous",
-        },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
         {
           rel: "stylesheet",
           href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700&family=Inter:wght@300;400;500;600;700&display=swap",
         },
         { rel: "alternate", hrefLang: "fr-FR", href: SITE_URL },
-        {
-          rel: "preconnect",
-          href: "https://www2.assemblee-nationale.fr",
-          crossOrigin: "anonymous",
-        },
+        { rel: "preconnect", href: "https://www2.assemblee-nationale.fr", crossOrigin: "anonymous" },
         { rel: "dns-prefetch", href: "https://www2.assemblee-nationale.fr" },
-        {
-          rel: "preconnect",
-          href: "https://www.nosdeputes.fr",
-          crossOrigin: "anonymous",
-        },
+        { rel: "preconnect", href: "https://www.nosdeputes.fr", crossOrigin: "anonymous" },
         { rel: "dns-prefetch", href: "https://www.nosdeputes.fr" },
       ],
     }),
@@ -299,21 +249,16 @@ function RootShell({ children }: { children: ReactNode }) {
         {/*
          * Google Analytics — Consent Mode v2 (RGPD)
          * 1. Consentement par défaut : tout denied.
-         * 2. wait_for_update 500ms : laisse le CookieBanner appeler update avant le premier hit.
+         * 2. wait_for_update 500ms : laisse CookieBanner appeler update avant le 1er hit.
          * 3. Restauration automatique si l'utilisateur a déjà répondu (localStorage).
          */}
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-CMMWPQG5P6"
-        />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CMMWPQG5P6" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-
-              // Consentement par défaut : tout refusé (RGPD)
               gtag('consent', 'default', {
                 'analytics_storage': 'denied',
                 'ad_storage': 'denied',
@@ -321,10 +266,7 @@ function RootShell({ children }: { children: ReactNode }) {
                 'ad_personalization': 'denied',
                 'wait_for_update': 500
               });
-
               gtag('config', 'G-CMMWPQG5P6');
-
-              // Restaurer le consentement si déjà accepté lors d'une visite précédente
               (function() {
                 try {
                   var saved = localStorage.getItem('mandat_analytics_consent');
@@ -357,51 +299,41 @@ function RootShell({ children }: { children: ReactNode }) {
           }}
         />
 
-        {/* JSON-LD WebSite */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: safeJsonLd(
-              JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "WebSite",
-                "@id": `${SITE_URL}/#website`,
-                url: SITE_URL,
-                name: SITE_NAME,
-                description: SITE_DESCRIPTION,
-                potentialAction: {
-                  "@type": "SearchAction",
-                  target: {
-                    "@type": "EntryPoint",
-                    urlTemplate: `${SITE_URL}/recherche?q={search_term_string}`,
-                  },
-                  "query-input": "required name=search_term_string",
-                },
-                inLanguage: "fr-FR",
-              }),
-            ),
+            __html: safeJsonLd(JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "@id": `${SITE_URL}/#website`,
+              url: SITE_URL,
+              name: SITE_NAME,
+              description: SITE_DESCRIPTION,
+              potentialAction: {
+                "@type": "SearchAction",
+                target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/recherche?q={search_term_string}` },
+                "query-input": "required name=search_term_string",
+              },
+              inLanguage: "fr-FR",
+            })),
           }}
         />
-
-        {/* JSON-LD Organization */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: safeJsonLd(
-              JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "Organization",
-                "@id": `${SITE_URL}/#organization`,
-                name: SITE_NAME,
-                url: SITE_URL,
-                logo: `${SITE_URL}/favicon.svg`,
-                description: SITE_DESCRIPTION,
-                foundingDate: "2025",
-                foundingLocation: "France",
-                areaServed: "FR",
-                sameAs: ["https://github.com/Simonc44/mandat"],
-              }),
-            ),
+            __html: safeJsonLd(JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "@id": `${SITE_URL}/#organization`,
+              name: SITE_NAME,
+              url: SITE_URL,
+              logo: `${SITE_URL}/favicon.svg`,
+              description: SITE_DESCRIPTION,
+              foundingDate: "2025",
+              foundingLocation: "France",
+              areaServed: "FR",
+              sameAs: ["https://github.com/Simonc44/mandat"],
+            })),
           }}
         />
       </head>

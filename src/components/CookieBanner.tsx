@@ -1,3 +1,4 @@
+// components/CookieBanner.tsx
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "@tanstack/react-router";
 
@@ -28,10 +29,8 @@ export function CookieBanner() {
     try {
       const saved = localStorage.getItem(CONSENT_KEY);
       if (saved === "granted" || saved === "denied") {
-        // Choix déjà enregistré : ne pas afficher la bannière
         setVisible(false);
       } else {
-        // Premier passage : afficher la bannière après un court délai
         const t = setTimeout(() => setVisible(true), 1500);
         return () => clearTimeout(t);
       }
@@ -55,51 +54,31 @@ export function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div
-      className="cookie-banner"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Gestion des cookies analytiques"
-    >
+    <div className="cookie-banner" role="dialog" aria-modal="true" aria-label="Gestion des cookies analytiques">
       <div className="glass-strong rounded-3xl p-5 space-y-4">
         <div className="flex items-start gap-3">
-          <span className="text-2xl" aria-hidden="true">
-            📊
-          </span>
+          <span className="text-2xl" aria-hidden="true">📊</span>
           <div>
-            <h3 className="font-semibold text-foreground text-sm">
-              Mesure d'audience
-            </h3>
+            <h3 className="font-semibold text-foreground text-sm">Mesure d'audience</h3>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
               Nous utilisons Google Analytics pour mesurer l'audience du site
-              (pages vues, navigation).{" "}
-              <strong className="text-foreground">Aucune publicité</strong>,
-              aucun profilage. Vous pouvez refuser sans que cela n'affecte
-              votre navigation.
+              (pages vues, navigation). <strong className="text-foreground">Aucune publicité</strong>,
+              aucun profilage. Vous pouvez refuser sans que cela n'affecte votre navigation.
             </p>
           </div>
         </div>
 
         <div className="rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground space-y-1">
           <div className="flex items-center gap-2">
-            <span
-              className="w-1.5 h-1.5 rounded-full bg-green-500"
-              aria-hidden="true"
-            />
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500" aria-hidden="true" />
             Cookies essentiels (thème, session) — toujours actifs
           </div>
           <div className="flex items-center gap-2">
-            <span
-              className="w-1.5 h-1.5 rounded-full bg-blue-400"
-              aria-hidden="true"
-            />
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" aria-hidden="true" />
             Analytics anonymisé — uniquement si vous acceptez
           </div>
           <div className="flex items-center gap-2">
-            <span
-              className="w-1.5 h-1.5 rounded-full bg-red-400/60"
-              aria-hidden="true"
-            />
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400/60" aria-hidden="true" />
             Aucun cookie publicitaire · Aucun tracker tiers
           </div>
         </div>
@@ -121,9 +100,7 @@ export function CookieBanner() {
 
         <p className="text-[10px] text-muted-foreground text-center">
           Conformément au RGPD ·{" "}
-          <Link to="/confidentialite" className="underline hover:text-primary">
-            Politique de confidentialité
-          </Link>
+          <Link to="/confidentialite" className="underline hover:text-primary">Politique de confidentialité</Link>
         </p>
       </div>
     </div>
