@@ -1,5 +1,6 @@
 // routes/groupes.$sigle.tsx — Page dédiée à un groupe politique (SEO)
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import type { Depute } from "@/lib/api";
 import { GROUPES, groupeMeta } from "@/lib/api";
 import { getDeputesByGroupe } from "@/lib/data.functions";
 import { DeputeCard } from "@/components/DeputeCard";
