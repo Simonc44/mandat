@@ -15,3 +15,9 @@
 **Vulnerability:** Running `pnpm install` in the agent environment caused an unintended downgrade of `lucide-react` in `pnpm-lock.yaml`.
 **Learning:** The agent's global or cached `pnpm` version/config might conflict with the project's lockfile, especially when specific versions are pinned in `package.json`.
 **Prevention:** Always verify lockfile changes after installation and use `git checkout` to restore unrelated changes if they occur.
+
+## 2026-07-05 - [XSS in Custom Markdown Renderer]
+
+**Vulnerability:** The custom markdown-lite renderer in `blog.$slug.tsx` was using `dangerouslySetInnerHTML` without escaping the input text, allowing arbitrary HTML injection.
+**Learning:** Custom renderers using `dangerouslySetInnerHTML` must escape all HTML special characters (&, <, >, ", ') *before* applying safe transformations (like regex-based bolding or links) to ensure defense-in-depth.
+**Prevention:** Use a shared `escapeHTML` utility and a "strict escape first, then transform" pattern for any manual HTML construction.
