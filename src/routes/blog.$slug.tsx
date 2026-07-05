@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { getPostBySlug, getAllPosts, type BlogPost } from "@/lib/blog";
-import { createSeoMeta, SITE_URL } from "./__root";
+import { escapeHTML } from "@/lib/api";
+import { createSeoMeta, createArticleSchema, SITE_URL } from "./__root";
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: ({ params }) => {
@@ -25,15 +26,12 @@ export const Route = createFileRoute("/blog/$slug")({
       scripts: [
         {
           type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: post.title,
+          children: createArticleSchema({
+            title: post.title,
             description: post.description,
-            datePublished: post.date,
-            author: { "@type": "Organization", name: post.author },
-            publisher: { "@type": "Organization", name: "Mandat" },
-            mainEntityOfPage: url,
+            date: post.date,
+            author: post.author,
+            url,
           }),
         },
       ],
@@ -71,7 +69,7 @@ function renderContent(md: string) {
             <li
               key={j}
               dangerouslySetInnerHTML={{
-                __html: it.replace(
+                __html: escapeHTML(it).replace(
                   /\*\*(.+?)\*\*/g,
                   '<strong class="text-ink">$1</strong>',
                 ),
@@ -86,11 +84,12 @@ function renderContent(md: string) {
         key={i}
         className="my-5 text-lg leading-relaxed text-ink/85"
         dangerouslySetInnerHTML={{
-          __html: b
-            .replace(
-              /\[([^\]]+)\]\(([^)]+)\)/g,
-              '<a href="$2" class="text-primary underline underline-offset-4 hover:opacity-80">$1</a>',
-            )
+          __html: escapeHTML(b)
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, text, url) => {
+              const safeUrl = url.replace(/["'<>]/g, "").trim();
+              if (safeUrl.toLowerCase().startsWith("javascript:")) return text;
+              return `<a href="${safeUrl}" class="text-primary underline underline-offset-4 hover:opacity-80">${text}</a>`;
+            })
             .replace(
               /\*\*(.+?)\*\*/g,
               '<strong class="text-ink font-medium">$1</strong>',

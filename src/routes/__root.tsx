@@ -126,12 +126,33 @@ export function createSeoMeta(config: SeoConfig) {
  * Sécurise une chaîne JSON pour injection dans une balise <script type="application/ld+json">.
  * Échappe les caractères '<', '>', '&' pour éviter l'injection de scripts (XSS).
  */
-function safeJsonLd(json: string): string {
+export function safeJsonLd(json: string): string {
   return json
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
     .replace(/&/g, "\\u0026")
     .replace(/\//g, "\\/");
+}
+
+export function createArticleSchema(article: {
+  title: string;
+  description: string;
+  date: string;
+  author: string;
+  url: string;
+}) {
+  return safeJsonLd(
+    JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: article.title,
+      description: article.description,
+      datePublished: article.date,
+      author: { "@type": "Organization", name: article.author },
+      publisher: { "@type": "Organization", name: "Mandat" },
+      mainEntityOfPage: article.url,
+    }),
+  );
 }
 
 export function createBreadcrumbSchema(
