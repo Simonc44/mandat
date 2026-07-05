@@ -91,7 +91,10 @@ function ScrutinsPage() {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium glass border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
             title="Voir les scrutins de la 16e législature (2022-2024)"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" aria-hidden="true" />
+            <span
+              className="w-1.5 h-1.5 rounded-full bg-current opacity-60"
+              aria-hidden="true"
+            />
             16<sup>e</sup> législature
           </Link>
         </div>
@@ -170,13 +173,18 @@ function ScrutinsPage() {
       {/* Liste */}
       {slice.length === 0 ? (
         <div className="py-16 text-center glass rounded-3xl border border-border/50">
-          <span className="text-4xl block mb-3" aria-hidden="true">📋</span>
+          <span className="text-4xl block mb-3" aria-hidden="true">
+            📋
+          </span>
           <p className="text-muted-foreground">
             Aucun scrutin ne correspond à ces critères.
           </p>
         </div>
       ) : (
-        <ul className="space-y-3 animate-stagger" aria-label="Liste des scrutins">
+        <ul
+          className="space-y-3 animate-stagger"
+          aria-label="Liste des scrutins"
+        >
           {slice.map((s, i) => (
             <ScrutinRow key={s.numero} s={s} index={i} />
           ))}
@@ -256,7 +264,9 @@ function ScrutinRow({ s, index }: { s: Scrutin; index: number }) {
               <span
                 className="px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider text-[10px]"
                 style={{
-                  color: isAdopted ? "var(--color-pour)" : "var(--color-contre)",
+                  color: isAdopted
+                    ? "var(--color-pour)"
+                    : "var(--color-contre)",
                   backgroundColor: isAdopted
                     ? "color-mix(in oklch, var(--color-pour) 12%, transparent)"
                     : "color-mix(in oklch, var(--color-contre) 12%, transparent)",
@@ -307,21 +317,29 @@ function ScrutinRow({ s, index }: { s: Scrutin; index: number }) {
                 style={{
                   width: mounted ? `${(c / total) * 100}%` : "0%",
                   backgroundColor: "var(--color-contre)",
-                  transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 80ms",
+                  transition:
+                    "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 80ms",
                 }}
               />
               <div
                 style={{
                   width: mounted ? `${(a / total) * 100}%` : "0%",
                   backgroundColor: "var(--color-abstention)",
-                  transition: "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 160ms",
+                  transition:
+                    "width 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 160ms",
                 }}
               />
             </div>
             <div className="flex gap-4 text-xs text-muted-foreground">
-              <span><strong className="text-foreground">{p}</strong> pour</span>
-              <span><strong className="text-foreground">{c}</strong> contre</span>
-              <span><strong className="text-foreground">{a}</strong> abst.</span>
+              <span>
+                <strong className="text-foreground">{p}</strong> pour
+              </span>
+              <span>
+                <strong className="text-foreground">{c}</strong> contre
+              </span>
+              <span>
+                <strong className="text-foreground">{a}</strong> abst.
+              </span>
             </div>
           </div>
         )}

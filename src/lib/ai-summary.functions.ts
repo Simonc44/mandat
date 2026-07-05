@@ -26,28 +26,36 @@ Résultat : ${data.sort} (${data.pour} pour, ${data.contre} contre, ${data.abste
 
 Explique : 1) de quoi parle ce texte en une phrase, 2) pourquoi ce vote était important, 3) ce que son adoption ou son rejet change concrètement. Sois factuel, neutre, sans jargon. Réponds en français, en texte brut (pas de markdown).`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": key,
+    const res = await fetch(
+      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Lovable-API-Key": key,
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          max_tokens: 2048,
+          messages: [{ role: "user", content: prompt }],
+        }),
       },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        max_tokens: 2048,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
+    );
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      if (res.status === 429) throw new Error("Trop de requêtes, réessayez dans une minute.");
-      if (res.status === 402) throw new Error("Crédits IA épuisés. Contactez l'administrateur.");
+      if (res.status === 429)
+        throw new Error("Trop de requêtes, réessayez dans une minute.");
+      if (res.status === 402)
+        throw new Error("Crédits IA épuisés. Contactez l'administrateur.");
       throw new Error(`AI Gateway ${res.status}: ${body.slice(0, 200)}`);
     }
 
     const json = (await res.json()) as {
-      choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
+      choices?: Array<{
+        message?: { content?: string };
+        finish_reason?: string;
+      }>;
     };
     const summary = json.choices?.[0]?.message?.content?.trim() ?? "";
     if (!summary) throw new Error("Réponse IA vide");

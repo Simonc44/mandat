@@ -126,7 +126,10 @@ function DeputesPage() {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium glass border border-border/50 text-muted-foreground hover:text-primary hover:border-primary/30 transition-colors"
             title="Voir les députés de la 16e législature (2022-2024)"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" aria-hidden="true" />
+            <span
+              className="w-1.5 h-1.5 rounded-full bg-current opacity-60"
+              aria-hidden="true"
+            />
             16<sup>e</sup> législature
           </Link>
         </div>
@@ -445,7 +448,9 @@ function DepartementCard({
             <div className="text-xs uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
               <MapIcon className="w-3.5 h-3.5" /> Circonscriptions
             </div>
-            <div className="text-[10px] text-muted-foreground">Couleur = groupe politique</div>
+            <div className="text-[10px] text-muted-foreground">
+              Couleur = groupe politique
+            </div>
           </div>
 
           <div className="relative w-full overflow-x-auto">
@@ -456,8 +461,19 @@ function DepartementCard({
               aria-label={`Carte des ${n} circonscriptions du département ${numero}`}
             >
               <defs>
-                <filter id="hexShadow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.15" />
+                <filter
+                  id="hexShadow"
+                  x="-20%"
+                  y="-20%"
+                  width="140%"
+                  height="140%"
+                >
+                  <feDropShadow
+                    dx="0"
+                    dy="2"
+                    stdDeviation="2"
+                    floodOpacity="0.15"
+                  />
                 </filter>
               </defs>
               {circos.map((d, i) => {
@@ -488,12 +504,28 @@ function DepartementCard({
                       filter="url(#hexShadow)"
                       className="transition-all duration-200 group-hover/hex:fill-opacity-100 group-hover/hex:stroke-primary"
                     />
-                    <text x={x} y={y - 6} textAnchor="middle" fill="white" fontSize="20" fontWeight="700"
-                      style={{ fontFamily: "Fraunces, serif" }} className="pointer-events-none">
+                    <text
+                      x={x}
+                      y={y - 6}
+                      textAnchor="middle"
+                      fill="white"
+                      fontSize="20"
+                      fontWeight="700"
+                      style={{ fontFamily: "Fraunces, serif" }}
+                      className="pointer-events-none"
+                    >
                       {d.num_circo}
                     </text>
-                    <text x={x} y={y + 14} textAnchor="middle" fill="white" fontSize="8" fontWeight="600"
-                      opacity="0.95" className="pointer-events-none">
+                    <text
+                      x={x}
+                      y={y + 14}
+                      textAnchor="middle"
+                      fill="white"
+                      fontSize="8"
+                      fontWeight="600"
+                      opacity="0.95"
+                      className="pointer-events-none"
+                    >
                       {(d.nom_de_famille || "").slice(0, 10).toUpperCase()}
                     </text>
                   </Link>
@@ -510,7 +542,10 @@ function DepartementCard({
                   key={`row-${d.id || d.slug}`}
                   className="flex items-center gap-3 rounded-xl glass border border-white/30 p-2.5"
                 >
-                  <span className="font-display text-lg w-8 text-center text-primary" aria-hidden="true">
+                  <span
+                    className="font-display text-lg w-8 text-center text-primary"
+                    aria-hidden="true"
+                  >
                     {d.num_circo}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -518,7 +553,11 @@ function DepartementCard({
                       {d.prenom} {d.nom_de_famille}
                     </div>
                     <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground truncate">
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: g.couleur }} aria-hidden="true" />
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: g.couleur }}
+                        aria-hidden="true"
+                      />
                       <span className="truncate">{g.nom}</span>
                     </div>
                   </div>
@@ -529,11 +568,24 @@ function DepartementCard({
 
           <div className="mt-6 pt-5 border-t border-white/40 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <img src="/favicon.svg" alt="" aria-hidden="true" className="w-6 h-6" width={24} height={24} />
-              <span className="font-display text-base text-ink tracking-tight">Mandat</span>
-              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground hidden sm:inline">· Transparence citoyenne</span>
+              <img
+                src="/favicon.svg"
+                alt=""
+                aria-hidden="true"
+                className="w-6 h-6"
+                width={24}
+                height={24}
+              />
+              <span className="font-display text-base text-ink tracking-tight">
+                Mandat
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground hidden sm:inline">
+                · Transparence citoyenne
+              </span>
             </div>
-            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">17<sup>e</sup> législature</span>
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+              17<sup>e</sup> législature
+            </span>
           </div>
         </div>
       </div>

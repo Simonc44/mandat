@@ -5,7 +5,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 import { tursoClient } from "./turso.server";
-import { sanitizeSearchInput, sanitizeText, sanitizeSlug, sanitizeNumero } from "./api";
+import {
+  sanitizeSearchInput,
+  sanitizeText,
+  sanitizeSlug,
+  sanitizeNumero,
+} from "./api";
 import type { Depute, Scrutin } from "./api";
 
 // Cache CDN + navigateur : les données ne changent qu'une fois par jour

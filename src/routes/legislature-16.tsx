@@ -175,7 +175,12 @@ function Legislature16Page() {
         <TabButton
           active={tab === "deputes"}
           onClick={() =>
-            navigate({ search: (p: Record<string, unknown>) => ({ ...p, tab: "deputes" }) })
+            navigate({
+              search: (p: Record<string, unknown>) => ({
+                ...p,
+                tab: "deputes",
+              }),
+            })
           }
         >
           Député·es
@@ -183,7 +188,12 @@ function Legislature16Page() {
         <TabButton
           active={tab === "scrutins"}
           onClick={() =>
-            navigate({ search: (p: Record<string, unknown>) => ({ ...p, tab: "scrutins" }) })
+            navigate({
+              search: (p: Record<string, unknown>) => ({
+                ...p,
+                tab: "scrutins",
+              }),
+            })
           }
         >
           Scrutins

@@ -49,8 +49,18 @@ const staticPages = [
 
 // ── Pages par groupe politique (SEO : composition, votes) ────
 const GROUPES_SIGLES = [
-  "RN", "EPR", "LFI-NFP", "SOC", "DR", "EcoS", "DEM", "HOR",
-  "GDR", "LIOT", "UDR", "NI",
+  "RN",
+  "EPR",
+  "LFI-NFP",
+  "SOC",
+  "DR",
+  "EcoS",
+  "DEM",
+  "HOR",
+  "GDR",
+  "LIOT",
+  "UDR",
+  "NI",
 ];
 const groupeUrls = GROUPES_SIGLES.map(
   (sigle) => `  <url>

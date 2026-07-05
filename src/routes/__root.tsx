@@ -308,9 +308,8 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
       <head>
-        <HeadContent />
-
         {/* Service Worker PWA */}
+        <HeadContent />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -392,7 +391,7 @@ function RootComponent() {
         <Analytics />
         <LoadingOverlay />
         <Header />
-        <main className="flex-1 pt-20">
+        <main className="flex-1">
           <Outlet />
         </main>
         <Footer />

@@ -57,7 +57,10 @@ function GroupeNotFound() {
       <p className="text-muted-foreground mb-6">
         Ce sigle de groupe politique n'existe pas dans notre base.
       </p>
-      <Link to="/groupes" className="btn-primary px-6 py-3 rounded-full text-sm">
+      <Link
+        to="/groupes"
+        className="btn-primary px-6 py-3 rounded-full text-sm"
+      >
         Voir tous les groupes
       </Link>
     </div>
@@ -108,12 +111,12 @@ function GroupePage() {
       <section className="prose prose-invert max-w-none mb-10 text-muted-foreground">
         <p>
           Le groupe <strong>{meta.nom}</strong> ({sigle}) rassemble{" "}
-          {deputes.length} député·e{deputes.length > 1 ? "s" : ""} à
-          l'Assemblée nationale française durant la 17e législature. Retrouvez
-          ci-dessous la composition complète du groupe, avec la liste
-          nominative de ses membres, leur circonscription et leur département.
-          Explorez les votes de chaque parlementaire pour mieux comprendre les
-          positions collectives du groupe sur les grands textes de loi.
+          {deputes.length} député·e{deputes.length > 1 ? "s" : ""} à l'Assemblée
+          nationale française durant la 17e législature. Retrouvez ci-dessous la
+          composition complète du groupe, avec la liste nominative de ses
+          membres, leur circonscription et leur département. Explorez les votes
+          de chaque parlementaire pour mieux comprendre les positions
+          collectives du groupe sur les grands textes de loi.
         </p>
       </section>
 

@@ -1,7 +1,15 @@
 // routes/a-propos.tsx — Page À propos de Mandat
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Github, Unlock, Scale, ShieldCheck, Database, RefreshCw, Heart } from "lucide-react";
+import {
+  Github,
+  Unlock,
+  Scale,
+  ShieldCheck,
+  Database,
+  RefreshCw,
+  Heart,
+} from "lucide-react";
 import { createSeoMeta, createSeoLinks, SITE_URL, SITE_NAME } from "./__root";
 import { GITHUB_REPO_URL } from "../components/Header";
 
@@ -21,7 +29,6 @@ export const Route = createFileRoute("/a-propos")({
 function APropos() {
   return (
     <div className="container-app py-16 max-w-3xl mx-auto animate-fade-up">
-
       {/* ── EN-TÊTE ── */}
       <div className="mb-14">
         <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-4 font-medium">
@@ -65,9 +72,10 @@ function APropos() {
             <p className="text-muted-foreground leading-relaxed text-sm">
               Développeur indépendant, je me suis retrouvé incapable de répondre
               à une question simple : «&nbsp;Comment mon député a-t-il voté sur
-              la réforme des retraites&nbsp;?&nbsp;» Les données existaient sur le
-              site de l'Assemblée nationale, mais elles étaient inexploitables
-              pour un citoyen ordinaire. J'ai créé Mandat pour changer ça.
+              la réforme des retraites&nbsp;?&nbsp;» Les données existaient sur
+              le site de l'Assemblée nationale, mais elles étaient
+              inexploitables pour un citoyen ordinaire. J'ai créé Mandat pour
+              changer ça.
             </p>
             <p className="text-muted-foreground leading-relaxed text-sm mt-3">
               Ce projet est mon pari que la démocratie fonctionne mieux quand
@@ -125,8 +133,12 @@ function APropos() {
               >
                 <Icon className="w-5 h-5" strokeWidth={1.75} />
               </div>
-              <h3 className="font-display text-base mb-2 tracking-tight">{title}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+              <h3 className="font-display text-base mb-2 tracking-tight">
+                {title}
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {desc}
+              </p>
             </div>
           ))}
         </div>
@@ -195,7 +207,9 @@ function APropos() {
 
       {/* ── MISE À JOUR ── */}
       <section className="mb-14 p-6 glass border border-border/40 rounded-2xl">
-        <h2 className="font-display text-xl tracking-tight mb-3">Fréquence de mise à jour</h2>
+        <h2 className="font-display text-xl tracking-tight mb-3">
+          Fréquence de mise à jour
+        </h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
           Les scrutins et votes sont synchronisés{" "}
           <strong className="text-foreground">quotidiennement</strong> à partir
@@ -248,7 +262,6 @@ function APropos() {
           </a>
         </div>
       </section>
-
     </div>
   );
 }

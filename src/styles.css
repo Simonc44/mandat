@@ -59,7 +59,7 @@
   --popover: oklch(1 0 0 / 92%);
   --popover-foreground: oklch(0.18 0.04 285);
 
-  --primary: oklch(0.5 0.2 285);
+  --primary: oklch(0.55 0.22 300);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.94 0.02 285 / 70%);
   --secondary-foreground: oklch(0.22 0.05 285);
@@ -71,7 +71,7 @@
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(0.88 0.014 285 / 60%);
   --input: oklch(0.88 0.014 285 / 70%);
-  --ring: oklch(0.5 0.2 285);
+  --ring: oklch(0.55 0.22 300);
 
   --pour: oklch(0.6 0.16 155);
   --contre: oklch(0.58 0.22 27);
@@ -87,8 +87,8 @@
   /* Gradients */
   --gradient-primary: linear-gradient(
     135deg,
-    oklch(0.5 0.2 285),
-    oklch(0.42 0.22 260)
+    oklch(0.55 0.22 300),
+    oklch(0.45 0.25 280)
   );
   --gradient-hero:
     radial-gradient(
@@ -605,7 +605,7 @@
 .text-gradient {
   background: linear-gradient(
     135deg,
-    oklch(0.5 0.2 285) 0%,
+    oklch(0.55 0.22 300) 0%,
     oklch(0.42 0.22 215) 50%,
     oklch(0.55 0.18 165) 100%
   );
@@ -701,7 +701,7 @@
     transform 200ms ease;
 }
 .stat-box:hover .stat-value {
-  color: oklch(0.5 0.2 285);
+  color: oklch(0.55 0.22 300);
   transform: scale(1.05);
 }
 
@@ -710,7 +710,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 :focus-visible {
-  outline: 2px solid oklch(0.5 0.2 285);
+  outline: 2px solid oklch(0.55 0.22 300);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -755,4 +755,52 @@
 ::selection {
   background: oklch(0.5 0.2 285 / 20%);
   color: oklch(0.2 0.05 285);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PURPLE WAVE ANIMATION
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes wave-animation {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(-45%, -55%) rotate(180deg) scale(1.1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
+    opacity: 0.3;
+  }
+}
+
+.hero-wave {
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  top: 50%;
+  left: 50%;
+  background: radial-gradient(
+    circle at center,
+    oklch(0.55 0.22 300 / 25%) 0%,
+    oklch(0.45 0.25 280 / 15%) 30%,
+    transparent 70%
+  );
+  filter: blur(60px);
+  animation: wave-animation 20s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-wave-2 {
+  animation-duration: 25s;
+  animation-direction: reverse;
+  background: radial-gradient(
+    circle at center,
+    oklch(0.6 0.18 300 / 20%) 0%,
+    oklch(0.5 0.22 290 / 10%) 40%,
+    transparent 70%
+  );
 }
