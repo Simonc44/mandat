@@ -129,7 +129,7 @@ function GroupePage() {
             Composition du groupe {sigle}
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {deputes.map((d, i) => (
+            {deputes.map((d: Depute, i: number) => (
               <DeputeCard key={d.id || d.slug} d={d} index={i} />
             ))}
           </div>
