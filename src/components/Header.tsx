@@ -80,35 +80,111 @@ export function Header() {
   );
 }
 
+// ── CONSENTEMENT ANALYTICS ────────────────────────────────────────────────────
+
+// Clé de persistance du choix de l'utilisateur
+const CONSENT_KEY = "mandat_analytics_consent";
+
+/** Envoie une mise à jour du consentement GA via gtag */
+function updateGAConsent(granted: boolean) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any;
+    if (typeof w.gtag !== "function") return;
+    w.gtag("consent", "update", {
+      analytics_storage: granted ? "granted" : "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+  } catch (e) {
+    // silencieux si gtag n'est pas disponible
+  }
+}
+
 // ── COOKIE BANNER ─────────────────────────────────────────────────────────────
 export function CookieBanner() {
+  // null = pas encore chargé, 'granted' | 'denied' = choix connu
+  const [consent, setConsent] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
-  useEffect(() => { if (!localStorage.getItem("mandat_cookie_consent")) setVisible(true); }, []);
-  const dismiss = useCallback(() => {
-    localStorage.setItem("mandat_cookie_consent", "acknowledged");
-    setVisible(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(CONSENT_KEY);
+      if (saved === "granted" || saved === "denied") {
+        // Choix déjà enregistré : on n'affiche pas la bannière
+        setConsent(saved);
+        setVisible(false);
+      } else {
+        // Premier passage : on affiche la bannière
+        setVisible(true);
+      }
+    } catch (e) {
+      setVisible(true);
+    }
   }, []);
+
+  const handleAccept = useCallback(() => {
+    try { localStorage.setItem(CONSENT_KEY, "granted"); } catch (e) {}
+    setConsent("granted");
+    setVisible(false);
+    updateGAConsent(true);
+  }, []);
+
+  const handleRefuse = useCallback(() => {
+    try { localStorage.setItem(CONSENT_KEY, "denied"); } catch (e) {}
+    setConsent("denied");
+    setVisible(false);
+    updateGAConsent(false);
+  }, []);
+
   if (!visible) return null;
+
   return (
-    <div className="cookie-banner" role="dialog" aria-modal="true" aria-label="Information sur les cookies">
+    <div className="cookie-banner" role="dialog" aria-modal="true" aria-label="Gestion des cookies analytiques">
       <div className="glass-strong rounded-3xl p-5 space-y-4">
         <div className="flex items-start gap-3">
-          <span className="text-2xl" aria-hidden="true">🔒</span>
+          <span className="text-2xl" aria-hidden="true">📊</span>
           <div>
-            <h3 className="font-semibold text-foreground text-sm">Aucun cookie de tracking</h3>
+            <h3 className="font-semibold text-foreground text-sm">Mesure d'audience</h3>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Mandat n'utilise <strong className="text-foreground">aucun cookie publicitaire</strong> ni tracker tiers.
-              Seuls des cookies techniques essentiels sont déposés — aucun consentement supplémentaire n'est requis.
+              Nous utilisons Google Analytics pour mesurer l'audience du site
+              (pages vues, navigation). <strong className="text-foreground">Aucune publicité</strong>,
+              aucun profilage. Vous pouvez refuser sans que cela n'affecte votre navigation.
             </p>
           </div>
         </div>
+
         <div className="rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground space-y-1">
-          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-green-500" aria-hidden="true" />Cookies essentiels uniquement (thème, session)</div>
-          <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400/60" aria-hidden="true" />Aucun cookie publicitaire · Aucun tracker</div>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500" aria-hidden="true" />
+            Cookies essentiels (thème, session) — toujours actifs
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" aria-hidden="true" />
+            Analytics anonymisé — uniquement si vous acceptez
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400/60" aria-hidden="true" />
+            Aucun cookie publicitaire · Aucun tracker tiers
+          </div>
         </div>
-        <button onClick={dismiss} className="btn-primary w-full py-2.5 rounded-2xl text-sm font-medium text-center">
-          Compris, continuer →
-        </button>
+
+        <div className="flex gap-2">
+          <button
+            onClick={handleRefuse}
+            className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-border hover:border-primary/40 hover:bg-muted/30 transition-colors text-muted-foreground"
+          >
+            Refuser
+          </button>
+          <button
+            onClick={handleAccept}
+            className="flex-1 btn-primary py-2.5 rounded-2xl text-sm font-medium text-center"
+          >
+            Accepter
+          </button>
+        </div>
+
         <p className="text-[10px] text-muted-foreground text-center">
           <Link to="/confidentialite" className="underline hover:text-primary">Politique de confidentialité</Link>
           {" · "}

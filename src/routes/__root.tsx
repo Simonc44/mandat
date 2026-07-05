@@ -279,8 +279,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700&family=Inter:wght@300;400;500;600;700&display=swap",
         },
         { rel: "alternate", hrefLang: "fr-FR", href: SITE_URL },
-        // Perf : ouvrir la connexion au CDN photo de l'AN dès le premier paint
-        // pour que les <img> des députés arrivent sans handshake TLS supplémentaire.
         {
           rel: "preconnect",
           href: "https://www2.assemblee-nationale.fr",
@@ -310,7 +308,14 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
 
-        {/* Google Analytics */}
+        {/*
+         * Google Analytics — Consent Mode v2 (RGPD)
+         * 1. On initialise gtag et on définit le consentement par DÉFAUT sur denied.
+         * 2. On attend 500 ms (wait_for_update) pour que le CookieBanner puisse
+         *    appeler gtag('consent','update',...) avant le premier hit GA.
+         * 3. Si l'utilisateur a déjà répondu (localStorage), on met à jour
+         *    immédiatement sans attendre la bannière.
+         */}
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-CMMWPQG5P6"
@@ -321,7 +326,32 @@ function RootShell({ children }: { children: ReactNode }) {
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
+
+              // Consentement par défaut : tout refusé (RGPD)
+              gtag('consent', 'default', {
+                'analytics_storage': 'denied',
+                'ad_storage': 'denied',
+                'ad_user_data': 'denied',
+                'ad_personalization': 'denied',
+                'wait_for_update': 500
+              });
+
               gtag('config', 'G-CMMWPQG5P6');
+
+              // Restaurer le consentement si déjà accepté lors d'une visite précédente
+              (function() {
+                try {
+                  var saved = localStorage.getItem('mandat_analytics_consent');
+                  if (saved === 'granted') {
+                    gtag('consent', 'update', {
+                      'analytics_storage': 'granted',
+                      'ad_storage': 'denied',
+                      'ad_user_data': 'denied',
+                      'ad_personalization': 'denied'
+                    });
+                  }
+                } catch(e) {}
+              })();
             `,
           }}
         />
