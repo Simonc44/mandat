@@ -257,7 +257,10 @@ function resolveLocalUrl(path: string): string {
   return `${base}${path}`;
 }
 
-export async function fetchLocal<T>(path: string, timeoutMs = 10_000): Promise<T> {
+export async function fetchLocal<T>(
+  path: string,
+  timeoutMs = 10_000,
+): Promise<T> {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -727,10 +730,11 @@ export const scrutinVotesQuery = (numeroRaw: string) => {
       votesNominatifs: VotesScrutin | null;
     }> => {
       try {
-        const votesIndex = await fetchLocal<Record<string, VotesScrutin>>(
-          "/votes-17.json",
-        );
-        const votesNominatifs = votesIndex ? (votesIndex[numero] ?? null) : null;
+        const votesIndex =
+          await fetchLocal<Record<string, VotesScrutin>>("/votes-17.json");
+        const votesNominatifs = votesIndex
+          ? (votesIndex[numero] ?? null)
+          : null;
         const votes: VoteEntry[] = [];
         if (votesNominatifs) {
           const stubScrutin: Scrutin = {
@@ -954,7 +958,6 @@ export const deputeDetailQuery = (slugRaw: string) => {
         /* fallback */
       }
 
-
       // ① Fichier local (fallback si Turso indisponible)
       try {
         const data = await fetchLocal<Depute[]>("/deputes-17.json");
@@ -1102,7 +1105,6 @@ export const deputeVotesQuery = (slugRaw: string, idAn?: string) => {
   });
 };
 
-
 /**
  * Vérifie si un député existait dans la 16e législature
  */
@@ -1114,7 +1116,9 @@ export const deputeExists16Query = (slugRaw: string) => {
     queryFn: async (): Promise<boolean> => {
       try {
         const data = await fetchLocal<any[]>("/deputes-16.json");
-        return Array.isArray(data) && data.some((d) => sanitizeSlug(d.slug) === slug);
+        return (
+          Array.isArray(data) && data.some((d) => sanitizeSlug(d.slug) === slug)
+        );
       } catch {
         return false;
       }
