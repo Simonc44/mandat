@@ -59,9 +59,10 @@ export function Footer() {
 
           <nav className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm self-start" aria-label="Navigation secondaire">
             <Link to="/deputes"     className="text-muted-foreground hover:text-primary transition-colors py-1">Les député·es</Link>
+            <Link to="/groupes"     className="text-muted-foreground hover:text-primary transition-colors py-1">Les groupes</Link>
             <Link to="/scrutins"    className="text-muted-foreground hover:text-primary transition-colors py-1">Les scrutins</Link>
-            <Link to="/recherche"   className="text-muted-foreground hover:text-primary transition-colors py-1">Recherche</Link>
             <Link to="/blog"        className="text-muted-foreground hover:text-primary transition-colors py-1">Blog</Link>
+            <Link to="/recherche"   className="text-muted-foreground hover:text-primary transition-colors py-1">Recherche</Link>
             <Link to="/confidentialite" className="text-muted-foreground hover:text-primary transition-colors py-1">Confidentialité</Link>
             <Link to="/statut"      className="text-muted-foreground hover:text-primary transition-colors py-1">Statut du service</Link>
             <a href="https://data.assemblee-nationale.fr" target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-primary transition-colors py-1">Données AN ↗</a>
@@ -75,7 +76,7 @@ export function Footer() {
 
         <div className="pt-6 border-t border-border/40 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex flex-wrap gap-4 items-center">
-            <span>© 2025 Mandat</span>
+            <span>© 2026 Mandat · Créé par Simon Chusseau</span>
             <span>·</span>
             <a href={GITHUB_REPO_URL} target="_blank" rel="noreferrer noopener"
               className="inline-flex items-center gap-1.5 hover:text-primary transition-colors">

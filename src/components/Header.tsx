@@ -8,6 +8,7 @@ export const GITHUB_REPO_URL = "https://github.com/Simonc44/mandat";
 
 const NAV_LINKS = [
   { to: "/deputes",  label: "Député·es" },
+  { to: "/groupes",  label: "Groupes" },
   { to: "/scrutins", label: "Scrutins" },
   { to: "/blog",     label: "Blog" },
   { to: "/recherche",label: "Recherche" },

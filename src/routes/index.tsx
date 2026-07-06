@@ -78,7 +78,7 @@ function Home() {
             <SearchBar />
           </div>
 
-          {/* Bandeau "Ils nous accompagnent" */}
+          {/* Bandeau "Données & technologies de confiance" */}
           <div className="mt-16 sm:mt-20 animate-fade-up" style={{ animationDelay: "360ms" }}>
             <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground/80 mb-6">
               Données & technologies de confiance
@@ -212,23 +212,76 @@ function SortBadge({ sort }: { sort: string }) {
 
 function TrustLogos() {
   const logos = [
-    { name: "Turso", href: "https://turso.tech", svg: (<svg viewBox="0 0 100 24" fill="currentColor" aria-hidden="true"><text x="0" y="18" fontFamily="system-ui" fontWeight="700" fontSize="18" letterSpacing="-0.5">Turso</text></svg>) },
-    { name: "Stripe", href: "https://stripe.com", svg: (<svg viewBox="0 0 100 24" fill="currentColor" aria-hidden="true"><text x="0" y="18" fontFamily="system-ui" fontWeight="700" fontSize="18" fontStyle="italic" letterSpacing="-0.5">stripe</text></svg>) },
-    { name: "GitHub", href: "https://github.com/Simonc44/mandat", svg: (
-      <svg viewBox="0 0 120 24" fill="currentColor" aria-hidden="true">
-        <path d="M12 2C6.48 2 2 6.58 2 12.22c0 4.51 2.87 8.34 6.84 9.69.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.61-3.37-1.36-3.37-1.36-.45-1.17-1.11-1.48-1.11-1.48-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.36-2.22-.26-4.56-1.13-4.56-5.03 0-1.11.39-2.02 1.03-2.73-.1-.26-.45-1.3.1-2.7 0 0 .84-.27 2.75 1.04A9.4 9.4 0 0 1 12 6.84c.85.01 1.71.12 2.51.34 1.91-1.31 2.75-1.04 2.75-1.04.55 1.4.2 2.44.1 2.7.64.71 1.03 1.62 1.03 2.73 0 3.91-2.34 4.77-4.57 5.02.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.59.69.49A10.03 10.03 0 0 0 22 12.22C22 6.58 17.52 2 12 2z"/>
-        <text x="28" y="17" fontFamily="system-ui" fontWeight="700" fontSize="15">GitHub</text>
-      </svg>
-    ) },
-    { name: "Assemblée nationale", href: "https://www.assemblee-nationale.fr", svg: (<svg viewBox="0 0 210 24" fill="currentColor" aria-hidden="true"><text x="0" y="17" fontFamily="Georgia, serif" fontWeight="600" fontSize="14" letterSpacing="0.3">Assemblée nationale</text></svg>) },
-    { name: "CIVIX", href: "https://civix.fr", svg: (<svg viewBox="0 0 80 24" fill="currentColor" aria-hidden="true"><text x="0" y="18" fontFamily="system-ui" fontWeight="800" fontSize="17" letterSpacing="1">CIVIX</text></svg>) },
-    { name: "CLAIR", href: "https://data.assemblee-nationale.fr/api", svg: (<svg viewBox="0 0 80 24" fill="currentColor" aria-hidden="true"><text x="0" y="18" fontFamily="system-ui" fontWeight="800" fontSize="17" letterSpacing="1">CLAIR</text></svg>) },
+    {
+      name: "Turso",
+      href: "https://turso.tech",
+      svg: (
+        <svg viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
+          <rect width="80" height="28" rx="6" fill="#1E1B4B" />
+          <text x="10" y="20" fontFamily="system-ui" fontWeight="700" fontSize="14" fill="#a78bfa" letterSpacing="-0.3">Turso</text>
+        </svg>
+      ),
+    },
+    {
+      name: "Stripe",
+      href: "https://stripe.com",
+      svg: (
+        <svg viewBox="0 0 70 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
+          <rect width="70" height="28" rx="6" fill="#635BFF" />
+          <text x="10" y="20" fontFamily="system-ui" fontWeight="700" fontSize="14" fontStyle="italic" fill="white" letterSpacing="-0.3">stripe</text>
+        </svg>
+      ),
+    },
+    {
+      name: "GitHub",
+      href: "https://github.com/Simonc44/mandat",
+      svg: (
+        <svg viewBox="0 0 100 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
+          <rect width="100" height="28" rx="6" fill="#24292e" />
+          <svg x="8" y="4" width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <path d="M12 2C6.48 2 2 6.58 2 12.22c0 4.51 2.87 8.34 6.84 9.69.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.61-3.37-1.36-3.37-1.36-.45-1.17-1.11-1.48-1.11-1.48-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.36-2.22-.26-4.56-1.13-4.56-5.03 0-1.11.39-2.02 1.03-2.73-.1-.26-.45-1.3.1-2.7 0 0 .84-.27 2.75 1.04A9.4 9.4 0 0 1 12 6.84c.85.01 1.71.12 2.51.34 1.91-1.31 2.75-1.04 2.75-1.04.55 1.4.2 2.44.1 2.7.64.71 1.03 1.62 1.03 2.73 0 3.91-2.34 4.77-4.57 5.02.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.59.69.49A10.03 10.03 0 0 0 22 12.22C22 6.58 17.52 2 12 2z" />
+          </svg>
+          <text x="32" y="20" fontFamily="system-ui" fontWeight="600" fontSize="13" fill="white">GitHub</text>
+        </svg>
+      ),
+    },
+    {
+      name: "Assemblée nationale",
+      href: "https://www.assemblee-nationale.fr",
+      svg: (
+        <svg viewBox="0 0 180 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
+          <rect width="180" height="28" rx="6" fill="#003189" />
+          <text x="10" y="19" fontFamily="Georgia, serif" fontWeight="600" fontSize="11" fill="white" letterSpacing="0.2">Assemblée nationale</text>
+        </svg>
+      ),
+    },
+    {
+      name: "CIVIX",
+      href: "https://civix.fr",
+      svg: (
+        <svg viewBox="0 0 72 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
+          <rect width="72" height="28" rx="6" fill="#0f172a" />
+          <text x="10" y="20" fontFamily="system-ui" fontWeight="800" fontSize="14" fill="#38bdf8" letterSpacing="1.5">CIVIX</text>
+        </svg>
+      ),
+    },
+    {
+      name: "CLAIR",
+      href: "https://clair-production.up.railway.app",
+      svg: (
+        <svg viewBox="0 0 70 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
+          <rect width="70" height="28" rx="6" fill="#064e3b" />
+          <text x="10" y="20" fontFamily="system-ui" fontWeight="800" fontSize="14" fill="#6ee7b7" letterSpacing="1.5">CLAIR</text>
+        </svg>
+      ),
+    },
   ];
+
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-5 sm:gap-x-12">
+    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-4 sm:gap-x-5">
       {logos.map(l => (
         <a key={l.name} href={l.href} target="_blank" rel="noopener noreferrer"
-           className="trust-logo inline-flex items-center h-6" aria-label={l.name} title={l.name}>
+           className="trust-logo inline-flex items-center opacity-80 hover:opacity-100 transition-opacity" aria-label={l.name} title={l.name}>
           {l.svg}
         </a>
       ))}
