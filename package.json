@@ -10,6 +10,10 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
     "parse-data": "node scripts/parse-local-data.mjs",
     "fetch-data": "node scripts/fetch-data-17.mjs",
     "update-data-17": "node scripts/update-database-17.mjs",
@@ -83,6 +87,8 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.2.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/ui": "^4.1.10",
     "adm-zip": "^0.5.18",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
@@ -94,6 +100,7 @@
     "prettier": "^3.9.4",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.62.1",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "vitest": "^4.1.10"
   }
 }
