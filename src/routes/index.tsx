@@ -41,7 +41,7 @@ function Home() {
   const spotlight = latest?.[0] ?? null;
 
   return (
-    <div>
+    <div className="page-enter">
       {/* HERO — plein écran, clair, violet, collé à la navbar */}
       <section className="hero-attach relative">
         {/* Orbes flottantes décoratives */}
@@ -50,7 +50,7 @@ function Home() {
         <div className="hero-orb-slow w-[420px] h-[420px] -top-10 right-[-8rem] opacity-50"
           style={{ background: "radial-gradient(circle, oklch(0.72 0.14 305 / 45%), transparent 70%)", animationDelay: "-5s" }} aria-hidden="true" />
 
-        <div className="container-app relative z-10 pt-14 sm:pt-20 md:pt-24 pb-40 sm:pb-52 md:pb-64 text-center">
+        <div className="container-app relative z-10 pt-14 sm:pt-20 md:pt-24 pb-56 sm:pb-72 md:pb-80 text-center">
           <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-8 animate-fade-up">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
             17e législature · Mis à jour quotidiennement
@@ -86,38 +86,46 @@ function Home() {
           </div>
         </div>
 
-        {/* Vague animée en bas */}
+        {/* Vague animée — viewBox large + preserveAspectRatio slice pour toucher chaque bord */}
         <div className="hero-wave" aria-hidden="true">
-          <svg viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 1600 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <linearGradient id="wave1" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%"  stopColor="oklch(0.72 0.16 285 / 55%)" />
-                <stop offset="50%" stopColor="oklch(0.62 0.20 275 / 60%)" />
-                <stop offset="100%" stopColor="oklch(0.70 0.14 305 / 50%)" />
+                <stop offset="0%"   stopColor="oklch(0.72 0.16 285 / 65%)" />
+                <stop offset="50%"  stopColor="oklch(0.60 0.22 275 / 70%)" />
+                <stop offset="100%" stopColor="oklch(0.68 0.16 305 / 60%)" />
               </linearGradient>
               <linearGradient id="wave2" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%"  stopColor="oklch(0.78 0.12 290 / 45%)" />
-                <stop offset="100%" stopColor="oklch(0.66 0.18 265 / 55%)" />
+                <stop offset="0%"   stopColor="oklch(0.78 0.12 290 / 50%)" />
+                <stop offset="100%" stopColor="oklch(0.66 0.18 265 / 60%)" />
               </linearGradient>
               <linearGradient id="wave3" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%"  stopColor="oklch(0.85 0.08 295 / 40%)" />
-                <stop offset="100%" stopColor="oklch(0.72 0.14 285 / 45%)" />
+                <stop offset="0%"   stopColor="oklch(0.86 0.08 295 / 45%)" />
+                <stop offset="100%" stopColor="oklch(0.72 0.14 285 / 50%)" />
               </linearGradient>
             </defs>
+            {/* Les paths démarrent à x=-80 et finissent à x=1680 : ils débordent
+                du viewBox pour qu'aucune translation ne révèle un bord vide. */}
             <path className="hero-wave-path p3" fill="url(#wave3)"
-              d="M0,224 C240,288 480,160 720,192 C960,224 1200,320 1440,256 L1440,320 L0,320 Z" />
+              d="M-80,260 C240,340 560,180 880,220 C1200,260 1440,360 1680,290 L1680,400 L-80,400 Z" />
             <path className="hero-wave-path p2" fill="url(#wave2)"
-              d="M0,256 C240,192 480,288 720,240 C960,192 1200,256 1440,224 L1440,320 L0,320 Z" />
+              d="M-80,300 C240,220 560,340 880,280 C1200,220 1440,300 1680,260 L1680,400 L-80,400 Z" />
             <path className="hero-wave-path" fill="url(#wave1)"
-              d="M0,288 C240,240 480,320 720,272 C960,224 1200,288 1440,272 L1440,320 L0,320 Z" />
+              d="M-80,340 C240,280 560,380 880,320 C1200,260 1440,340 1680,320 L1680,400 L-80,400 Z" />
           </svg>
         </div>
+
+        {/* Dégradé de transition doux vers la section suivante */}
+        <div className="hero-fade-out" aria-hidden="true" />
       </section>
+
+      {/* Grand espace de respiration + dégradé vers le reste */}
+      <div className="h-16 sm:h-24" aria-hidden="true" />
 
       {/* ACCROCHE ÉDITORIALE */}
       {spotlight && (
-        <section className="container-app pb-10 relative z-10">
-          <div className="animate-fade-up">
+        <StoryReveal as="section" className="container-app pb-10 relative z-10">
+          <div>
             <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-3 font-medium">À la une</div>
             <Link to="/scrutin/$numero" params={{ numero: spotlight.numero }}
               className="scrutin-card card-glass group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 rounded-[2rem] border border-primary/20 hover:border-primary/40 transition-colors">
@@ -142,8 +150,9 @@ function Home() {
               <div className="text-primary text-sm font-medium shrink-0 group-hover:translate-x-1 transition-transform">Voir le détail →</div>
             </Link>
           </div>
-        </section>
+        </StoryReveal>
       )}
+
 
       {/* DERNIERS SCRUTINS */}
       <section className="container-app pb-16 pt-4 relative z-10 -mt-4">
