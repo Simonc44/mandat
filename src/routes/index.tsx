@@ -43,9 +43,7 @@ function Home() {
 
   return (
     <div className="page-enter">
-      {/* HERO — plein écran, clair, violet, collé à la navbar */}
       <section className="hero-attach relative">
-        {/* Orbes flottantes décoratives */}
         <div className="hero-orb-slow w-[520px] h-[520px] -top-24 -left-32 opacity-60"
           style={{ background: "radial-gradient(circle, oklch(0.70 0.18 285 / 55%), transparent 70%)" }} aria-hidden="true" />
         <div className="hero-orb-slow w-[420px] h-[420px] -top-10 right-[-8rem] opacity-50"
@@ -73,12 +71,10 @@ function Home() {
             — sans étiquette politique.
           </p>
 
-          {/* Barre de recherche à la place des CTA */}
           <div className="mx-auto max-w-2xl animate-fade-up" style={{ animationDelay: "240ms" }}>
             <SearchBar />
           </div>
 
-          {/* Bandeau "Données & technologies de confiance" */}
           <div className="mt-16 sm:mt-20 animate-fade-up" style={{ animationDelay: "360ms" }}>
             <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground/80 mb-6">
               Données & technologies de confiance
@@ -87,7 +83,6 @@ function Home() {
           </div>
         </div>
 
-        {/* Vague animée — viewBox large + preserveAspectRatio slice pour toucher chaque bord */}
         <div className="hero-wave" aria-hidden="true">
           <svg viewBox="0 0 1600 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -105,8 +100,6 @@ function Home() {
                 <stop offset="100%" stopColor="oklch(0.72 0.14 285 / 50%)" />
               </linearGradient>
             </defs>
-            {/* Les paths démarrent à x=-80 et finissent à x=1680 : ils débordent
-                du viewBox pour qu'aucune translation ne révèle un bord vide. */}
             <path className="hero-wave-path p3" fill="url(#wave3)"
               d="M-80,260 C240,340 560,180 880,220 C1200,260 1440,360 1680,290 L1680,400 L-80,400 Z" />
             <path className="hero-wave-path p2" fill="url(#wave2)"
@@ -116,14 +109,11 @@ function Home() {
           </svg>
         </div>
 
-        {/* Dégradé de transition doux vers la section suivante */}
         <div className="hero-fade-out" aria-hidden="true" />
       </section>
 
-      {/* Grand espace de respiration + dégradé vers le reste */}
       <div className="h-16 sm:h-24" aria-hidden="true" />
 
-      {/* ACCROCHE ÉDITORIALE */}
       {spotlight && (
         <StoryReveal as="section" className="container-app pb-10 relative z-10">
           <div>
@@ -154,8 +144,6 @@ function Home() {
         </StoryReveal>
       )}
 
-
-      {/* DERNIERS SCRUTINS */}
       <StoryReveal as="section" className="container-app pb-16 pt-4 relative z-10 -mt-4">
         <div className="flex items-end justify-between mb-8 mt-2">
           <div>
@@ -176,7 +164,6 @@ function Home() {
         </div>
       </StoryReveal>
 
-      {/* STATS */}
       <StoryReveal as="section" className="container-app pb-16">
         <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
           <StatPill value={stats.deputesCount.toLocaleString("fr-FR")} label="Député·es" />
@@ -184,7 +171,6 @@ function Home() {
           <StatPill value={stats.groupesCount.toString()} label="Groupes" />
         </div>
       </StoryReveal>
-
 
       <TrustSection />
     </div>
@@ -210,79 +196,124 @@ function SortBadge({ sort }: { sort: string }) {
   );
 }
 
+// Icone Turso (T stylisé)
+function TursoIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="32" height="32" rx="8" fill="#4F46E5"/>
+      <path d="M8 10h16M14 10v12M18 10v12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+// Icone Stripe (S stylisé violet)
+function StripeIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="32" height="32" rx="8" fill="#635BFF"/>
+      <path d="M20.5 12.5c0-1.5-1.2-2.5-3.5-2.5-2.8 0-4 1.4-4 2.8 0 1.9 1.8 2.7 3.5 3.2 1.4.4 2.5.9 2.5 2 0 1.2-1.1 1.8-2.8 1.8-1.8 0-2.9-.7-3.2-1.8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+// Icone GitHub (octocat simplifié)
+function GitHubIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+    </svg>
+  );
+}
+
+// Icone Assemblée nationale (colonnes)
+function ANIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="32" height="32" rx="8" fill="#003189"/>
+      <rect x="7" y="22" width="18" height="2" rx="1" fill="white"/>
+      <rect x="7" y="9" width="18" height="2" rx="1" fill="white"/>
+      <rect x="9" y="11" width="2" height="11" rx="1" fill="white"/>
+      <rect x="13.5" y="11" width="2" height="11" rx="1" fill="white"/>
+      <rect x="18" y="11" width="2" height="11" rx="1" fill="white"/>
+      <rect x="22" y="11" width="0" height="11" rx="1" fill="white"/>
+    </svg>
+  );
+}
+
+// Icone Civix
+function CivixIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="32" height="32" rx="8" fill="#0EA5E9"/>
+      <path d="M20 11a7 7 0 1 0 0 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    </svg>
+  );
+}
+
+// Icone Clair
+function ClairIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="32" height="32" rx="8" fill="#059669"/>
+      <circle cx="16" cy="13" r="4" stroke="white" strokeWidth="2.5" fill="none"/>
+      <path d="M10 23c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+    </svg>
+  );
+}
+
 function TrustLogos() {
-  const logos = [
+  const logos: { name: string; href: string; icon: React.ReactNode }[] = [
     {
       name: "Turso",
       href: "https://turso.tech",
-      svg: (
-        <svg viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
-          <rect width="80" height="28" rx="6" fill="#1E1B4B" />
-          <text x="10" y="20" fontFamily="system-ui" fontWeight="700" fontSize="14" fill="#a78bfa" letterSpacing="-0.3">Turso</text>
-        </svg>
-      ),
+      icon: <TursoIcon />,
     },
     {
       name: "Stripe",
       href: "https://stripe.com",
-      svg: (
-        <svg viewBox="0 0 70 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
-          <rect width="70" height="28" rx="6" fill="#635BFF" />
-          <text x="10" y="20" fontFamily="system-ui" fontWeight="700" fontSize="14" fontStyle="italic" fill="white" letterSpacing="-0.3">stripe</text>
-        </svg>
-      ),
+      icon: <StripeIcon />,
     },
     {
       name: "GitHub",
       href: "https://github.com/Simonc44/mandat",
-      svg: (
-        <svg viewBox="0 0 100 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
-          <rect width="100" height="28" rx="6" fill="#24292e" />
-          <svg x="8" y="4" width="20" height="20" viewBox="0 0 24 24" fill="white">
-            <path d="M12 2C6.48 2 2 6.58 2 12.22c0 4.51 2.87 8.34 6.84 9.69.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.61-3.37-1.36-3.37-1.36-.45-1.17-1.11-1.48-1.11-1.48-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.36-2.22-.26-4.56-1.13-4.56-5.03 0-1.11.39-2.02 1.03-2.73-.1-.26-.45-1.3.1-2.7 0 0 .84-.27 2.75 1.04A9.4 9.4 0 0 1 12 6.84c.85.01 1.71.12 2.51.34 1.91-1.31 2.75-1.04 2.75-1.04.55 1.4.2 2.44.1 2.7.64.71 1.03 1.62 1.03 2.73 0 3.91-2.34 4.77-4.57 5.02.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.59.69.49A10.03 10.03 0 0 0 22 12.22C22 6.58 17.52 2 12 2z" />
-          </svg>
-          <text x="32" y="20" fontFamily="system-ui" fontWeight="600" fontSize="13" fill="white">GitHub</text>
-        </svg>
-      ),
+      icon: <GitHubIcon />,
     },
     {
       name: "Assemblée nationale",
       href: "https://www.assemblee-nationale.fr",
-      svg: (
-        <svg viewBox="0 0 180 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
-          <rect width="180" height="28" rx="6" fill="#003189" />
-          <text x="10" y="19" fontFamily="Georgia, serif" fontWeight="600" fontSize="11" fill="white" letterSpacing="0.2">Assemblée nationale</text>
-        </svg>
-      ),
+      icon: <ANIcon />,
     },
     {
-      name: "CIVIX",
+      name: "Civix",
       href: "https://civix.fr",
-      svg: (
-        <svg viewBox="0 0 72 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
-          <rect width="72" height="28" rx="6" fill="#0f172a" />
-          <text x="10" y="20" fontFamily="system-ui" fontWeight="800" fontSize="14" fill="#38bdf8" letterSpacing="1.5">CIVIX</text>
-        </svg>
-      ),
+      icon: <CivixIcon />,
     },
     {
-      name: "CLAIR",
+      name: "Clair",
       href: "https://clair-production.up.railway.app",
-      svg: (
-        <svg viewBox="0 0 70 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ height: 22 }}>
-          <rect width="70" height="28" rx="6" fill="#064e3b" />
-          <text x="10" y="20" fontFamily="system-ui" fontWeight="800" fontSize="14" fill="#6ee7b7" letterSpacing="1.5">CLAIR</text>
-        </svg>
-      ),
+      icon: <ClairIcon />,
     },
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-4 sm:gap-x-5">
+    <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-4 sm:gap-x-10">
       {logos.map(l => (
-        <a key={l.name} href={l.href} target="_blank" rel="noopener noreferrer"
-           className="trust-logo inline-flex items-center opacity-80 hover:opacity-100 transition-opacity" aria-label={l.name} title={l.name}>
-          {l.svg}
+        <a
+          key={l.name}
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={l.name}
+          title={l.name}
+          className="trust-logo group inline-flex items-center gap-2 opacity-60 hover:opacity-100 transition-all duration-200"
+        >
+          <span className="shrink-0 transition-transform duration-200 group-hover:scale-110">{l.icon}</span>
+          <span
+            className="text-sm font-semibold tracking-tight text-foreground/70 group-hover:text-foreground transition-colors duration-200"
+            style={{ fontFamily: "system-ui, sans-serif" }}
+          >
+            {l.name}
+          </span>
         </a>
       ))}
     </div>
