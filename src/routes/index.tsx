@@ -156,34 +156,35 @@ function Home() {
 
 
       {/* DERNIERS SCRUTINS */}
-      <section className="container-app pb-16 pt-4 relative z-10 -mt-4">
-        <ScrollScene variant="rise">
-          <div className="flex items-end justify-between mb-8 mt-2" data-rise>
-            <div>
-              <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-2 font-medium">En direct de l'hémicycle</div>
-              <h2 className="font-display text-3xl md:text-5xl leading-[1.05] tracking-tight">Derniers scrutins.</h2>
-            </div>
-            <Link to="/scrutins" className="text-sm text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 group">
-              Tout voir
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
-            </Link>
+      <StoryReveal as="section" className="container-app pb-16 pt-4 relative z-10 -mt-4">
+        <div className="flex items-end justify-between mb-8 mt-2">
+          <div>
+            <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-2 font-medium">En direct de l'hémicycle</div>
+            <h2 className="font-display text-3xl md:text-5xl leading-[1.05] tracking-tight">Derniers scrutins.</h2>
           </div>
-        </ScrollScene>
-        <ScrollScene variant="tilt" className="grid md:grid-cols-2 gap-4">
+          <Link to="/scrutins" className="text-sm text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 group">
+            Tout voir
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+          </Link>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
           {latest.slice(1).map((s, i) => (
-            <div key={s.numero} data-tilt className="will-change-transform"><ScrutinCard s={s} index={i} /></div>
+            <StoryReveal key={s.numero} delay={i * 80}>
+              <ScrutinCard s={s} index={i} />
+            </StoryReveal>
           ))}
-        </ScrollScene>
-      </section>
+        </div>
+      </StoryReveal>
 
       {/* STATS */}
-      <section className="container-app pb-16">
-        <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 animate-fade-up">
+      <StoryReveal as="section" className="container-app pb-16">
+        <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
           <StatPill value={stats.deputesCount.toLocaleString("fr-FR")} label="Député·es" />
           <StatPill value={stats.scrutinsCount.toLocaleString("fr-FR")} label="Scrutins" />
           <StatPill value={stats.groupesCount.toString()} label="Groupes" />
         </div>
-      </section>
+      </StoryReveal>
+
 
       <TrustSection />
     </div>
