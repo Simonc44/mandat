@@ -17,6 +17,7 @@ import {
 } from "@/lib/data.functions";
 import { GroupBadge } from "@/components/GroupBadge";
 import { ScrollScene } from "@/components/ScrollScene";
+import { StoryReveal } from "@/components/StoryReveal";
 import { Unlock, Scale, ShieldCheck } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
 
