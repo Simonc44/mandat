@@ -42,11 +42,10 @@ export function StoryReveal({
   }, [threshold]);
 
   const style: CSSProperties = delay ? { transitionDelay: `${delay}ms` } : {};
+  const cls = `story-reveal ${className}`;
 
-  return (
-    // @ts-expect-error dynamic tag
-    <Tag ref={ref} className={`story-reveal ${className}`} style={style}>
-      {children}
-    </Tag>
-  );
+  if (Tag === "section") return <section ref={ref as never} className={cls} style={style}>{children}</section>;
+  if (Tag === "article") return <article ref={ref as never} className={cls} style={style}>{children}</article>;
+  return <div ref={ref} className={cls} style={style}>{children}</div>;
 }
+
