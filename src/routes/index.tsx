@@ -510,7 +510,7 @@ function SortBadge({ sort }: { sort: string }) {
 function TursoIcon() {
   return (
     <svg
-      className="h-10 fill-current"
+      className="h-6 fill-current"
       viewBox="0 0 201 170"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
