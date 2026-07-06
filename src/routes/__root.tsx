@@ -28,7 +28,7 @@ export const SITE_URL = "https://mandat-fr.vercel.app";
 export const SITE_NAME =
   "Mandat — Qui a voté quoi ? Suivez les députés de l'Assemblée nationale";
 export const SITE_DESCRIPTION =
-  "Cherchez un·e député·e, un texte de loi, un scrutin. Les votes de l'Assemblée nationale 17e législature, enfin lisibles et accessibles à tous sans étiquette politique.";
+  "Trouvez le vote de chaque député sur n'importe quel texte. Les 577 élus et les lois de la 17e législature, accessibles sans étiquette politique.";
 export const KEYWORDS = [
   "votes",
   "Assemblée nationale",
@@ -64,9 +64,7 @@ interface SeoConfig {
 }
 
 export function createSeoLinks(canonical: string) {
-  return [
-    { rel: "canonical", href: canonical },
-  ];
+  return [{ rel: "canonical", href: canonical }];
 }
 
 export function createSeoMeta(config: SeoConfig) {
@@ -76,6 +74,7 @@ export function createSeoMeta(config: SeoConfig) {
   return [
     { title: config.title },
     { name: "description", content: config.description },
+    { name: "viewport", content: "width=device-width, initial-scale=1" },
     { name: "keywords", content: KEYWORDS.join(", ") },
     { name: "author", content: "Simon Chusseau" },
     { name: "robots", content: "index, follow" },
@@ -172,10 +171,19 @@ export function createVoteEventSchema(vote: any) {
 function NotFoundComponent() {
   return (
     <div className="container-app py-24 text-center animate-fade-up">
-      <Landmark className="w-14 h-14 mx-auto mb-4 text-primary/60" strokeWidth={1.4} aria-hidden="true" />
+      <Landmark
+        className="w-14 h-14 mx-auto mb-4 text-primary/60"
+        strokeWidth={1.4}
+        aria-hidden="true"
+      />
       <h1 className="font-display text-6xl mb-3 tracking-tight">404</h1>
-      <p className="text-muted-foreground mb-8">Cette page n'existe pas ou a été déplacée.</p>
-      <Link to="/" className="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-medium">
+      <p className="text-muted-foreground mb-8">
+        Cette page n'existe pas ou a été déplacée.
+      </p>
+      <Link
+        to="/"
+        className="btn-primary inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-medium"
+      >
         <Home className="w-4 h-4" aria-hidden="true" /> Retour à l'accueil
       </Link>
     </div>
@@ -190,17 +198,33 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
   return (
     <div className="container-app py-24 text-center animate-fade-up">
-      <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-destructive/70" strokeWidth={1.5} aria-hidden="true" />
-      <h1 className="font-display text-3xl mb-3 tracking-tight">Cette page n'a pas chargé</h1>
-      <p className="text-sm text-muted-foreground mb-8">Les données n'ont pas pu être récupérées. Vérifiez votre connexion.</p>
+      <AlertTriangle
+        className="w-12 h-12 mx-auto mb-4 text-destructive/70"
+        strokeWidth={1.5}
+        aria-hidden="true"
+      />
+      <h1 className="font-display text-3xl mb-3 tracking-tight">
+        Cette page n'a pas chargé
+      </h1>
+      <p className="text-sm text-muted-foreground mb-8">
+        Les données n'ont pas pu être récupérées. Vérifiez votre connexion.
+      </p>
       <div className="flex justify-center gap-3">
         <button
-          onClick={() => { router.invalidate(); reset(); }}
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
           className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-medium"
         >
           <RotateCcw className="w-4 h-4" aria-hidden="true" /> Réessayer
         </button>
-        <a href="/" className="glass px-5 py-2.5 rounded-2xl text-sm border border-border hover:border-primary/40 transition-colors">Accueil</a>
+        <a
+          href="/"
+          className="glass px-5 py-2.5 rounded-2xl text-sm border border-border hover:border-primary/40 transition-colors"
+        >
+          Accueil
+        </a>
       </div>
     </div>
   );
@@ -216,21 +240,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         description: SITE_DESCRIPTION,
       }),
       links: [
-        { rel: "stylesheet", href: appCss },
+        ...createSeoLinks(SITE_URL),
         { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
         { rel: "apple-touch-icon", href: "/favicon.svg" },
         { rel: "manifest", href: "/manifest.json" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
-        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "preconnect",
+          href: "https://fonts.gstatic.com",
+          crossOrigin: "anonymous",
+        },
         {
           rel: "stylesheet",
           href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700&family=Inter:wght@300;400;500;600;700&display=swap",
         },
         { rel: "alternate", hrefLang: "fr-FR", href: SITE_URL },
-        { rel: "preconnect", href: "https://www2.assemblee-nationale.fr", crossOrigin: "anonymous" },
+        {
+          rel: "preconnect",
+          href: "https://www2.assemblee-nationale.fr",
+          crossOrigin: "anonymous",
+        },
         { rel: "dns-prefetch", href: "https://www2.assemblee-nationale.fr" },
-        { rel: "preconnect", href: "https://www.nosdeputes.fr", crossOrigin: "anonymous" },
+        {
+          rel: "preconnect",
+          href: "https://www.nosdeputes.fr",
+          crossOrigin: "anonymous",
+        },
         { rel: "dns-prefetch", href: "https://www.nosdeputes.fr" },
+        { rel: "stylesheet", href: appCss },
       ],
     }),
     shellComponent: RootShell,
@@ -254,7 +291,10 @@ function RootShell({ children }: { children: ReactNode }) {
          * 2. wait_for_update 500ms : laisse le CookieBanner appeler update avant le premier hit.
          * 3. Restauration automatique si l'utilisateur a déjà répondu (localStorage).
          */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CMMWPQG5P6" />
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-CMMWPQG5P6"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -308,20 +348,47 @@ function RootShell({ children }: { children: ReactNode }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: safeJsonLd(JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              "@id": `${SITE_URL}/#website`,
-              url: SITE_URL,
-              name: SITE_NAME,
-              description: SITE_DESCRIPTION,
-              potentialAction: {
-                "@type": "SearchAction",
-                target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/recherche?q={search_term_string}` },
-                "query-input": "required name=search_term_string",
-              },
-              inLanguage: "fr-FR",
-            })),
+            __html: safeJsonLd(
+              JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "@id": `${SITE_URL}/#website`,
+                url: SITE_URL,
+                name: SITE_NAME,
+                description: SITE_DESCRIPTION,
+                potentialAction: {
+                  "@type": "SearchAction",
+                  target: {
+                    "@type": "EntryPoint",
+                    urlTemplate: `${SITE_URL}/recherche?q={search_term_string}`,
+                  },
+                  "query-input": "required name=search_term_string",
+                },
+                inLanguage: "fr-FR",
+              }),
+            ),
+          }}
+        />
+
+        {/* JSON-LD LocalBusiness */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: safeJsonLd(
+              JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "LocalBusiness",
+                "@id": `${SITE_URL}/#localbusiness`,
+                name: SITE_NAME,
+                url: SITE_URL,
+                logo: `${SITE_URL}/favicon.svg`,
+                description: SITE_DESCRIPTION,
+                address: {
+                  "@type": "PostalAddress",
+                  addressCountry: "FR",
+                },
+              }),
+            ),
           }}
         />
 
@@ -329,19 +396,21 @@ function RootShell({ children }: { children: ReactNode }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: safeJsonLd(JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "@id": `${SITE_URL}/#organization`,
-              name: SITE_NAME,
-              url: SITE_URL,
-              logo: `${SITE_URL}/favicon.svg`,
-              description: SITE_DESCRIPTION,
-              foundingDate: "2025",
-              foundingLocation: "France",
-              areaServed: "FR",
-              sameAs: ["https://github.com/Simonc44/mandat"],
-            })),
+            __html: safeJsonLd(
+              JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "@id": `${SITE_URL}/#organization`,
+                name: SITE_NAME,
+                url: SITE_URL,
+                logo: `${SITE_URL}/favicon.svg`,
+                description: SITE_DESCRIPTION,
+                foundingDate: "2025",
+                foundingLocation: "France",
+                areaServed: "FR",
+                sameAs: ["https://github.com/Simonc44/mandat"],
+              }),
+            ),
           }}
         />
       </head>
