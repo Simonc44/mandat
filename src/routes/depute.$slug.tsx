@@ -49,8 +49,8 @@ export const Route = createFileRoute("/depute/$slug")({
         title: `${name}${groupe} — Ses votes à l'Assemblée nationale · Mandat`,
         description: `Comment vote ${name}${circo} ? Positions, taux de présence et historique complet des scrutins durant la 17e législature.`,
         canonical,
-        ogType: "profile",
-        keywords: [name, "député", "votes", "mandat", "assemblée nationale", "circonscription", "transparence"],
+        ogType: "article",
+
       }),
       links: createSeoLinks(canonical),
     };
