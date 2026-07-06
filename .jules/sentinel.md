@@ -15,3 +15,9 @@
 **Vulnerability:** Running `pnpm install` in the agent environment caused an unintended downgrade of `lucide-react` in `pnpm-lock.yaml`.
 **Learning:** The agent's global or cached `pnpm` version/config might conflict with the project's lockfile, especially when specific versions are pinned in `package.json`.
 **Prevention:** Always verify lockfile changes after installation and use `git checkout` to restore unrelated changes if they occur.
+
+## 2026-07-06 - [Overly Permissive CORS on Internal API]
+
+**Vulnerability:** The `/api/visits` endpoint was configured with `Access-Control-Allow-Origin: "*"`, exposing visitor data and counter increment logic to any cross-origin request.
+**Learning:** Internal APIs used exclusively by the application's own frontend should not have CORS enabled, as relative fetches already operate on the same origin.
+**Prevention:** Default to no CORS for internal endpoints and only enable it with a strict whitelist if external access is explicitly required.

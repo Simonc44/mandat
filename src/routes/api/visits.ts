@@ -5,10 +5,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getCookie, setCookie } from "@tanstack/react-start/server";
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+const HEADERS = {
+  "Content-Type": "application/json",
   "Cache-Control": "no-store",
 };
 
@@ -24,22 +22,20 @@ async function readCount(): Promise<number> {
 export const Route = createFileRoute("/api/visits")({
   server: {
     handlers: {
-      OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
-
       GET: async () => {
         try {
           const count = await readCount();
           return new Response(JSON.stringify({ count }), {
             status: 200,
-            headers: { "Content-Type": "application/json", ...CORS },
+            headers: HEADERS,
           });
         } catch (e) {
           console.error("[API/visits] GET Error:", e);
           return new Response(
             JSON.stringify({ count: 0, error: "Internal Server Error" }),
             {
-              status: 200,
-              headers: { "Content-Type": "application/json", ...CORS },
+              status: 500,
+              headers: HEADERS,
             },
           );
         }
@@ -68,15 +64,15 @@ export const Route = createFileRoute("/api/visits")({
           const count = Number(r.rows[0]?.count ?? 0);
           return new Response(JSON.stringify({ count }), {
             status: 200,
-            headers: { "Content-Type": "application/json", ...CORS },
+            headers: HEADERS,
           });
         } catch (e) {
           console.error("[API/visits] POST Error:", e);
           return new Response(
             JSON.stringify({ count: 0, error: "Internal Server Error" }),
             {
-              status: 200,
-              headers: { "Content-Type": "application/json", ...CORS },
+              status: 500,
+              headers: HEADERS,
             },
           );
         }
