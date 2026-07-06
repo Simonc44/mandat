@@ -2,13 +2,13 @@
 
 > **Qui a voté quoi.** Le moteur de recherche citoyen, neutre et open-data des votes de l'Assemblée nationale (17e législature).
 
-[![Production](https://img.shields.io/badge/Production-Live-success?style=flat-square)](https://mandat-fr.is-a.dev)
+[![Production](https://img.shields.io/badge/Production-Live-success?style=flat-square)](https://mandat-fr.vercel.app)
 [![License: MIT](https://img.shields.io/badge/Licence-Mandat-blue?style=flat-square)](LICENCE)
 [![Built with TanStack](https://img.shields.io/badge/Built%20with-TanStack-ff4154?style=flat-square)](https://tanstack.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square)](https://www.typescriptlang.org)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 
-**🌐 Site en production :** [mandat-fr.is-a.dev](https://mandat-fr.is-a.dev)
+**🌐 Site en production :** [mandat-fr.is-a.dev](https://mandat-fr.vercel.app)
 
 ---
 
