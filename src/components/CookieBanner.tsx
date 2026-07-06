@@ -1,11 +1,10 @@
-// components/CookieBanner.tsx
+// components/CookieBanner.tsx — bandeau RGPD professionnel
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "@tanstack/react-router";
+import { ShieldCheck, X } from "lucide-react";
 
-// Clé de persistance — alignée avec le Consent Mode dans __root.tsx
 const CONSENT_KEY = "mandat_analytics_consent";
 
-/** Envoie une mise à jour du consentement GA via gtag */
 function updateGAConsent(granted: boolean) {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,8 +16,8 @@ function updateGAConsent(granted: boolean) {
       ad_user_data: "denied",
       ad_personalization: "denied",
     });
-  } catch (e) {
-    // silencieux si gtag n'est pas disponible
+  } catch {
+    /* silent */
   }
 }
 
@@ -31,77 +30,137 @@ export function CookieBanner() {
       if (saved === "granted" || saved === "denied") {
         setVisible(false);
       } else {
-        const t = setTimeout(() => setVisible(true), 1500);
+        const t = setTimeout(() => setVisible(true), 1200);
         return () => clearTimeout(t);
       }
-    } catch (e) {
+    } catch {
       setVisible(true);
     }
   }, []);
 
-  const handleAccept = useCallback(() => {
-    try { localStorage.setItem(CONSENT_KEY, "granted"); } catch (e) {}
+  const persist = useCallback((value: "granted" | "denied") => {
+    try { localStorage.setItem(CONSENT_KEY, value); } catch { /* silent */ }
     setVisible(false);
-    updateGAConsent(true);
-  }, []);
-
-  const handleRefuse = useCallback(() => {
-    try { localStorage.setItem(CONSENT_KEY, "denied"); } catch (e) {}
-    setVisible(false);
-    updateGAConsent(false);
+    updateGAConsent(value === "granted");
   }, []);
 
   if (!visible) return null;
 
   return (
-    <div className="cookie-banner" role="dialog" aria-modal="true" aria-label="Gestion des cookies analytiques">
-      <div className="glass-strong rounded-3xl p-5 space-y-4">
-        <div className="flex items-start gap-3">
-          <span className="text-2xl" aria-hidden="true">📊</span>
-          <div>
-            <h3 className="font-semibold text-foreground text-sm">Mesure d'audience</h3>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Nous utilisons Google Analytics pour mesurer l'audience du site
-              (pages vues, navigation). <strong className="text-foreground">Aucune publicité</strong>,
-              aucun profilage. Vous pouvez refuser sans que cela n'affecte votre navigation.
-            </p>
-          </div>
-        </div>
+    <div
+      className="cookie-banner"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="cookie-banner-title"
+      aria-describedby="cookie-banner-desc"
+    >
+      <div className="glass-strong rounded-2xl border border-border/60 shadow-2xl overflow-hidden">
+        {/* Filet violet en haut, signature visuelle */}
+        <div
+          className="h-[3px] w-full"
+          style={{
+            background:
+              "linear-gradient(90deg, oklch(0.62 0.20 285), oklch(0.68 0.16 305), oklch(0.60 0.20 265))",
+          }}
+          aria-hidden="true"
+        />
 
-        <div className="rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500" aria-hidden="true" />
-            Cookies essentiels (thème, session) — toujours actifs
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" aria-hidden="true" />
-            Analytics anonymisé — uniquement si vous acceptez
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-400/60" aria-hidden="true" />
-            Aucun cookie publicitaire · Aucun tracker tiers
-          </div>
-        </div>
+        <div className="p-5 sm:p-6">
+          <div className="flex items-start gap-4">
+            <div
+              className="shrink-0 grid place-items-center w-10 h-10 rounded-xl"
+              style={{
+                background:
+                  "linear-gradient(135deg, oklch(0.62 0.20 285 / 14%), oklch(0.68 0.16 305 / 18%))",
+                color: "oklch(0.50 0.20 285)",
+              }}
+              aria-hidden="true"
+            >
+              <ShieldCheck className="w-5 h-5" strokeWidth={1.75} />
+            </div>
 
-        <div className="flex gap-2">
-          <button
-            onClick={handleRefuse}
-            className="flex-1 py-2.5 rounded-2xl text-sm font-medium border border-border hover:border-primary/40 hover:bg-muted/30 transition-colors text-muted-foreground"
-          >
-            Refuser
-          </button>
-          <button
-            onClick={handleAccept}
-            className="flex-1 btn-primary py-2.5 rounded-2xl text-sm font-medium text-center"
-          >
-            Accepter
-          </button>
-        </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-3">
+                <h2
+                  id="cookie-banner-title"
+                  className="font-display text-base sm:text-lg tracking-tight text-ink"
+                >
+                  Votre vie privée, notre priorité
+                </h2>
+                <button
+                  onClick={() => persist("denied")}
+                  className="shrink-0 -mt-1 -mr-1 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
+                  aria-label="Fermer et refuser les cookies analytiques"
+                >
+                  <X className="w-4 h-4" aria-hidden="true" />
+                </button>
+              </div>
 
-        <p className="text-[10px] text-muted-foreground text-center">
-          Conformément au RGPD ·{" "}
-          <Link to="/confidentialite" className="underline hover:text-primary">Politique de confidentialité</Link>
-        </p>
+              <p
+                id="cookie-banner-desc"
+                className="text-xs sm:text-[13px] text-muted-foreground mt-1.5 leading-relaxed"
+              >
+                Mandat utilise une mesure d'audience anonymisée pour améliorer le site.
+                Aucune publicité, aucun profilage, aucun partage à des tiers.
+              </p>
+            </div>
+          </div>
+
+          {/* Détail des cookies */}
+          <ul className="mt-4 space-y-1.5 text-[12px] text-muted-foreground">
+            <li className="flex items-center gap-2">
+              <span
+                className="inline-block w-1.5 h-1.5 rounded-full"
+                style={{ background: "oklch(0.60 0.16 155)" }}
+                aria-hidden="true"
+              />
+              <span>Cookies essentiels · toujours actifs</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span
+                className="inline-block w-1.5 h-1.5 rounded-full"
+                style={{ background: "oklch(0.62 0.20 285)" }}
+                aria-hidden="true"
+              />
+              <span>Mesure d'audience anonymisée · avec votre accord</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span
+                className="inline-block w-1.5 h-1.5 rounded-full"
+                style={{ background: "oklch(0.75 0.02 285)" }}
+                aria-hidden="true"
+              />
+              <span>Aucun cookie publicitaire, aucun tracker tiers</span>
+            </li>
+          </ul>
+
+          {/* Actions */}
+          <div className="mt-5 flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
+            <button
+              onClick={() => persist("denied")}
+              className="flex-1 h-10 rounded-xl text-sm font-medium border border-border hover:border-primary/40 hover:bg-muted/40 transition-colors text-foreground"
+            >
+              Refuser
+            </button>
+            <button
+              onClick={() => persist("granted")}
+              className="flex-1 h-10 rounded-xl text-sm font-semibold text-primary-foreground shadow-md hover:shadow-lg transition-shadow"
+              style={{
+                background:
+                  "linear-gradient(135deg, oklch(0.55 0.22 285), oklch(0.50 0.22 265))",
+              }}
+            >
+              Accepter
+            </button>
+          </div>
+
+          <p className="mt-3 text-[10.5px] text-muted-foreground text-center">
+            Conforme RGPD ·{" "}
+            <Link to="/confidentialite" className="underline underline-offset-2 hover:text-primary">
+              Politique de confidentialité
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
