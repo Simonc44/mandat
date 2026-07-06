@@ -42,57 +42,75 @@ function Home() {
 
   return (
     <div>
-      {/* HERO */}
-      <section className="relative z-20">
-        <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="hero-orb w-[600px] h-[600px] -top-32 -left-32 opacity-30"
-            style={{ background: "radial-gradient(circle, oklch(0.50 0.20 285), transparent 70%)", "--duration": "7s", "--delay": "0s" } as React.CSSProperties} />
-          <div className="hero-orb w-[400px] h-[400px] top-1/3 right-0 opacity-20"
-            style={{ background: "radial-gradient(circle, oklch(0.55 0.18 215), transparent 70%)", "--duration": "9s", "--delay": "2s" } as React.CSSProperties} />
+      {/* HERO — plein écran, clair, violet, collé à la navbar */}
+      <section className="hero-attach relative">
+        {/* Orbes flottantes décoratives */}
+        <div className="hero-orb-slow w-[520px] h-[520px] -top-24 -left-32 opacity-60"
+          style={{ background: "radial-gradient(circle, oklch(0.70 0.18 285 / 55%), transparent 70%)" }} aria-hidden="true" />
+        <div className="hero-orb-slow w-[420px] h-[420px] -top-10 right-[-8rem] opacity-50"
+          style={{ background: "radial-gradient(circle, oklch(0.72 0.14 305 / 45%), transparent 70%)", animationDelay: "-5s" }} aria-hidden="true" />
+
+        <div className="container-app relative z-10 pt-14 sm:pt-20 md:pt-24 pb-40 sm:pb-52 md:pb-64 text-center">
+          <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-8 animate-fade-up">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
+            17e législature · Mis à jour quotidiennement
+          </div>
+
+          <h1 className="font-display mx-auto max-w-4xl text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.02] mb-6 animate-fade-up tracking-tight"
+              style={{ animationDelay: "80ms" }}>
+            Cherchez comment
+            <br />
+            <span className="text-gradient italic">votre député a voté.</span>
+          </h1>
+
+          <p className="mx-auto max-w-2xl text-base sm:text-lg text-muted-foreground mb-10 leading-relaxed animate-fade-up px-2"
+             style={{ animationDelay: "160ms" }}>
+            Sur n'importe quel texte de loi, en quelques secondes.{" "}
+            <strong className="text-foreground">{stats.scrutinsCount.toLocaleString("fr-FR")} scrutins</strong>{" "}
+            et{" "}
+            <strong className="text-foreground">{stats.deputesCount.toLocaleString("fr-FR")} député·es</strong>{" "}
+            — sans étiquette politique.
+          </p>
+
+          {/* Barre de recherche à la place des CTA */}
+          <div className="mx-auto max-w-2xl animate-fade-up" style={{ animationDelay: "240ms" }}>
+            <SearchBar />
+          </div>
+
+          {/* Bandeau "Ils nous accompagnent" */}
+          <div className="mt-16 sm:mt-20 animate-fade-up" style={{ animationDelay: "360ms" }}>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground/80 mb-6">
+              Données & technologies de confiance
+            </p>
+            <TrustLogos />
+          </div>
         </div>
 
-        <div className="container-app pt-6 md:pt-8 pb-12 md:pb-16 w-full">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-6 animate-fade-up">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
-              17e législature · Mis à jour quotidiennement
-            </div>
-
-            <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.95] sm:leading-[0.92] mb-6 animate-fade-up tracking-tight" style={{ animationDelay: "80ms" }}>
-              Cherchez comment
-              <br />
-              <span className="text-gradient italic">votre député a voté.</span>
-            </h1>
-
-            <p className="text-lg text-muted-foreground max-w-2xl mb-8 leading-relaxed animate-fade-up" style={{ animationDelay: "160ms" }}>
-              Sur n'importe quel texte de loi, en quelques secondes.{" "}
-              <strong className="text-foreground">{stats.scrutinsCount.toLocaleString("fr-FR")} scrutins</strong>{" "}
-              et{" "}
-              <strong className="text-foreground">{stats.deputesCount.toLocaleString("fr-FR")} député·es</strong>{" "}
-              de la 17e législature — sans étiquette, sans filtre politique.
-            </p>
-
-            {/* SearchBar uniquement — pas de CTA qui masquent les résultats */}
-            <div className="animate-fade-up" style={{ animationDelay: "240ms" }}>
-              <SearchBar />
-            </div>
-
-            {/* Raccourcis discrets SOUS la search — petits, ne rivalisent pas avec les résultats */}
-            <div className="animate-fade-up flex flex-wrap gap-2 mt-4" style={{ animationDelay: "310ms" }}>
-              <Link to="/deputes" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-muted-foreground hover:text-primary glass border border-border/40 hover:border-primary/30 transition-colors">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
-                Député·es
-              </Link>
-              <Link to="/scrutins" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-muted-foreground hover:text-primary glass border border-border/40 hover:border-primary/30 transition-colors">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                Scrutins
-              </Link>
-              <Link to="/groupes" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-muted-foreground hover:text-primary glass border border-border/40 hover:border-primary/30 transition-colors">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg>
-                Groupes
-              </Link>
-            </div>    
-          </div>
+        {/* Vague animée en bas */}
+        <div className="hero-wave" aria-hidden="true">
+          <svg viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="wave1" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%"  stopColor="oklch(0.72 0.16 285 / 55%)" />
+                <stop offset="50%" stopColor="oklch(0.62 0.20 275 / 60%)" />
+                <stop offset="100%" stopColor="oklch(0.70 0.14 305 / 50%)" />
+              </linearGradient>
+              <linearGradient id="wave2" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%"  stopColor="oklch(0.78 0.12 290 / 45%)" />
+                <stop offset="100%" stopColor="oklch(0.66 0.18 265 / 55%)" />
+              </linearGradient>
+              <linearGradient id="wave3" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%"  stopColor="oklch(0.85 0.08 295 / 40%)" />
+                <stop offset="100%" stopColor="oklch(0.72 0.14 285 / 45%)" />
+              </linearGradient>
+            </defs>
+            <path className="hero-wave-path p3" fill="url(#wave3)"
+              d="M0,224 C240,288 480,160 720,192 C960,224 1200,320 1440,256 L1440,320 L0,320 Z" />
+            <path className="hero-wave-path p2" fill="url(#wave2)"
+              d="M0,256 C240,192 480,288 720,240 C960,192 1200,256 1440,224 L1440,320 L0,320 Z" />
+            <path className="hero-wave-path" fill="url(#wave1)"
+              d="M0,288 C240,240 480,320 720,272 C960,224 1200,288 1440,272 L1440,320 L0,320 Z" />
+          </svg>
         </div>
       </section>
 
