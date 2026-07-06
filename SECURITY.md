@@ -33,7 +33,7 @@ Si vous découvrez une vulnérabilité dans Mandat, merci de la signaler de mani
 
 ## ✅ Versions supportées
 
-Seule la version déployée en production sur [mandat-fr.is-a.dev](https://mandat-fr.is-a.dev) (branche `main`) reçoit des correctifs de sécurité.
+Seule la version déployée en production sur [mandat-fr.vercel.app](https://mandat-fr.vercel.app) (branche `main`) reçoit des correctifs de sécurité.
 
 ---
 
