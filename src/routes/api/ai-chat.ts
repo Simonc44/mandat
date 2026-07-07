@@ -1,7 +1,3 @@
-// /api/ai-chat — Chat IA avec Groq
-// Contexte complet : députés 17e, scrutins 17e + 16e, articles blog
-// Quota : géré uniquement par Groq (429 natif) — pas de limite arbitraire
-
 import { createFileRoute } from "@tanstack/react-router";
 
 const CORS = {
@@ -10,24 +6,25 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-// ─── Helpers contexte ─────────────────────────────────────────────────────
+// ─── Context Helpers ───────────────────────────────────────────────────────
 
 async function getScrutins17Context(): Promise<string> {
   try {
     const { tursoClient } = await import("@/lib/turso.server");
     const c = tursoClient();
     const r = await c.execute(
-      `SELECT numero, titre, date, sort,
-              nombre_pours, nombre_contres, nombre_abstentions, type
-       FROM scrutins_17
+      `SELECT numero, titre, date, sort, type,
+              nombre_pours, nombre_contres, nombre_abstentions
+       FROM scrutins
+       WHERE legislature = 17
        ORDER BY numero DESC
-       LIMIT 50`,
+       LIMIT 15`,
     );
     if (!r.rows.length) return "Aucun scrutin 17e législature disponible.";
     return r.rows
       .map(
         (row) =>
-          `Scrutin n°${row.numero} (${row.date}) [${row.type ?? "public"}] — "${String(row.titre ?? "Sans titre").slice(0, 120)}" → ${row.sort} | Pour:${row.nombre_pours} Contre:${row.nombre_contres} Abst:${row.nombre_abstentions}`,
+          `Scrutin n°${row.numero} (${row.date}) [${row.type ?? "public"}] — "${String(row.titre ?? "Sans titre").slice(0, 80)}" → ${row.sort} | Pour:${row.nombre_pours} Contre:${row.nombre_contres} Abst:${row.nombre_abstentions}`,
       )
       .join("\n");
   } catch (e) {
@@ -42,18 +39,16 @@ async function getDeputesContext(): Promise<string> {
     const c = tursoClient();
     const r = await c.execute(
       `SELECT prenom, nom_de_famille, groupe_sigle,
-              nom_circo, num_deptmt, profession, sexe
+              nom_circo, num_deptmt
        FROM deputes
        ORDER BY nom_de_famille COLLATE NOCASE
-       LIMIT 577`,
+       LIMIT 60`,
     );
     if (!r.rows.length) return "Aucune donnée de député disponible.";
     return r.rows
       .map(
         (row) =>
-          `${row.prenom} ${row.nom_de_famille} [${row.groupe_sigle ?? "NI"}] — ${row.nom_circo} (${row.num_deptmt})${
-            row.profession ? ` — ${String(row.profession).slice(0, 60)}` : ""
-          }`,
+          `${row.prenom} ${row.nom_de_famille} [${row.groupe_sigle ?? "NI"}] — ${row.nom_circo} (${row.num_deptmt})`,
       )
       .join("\n");
   } catch (e) {
@@ -64,42 +59,37 @@ async function getDeputesContext(): Promise<string> {
 
 async function getScrutins16Context(): Promise<string> {
   try {
-    // Les scrutins 16 sont en table scrutins avec legislature=16 OU via l'archive
     const { tursoClient } = await import("@/lib/turso.server");
     const c = tursoClient();
-    // Essai depuis la table scrutins (qui stocke les deux législatures)
     const r = await c.execute(
       `SELECT numero, titre, date, sort,
               nombre_pours, nombre_contres, nombre_abstentions
        FROM scrutins
        WHERE legislature = 16 OR CAST(numero AS INTEGER) < 10000
        ORDER BY date DESC
-       LIMIT 30`,
+       LIMIT 5`,
     );
     if (r.rows.length > 0) {
       return r.rows
         .map(
           (row) =>
-            `Scrutin 16e n°${row.numero} (${row.date}) — "${String(row.titre ?? "Sans titre").slice(0, 100)}" → ${row.sort} | Pour:${row.nombre_pours} Contre:${row.nombre_contres} Abst:${row.nombre_abstentions}`,
+            `Scrutin 16e n°${row.numero} (${row.date}) — "${String(row.titre ?? "Sans titre").slice(0, 80)}" → ${row.sort} | Pour:${row.nombre_pours} Contre:${row.nombre_contres} Abst:${row.nombre_abstentions}`,
         )
         .join("\n");
     }
-    // Fallback : API nosdeputes.fr
     const res = await fetch("https://www.nosdeputes.fr/16/scrutins/json", {
       signal: AbortSignal.timeout(10_000),
       headers: { Accept: "application/json" },
     });
     if (!res.ok) return "Scrutins 16e : API nosdeputes.fr indisponible.";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await res.json();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const list: any[] = (data?.scrutins ?? []).slice(0, 30);
+    const list: any[] = (data?.scrutins ?? []).slice(0, 5);
     return list
       .map((x) => {
         const s = x?.scrutin ?? x;
         const p = parseInt(s.nombre_pours ?? "0", 10) || 0;
         const cn = parseInt(s.nombre_contres ?? "0", 10) || 0;
-        return `Scrutin 16e n°${s.numero} (${s.date}) — "${String(s.titre ?? "").slice(0, 100)}" → ${p > cn ? "adopté" : "rejeté"} | Pour:${p} Contre:${cn}`;
+        return `Scrutin 16e n°${s.numero} (${s.date}) — "${String(s.titre ?? "").slice(0, 80)}" → ${p > cn ? "adopté" : "rejeté"} | Pour:${p} Contre:${cn}`;
       })
       .join("\n");
   } catch (e) {
@@ -109,12 +99,8 @@ async function getScrutins16Context(): Promise<string> {
 }
 
 function getBlogContext(): string {
-  // Import statique — pas d'I/O, toujours disponible
   try {
-    // On utilise require dynamique pour éviter un import top-level dans une route API
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { POSTS } = require("@/lib/blog");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (POSTS as any[])
       .map(
         (p: {
@@ -137,8 +123,7 @@ export const Route = createFileRoute("/api/ai-chat")({
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
 
-      POST: async ({ request }) => {
-        // ── Lire le message ──────────────────────────────────────────────
+      POST: async ({ request }: { request: Request }) => {
         let body: { message?: string };
         try {
           body = await request.json();
@@ -170,7 +155,6 @@ export const Route = createFileRoute("/api/ai-chat")({
           );
         }
 
-        // ── Construire le contexte en parallèle ───────────────────────────────
         const [scrutins17, deputes, scrutins16] = await Promise.all([
           getScrutins17Context(),
           getDeputesContext(),
@@ -188,17 +172,17 @@ Règles :
 - Reste focus sur le contenu parlementaire ; pour toute autre demande, redirige poliment.
 
 ${"=".repeat(60)}
-DÉPUTÉS 17e LÉGISLATURE (${new Date().getFullYear()}) — 577 élus
+DÉPUTÉS 17e LÉGISLATURE (${new Date().getFullYear()}) — 60 premiers (A-Z)
 ${"=".repeat(60)}
 ${deputes}
 
 ${"=".repeat(60)}
-SCRUTINS 17e LÉGISLATURE — 50 derniers
+SCRUTINS 17e LÉGISLATURE — 15 derniers
 ${"=".repeat(60)}
 ${scrutins17}
 
 ${"=".repeat(60)}
-SCRUTINS 16e LÉGISLATURE (2022–2024) — 30 derniers
+SCRUTINS 16e LÉGISLATURE (2022–2024) — 5 derniers
 ${"=".repeat(60)}
 ${scrutins16}
 
@@ -208,7 +192,6 @@ ${"=".repeat(60)}
 ${blog}
 `;
 
-        // ── Appel AI streaming ──────────────────────────────────────────────
         let aiResponse: Response;
         try {
           aiResponse = await fetch(
@@ -245,7 +228,6 @@ ${blog}
           );
         }
 
-        // Quota AI dépassé (429) — on passe le message d'erreur au client
         if (aiResponse.status === 429) {
           const errBody = await aiResponse.text();
           let reason =
@@ -274,7 +256,6 @@ ${blog}
           );
         }
 
-        // ── Stream vers le client ──────────────────────────────────────────────
         const upstream = aiResponse.body!;
         const stream = new ReadableStream({
           async start(controller) {
