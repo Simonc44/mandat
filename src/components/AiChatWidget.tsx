@@ -1,10 +1,10 @@
 // AiChatWidget.tsx
-// Bouton flottant IA — logo Gemini SVG — sans limite arbitraire
-// L'erreur de quota Groq est affichée proprement si l'API est saturée
+// Bouton flottant IA — logo Gemini SVG — accès complet aux données Mandat
+// Gestion du quota Groq : message d'erreur dans le chat si 429
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, Sparkles, RefreshCw } from "lucide-react";
+import { X, Send, RefreshCw } from "lucide-react";
 
-// ─── Icone Gemini (SVG officiel) ────────────────────────────────────────
+// ─── Icone Gemini (SVG officiel) ─────────────────────────────────────────
 function GeminiIcon({ size = 24 }: { size?: number }) {
   return (
     <svg
@@ -17,12 +17,11 @@ function GeminiIcon({ size = 24 }: { size?: number }) {
     >
       <path
         d="M16 8.016A8.522 8.522 0 008.016 16h-.032A8.521 8.521 0 000 8.016v-.032A8.521 8.521 0 007.984 0h.032A8.522 8.522 0 0016 7.984v.032z"
-        fill="url(#gemini_grad)"
+        fill="url(#gm_grad)"
       />
       <defs>
         <radialGradient
-          id="gemini_grad"
-          cx="0" cy="0" r="1"
+          id="gm_grad" cx="0" cy="0" r="1"
           gradientUnits="userSpaceOnUse"
           gradientTransform="matrix(16.1326 5.4553 -43.70045 129.2322 1.588 6.503)"
         >
@@ -45,9 +44,11 @@ interface Message {
 
 const SUGGESTIONS = [
   "Quels sont les derniers votes ?",
+  "Quel député a le plus voté contre son groupe ?",
+  "Combien de scrutins en 16e législature ?",
+  "Quels articles parlez du 49.3 ?",
+  "Qui sont les députés de Paris ?",
   "Quel scrutin a été le plus serré ?",
-  "Combien de lois ont été adoptées ?",
-  "Y a-t-il eu des votes à l'unanimité ?",
 ];
 
 // ─── Composant principal ───────────────────────────────────────────────────
@@ -57,21 +58,18 @@ export function AiChatWidget() {
   const [input, setInput]       = useState("");
   const [loading, setLoading]   = useState(false);
   const [rateLimited, setRateLimited] = useState(false);
-  const bottomRef  = useRef<HTMLDivElement>(null);
-  const inputRef   = useRef<HTMLTextAreaElement>(null);
-  const panelRef   = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef  = useRef<HTMLTextAreaElement>(null);
+  const panelRef  = useRef<HTMLDivElement>(null);
 
-  // Scroll auto
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Focus input à l'ouverture
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
 
-  // Escape pour fermer
   useEffect(() => {
     if (!open) return;
     const fn = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
@@ -79,13 +77,12 @@ export function AiChatWidget() {
     return () => window.removeEventListener("keydown", fn);
   }, [open]);
 
-  // Clic en dehors pour fermer
   useEffect(() => {
     if (!open) return;
     const fn = (e: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         const btn = document.getElementById("ai-fab");
-        if (btn && btn.contains(e.target as Node)) return;
+        if (btn?.contains(e.target as Node)) return;
         setOpen(false);
       }
     };
@@ -101,6 +98,11 @@ export function AiChatWidget() {
     setLoading(true);
     setRateLimited(false);
 
+    // Réinitialiser la hauteur du textarea
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+    }
+
     setMessages(prev => [
       ...prev,
       { role: "user", content: msg },
@@ -114,14 +116,13 @@ export function AiChatWidget() {
         body: JSON.stringify({ message: msg }),
       });
 
-      // Quota Groq dépassé
       if (res.status === 429) {
         const data = await res.json().catch(() => ({}));
         setMessages(prev => [
           ...prev.slice(0, -1),
           {
             role: "assistant",
-            content: data.error ?? "L'assistant IA est temporairement indisponible. Le quota de l'API a été atteint. Réessayez dans quelques instants.",
+            content: data.error ?? "⏳ Le quota de l'IA a été atteint. Cela dure généralement quelques secondes. Merci de réessayer dans un instant.",
             isError: true,
           },
         ]);
@@ -135,11 +136,10 @@ export function AiChatWidget() {
         throw new Error(data.error ?? `Erreur ${res.status}`);
       }
 
-      // Lire le stream SSE
       const reader  = res.body!.getReader();
       const decoder = new TextDecoder();
-      let buffer    = "";
-      let content   = "";
+      let buffer  = "";
+      let content = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -154,7 +154,6 @@ export function AiChatWidget() {
           if (raw === "[DONE]") break;
           try {
             const json = JSON.parse(raw);
-            if (json.type === "meta") continue;
             const delta = json.choices?.[0]?.delta?.content ?? "";
             if (delta) {
               content += delta;
@@ -164,7 +163,7 @@ export function AiChatWidget() {
                 return copy;
               });
             }
-          } catch {}
+          } catch { /* ignore */ }
         }
       }
 
@@ -201,41 +200,34 @@ export function AiChatWidget() {
 
   return (
     <>
-      {/* ── Bouton flottant (FAB) ── */}
+      {/* ── FAB ── */}
       <button
         id="ai-fab"
         onClick={() => setOpen(v => !v)}
         aria-label={open ? "Fermer l'assistant IA" : "Ouvrir l'assistant IA"}
         aria-expanded={open}
         className={[
-          "fixed right-5 bottom-24 z-[9998]",
-          "w-14 h-14 rounded-full",
-          "flex items-center justify-center",
-          "transition-all duration-300",
-          "hover:scale-110 active:scale-95",
+          "fixed right-5 bottom-24 z-[9998] w-14 h-14 rounded-full",
+          "flex items-center justify-center bg-white",
+          "transition-all duration-300 hover:scale-110 active:scale-95",
           open
             ? "scale-110 shadow-[0_0_0_3px_oklch(0.70_0.16_265/40%),0_8px_32px_oklch(0.50_0.20_285/40%)]"
-            : "shadow-[0_4px_24px_oklch(0.50_0.20_285/30%),0_1px_4px_rgba(0,0,0,0.15)]",
+            : "shadow-[0_4px_24px_oklch(0.50_0.20_285/25%),0_1px_4px_rgba(0,0,0,0.12)]",
         ].join(" ")}
-        style={{ background: "white" }}
       >
-        <div
-          className="absolute inset-0 rounded-full opacity-20"
-          style={{ background: "linear-gradient(135deg,#9168C0,#5684D1,#1BA1E3)" }}
-        />
+        <div className="absolute inset-0 rounded-full opacity-15"
+          style={{ background: "linear-gradient(135deg,#9168C0,#5684D1,#1BA1E3)" }} />
         <GeminiIcon size={28} />
       </button>
 
-      {/* ── Panneau chat ── */}
+      {/* ── Panneau ── */}
       <div
         ref={panelRef}
         className={[
           "fixed right-5 z-[9999]",
-          "w-[min(420px,calc(100vw-2.5rem))]",
+          "w-[min(440px,calc(100vw-2.5rem))]",
           "transition-all duration-300 origin-bottom-right",
-          open
-            ? "opacity-100 scale-100 pointer-events-auto"
-            : "opacity-0 scale-95 pointer-events-none",
+          open ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none",
         ].join(" ")}
         style={{ bottom: "calc(6rem + 3.75rem + 0.75rem)" }}
         aria-hidden={!open}
@@ -243,78 +235,75 @@ export function AiChatWidget() {
         <div
           className="rounded-3xl overflow-hidden flex flex-col"
           style={{
-            background: "oklch(0.985 0.005 285 / 92%)",
+            background: "oklch(0.985 0.005 285 / 94%)",
             backdropFilter: "blur(32px) saturate(1.8)",
-            border: "1px solid oklch(0.90 0.04 285 / 60%)",
-            boxShadow: "0 24px 64px oklch(0.50 0.20 285 / 20%), 0 4px 16px rgba(0,0,0,0.12)",
-            maxHeight: "min(560px, 72vh)",
+            border: "1px solid oklch(0.90 0.04 285 / 55%)",
+            boxShadow: "0 24px 64px oklch(0.50 0.20 285 / 18%), 0 4px 16px rgba(0,0,0,0.10)",
+            maxHeight: "min(580px, 74vh)",
           }}
         >
-          {/* —— Header —— */}
+          {/* Header */}
           <div
             className="flex items-center gap-3 px-5 py-3.5 shrink-0"
             style={{
-              background: "linear-gradient(90deg, oklch(0.94 0.06 280 / 70%), oklch(0.94 0.06 310 / 50%))",
-              borderBottom: "1px solid oklch(0.90 0.04 285 / 50%)",
+              background: "linear-gradient(90deg, oklch(0.93 0.07 280 / 65%), oklch(0.93 0.06 310 / 45%))",
+              borderBottom: "1px solid oklch(0.90 0.04 285 / 45%)",
             }}
           >
-            <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-              style={{ background: "white", boxShadow: "0 2px 8px oklch(0.50 0.20 285 / 20%)" }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-white"
+              style={{ boxShadow: "0 2px 8px oklch(0.50 0.20 285 / 18%)" }}>
               <GeminiIcon size={18} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm text-foreground leading-none">Assistant Mandat</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
-                {rateLimited ? "Quota atteint — réessayez plus tard" : "Données officielles AN en temps réel"}
+              <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1.5">
+                <span className={`w-1.5 h-1.5 rounded-full inline-block ${ rateLimited ? "bg-amber-400" : "bg-green-500" }`} />
+                {rateLimited
+                  ? "Quota atteint — réessayez dans quelques secondes"
+                  : "Députés · Scrutins 17e & 16e · Blog"}
               </p>
             </div>
             <div className="flex items-center gap-1">
               {hasMessages && (
-                <button
-                  onClick={clearChat}
-                  title="Nouvelle conversation"
+                <button onClick={clearChat} title="Nouvelle conversation"
                   className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/50 transition-colors"
-                  aria-label="Effacer la conversation"
-                >
+                  aria-label="Effacer">
                   <RefreshCw className="w-3.5 h-3.5" />
                 </button>
               )}
-              <button
-                onClick={() => setOpen(false)}
+              <button onClick={() => setOpen(false)}
                 className="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/50 transition-colors"
-                aria-label="Fermer"
-              >
+                aria-label="Fermer">
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* —— Zone messages —— */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0"
-            style={{ scrollbarWidth: "thin", scrollbarColor: "oklch(0.80 0.04 285) transparent" }}>
+          {/* Messages */}
+          <div
+            className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0"
+            style={{ scrollbarWidth: "thin", scrollbarColor: "oklch(0.82 0.04 285) transparent" }}
+          >
             {!hasMessages && (
-              <div className="py-4">
+              <div className="py-2">
                 <div className="text-center mb-5">
-                  <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center"
-                    style={{ background: "linear-gradient(135deg, oklch(0.94 0.08 280), oklch(0.94 0.08 310))" }}>
+                  <div className="w-14 h-14 rounded-2xl mx-auto mb-3 flex items-center justify-center bg-white"
+                    style={{ boxShadow: "0 4px 16px oklch(0.50 0.20 285 / 18%)" }}>
                     <GeminiIcon size={28} />
                   </div>
                   <p className="font-semibold text-sm text-foreground">Posez une question</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    J'ai accès aux derniers scrutins de l'Assemblée nationale.
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    J'ai accès aux 577 députés, aux scrutins des 17e et 16e législatures, et aux articles du blog.
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {SUGGESTIONS.map(s => (
-                    <button
-                      key={s}
-                      onClick={() => sendMessage(s)}
-                      className="text-left text-xs px-3 py-2.5 rounded-2xl border transition-all duration-150 hover:scale-[1.02] active:scale-95"
+                    <button key={s} onClick={() => sendMessage(s)}
+                      className="text-left text-xs px-3 py-2.5 rounded-2xl border transition-all duration-150 hover:scale-[1.02] active:scale-95 leading-snug"
                       style={{
-                        borderColor: "oklch(0.88 0.05 285 / 80%)",
-                        background: "oklch(0.97 0.02 285 / 60%)",
-                        color: "oklch(0.35 0.10 285)",
+                        borderColor: "oklch(0.88 0.05 285 / 70%)",
+                        background: "oklch(0.97 0.02 285 / 55%)",
+                        color: "oklch(0.38 0.10 285)",
                       }}
                     >
                       {s}
@@ -325,79 +314,71 @@ export function AiChatWidget() {
             )}
 
             {messages.map((m, i) => (
-              <div
-                key={i}
-                className={["flex gap-2", m.role === "user" ? "justify-end" : "justify-start items-end"].join(" ")}
-              >
-                {/* Avatar assistant */}
+              <div key={i} className={["flex gap-2", m.role === "user" ? "justify-end" : "justify-start items-end"].join(" ")}>
                 {m.role === "assistant" && (
-                  <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center mb-0.5"
-                    style={{ background: "white", boxShadow: "0 1px 6px oklch(0.50 0.20 285 / 20%)" }}>
+                  <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center mb-0.5 bg-white"
+                    style={{ boxShadow: "0 1px 6px oklch(0.50 0.20 285 / 18%)" }}>
                     <GeminiIcon size={14} />
                   </div>
                 )}
-
                 <div
-                  className={[
-                    "max-w-[80%] px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap",
-                    m.role === "user"
-                      ? "rounded-3xl rounded-br-lg"
-                      : m.isError
-                      ? "rounded-3xl rounded-bl-lg border"
-                      : "rounded-3xl rounded-bl-lg border",
-                  ].join(" ")}
+                  className="max-w-[80%] px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap rounded-3xl"
                   style={
                     m.role === "user"
                       ? {
                           background: "linear-gradient(135deg, oklch(0.52 0.20 285), oklch(0.48 0.18 265))",
                           color: "white",
-                          boxShadow: "0 2px 12px oklch(0.50 0.20 285 / 30%)",
+                          borderBottomRightRadius: "0.5rem",
+                          boxShadow: "0 2px 12px oklch(0.50 0.20 285 / 28%)",
                         }
                       : m.isError
                       ? {
-                          background: "oklch(0.97 0.02 20 / 80%)",
-                          borderColor: "oklch(0.88 0.06 20 / 60%)",
-                          color: "oklch(0.45 0.15 20)",
+                          background: "oklch(0.97 0.02 25 / 85%)",
+                          border: "1px solid oklch(0.88 0.07 25 / 60%)",
+                          color: "oklch(0.42 0.14 25)",
+                          borderBottomLeftRadius: "0.5rem",
                         }
                       : {
-                          background: "oklch(0.97 0.01 285 / 80%)",
-                          borderColor: "oklch(0.90 0.04 285 / 60%)",
+                          background: "oklch(0.97 0.01 285 / 82%)",
+                          border: "1px solid oklch(0.90 0.04 285 / 55%)",
                           color: "oklch(0.25 0.04 285)",
-                          boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                          borderBottomLeftRadius: "0.5rem",
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
                         }
                   }
                 >
-                  {m.content || (m.streaming ? "" : "")}
-                  {m.streaming && (
-                    <span
-                      className="inline-block w-2 h-4 ml-0.5 rounded-sm animate-pulse align-middle"
-                      style={{ background: "oklch(0.60 0.16 285)" }}
-                    />
-                  )}
-                  {!m.content && m.streaming && (
-                    <span className="flex gap-1 items-center">
-                      {[0,1,2].map(j => (
+                  {/* Indicateur 3 points pendant le début du streaming */}
+                  {m.streaming && !m.content ? (
+                    <span className="flex gap-1 items-center h-4">
+                      {[0, 1, 2].map(j => (
                         <span key={j} className="w-1.5 h-1.5 rounded-full animate-bounce"
-                          style={{ background: "oklch(0.60 0.16 285)", animationDelay: `${j*120}ms` }} />
+                          style={{ background: "oklch(0.60 0.16 285)", animationDelay: `${j * 120}ms` }} />
                       ))}
                     </span>
+                  ) : (
+                    <>
+                      {m.content}
+                      {m.streaming && (
+                        <span className="inline-block w-2 h-4 ml-0.5 rounded-sm animate-pulse align-middle"
+                          style={{ background: "oklch(0.60 0.16 285)" }} />
+                      )}
+                    </>
                   )}
                 </div>
               </div>
             ))}
-
             <div ref={bottomRef} />
           </div>
 
-          {/* —— Input —— */}
+          {/* Input */}
           <div className="px-4 pb-4 pt-3 shrink-0"
-            style={{ borderTop: "1px solid oklch(0.92 0.04 285 / 50%)" }}>
+            style={{ borderTop: "1px solid oklch(0.92 0.04 285 / 45%)" }}>
             <div
-              className="flex items-end gap-2 rounded-2xl px-3.5 py-2.5 transition-all duration-200"
+              className="flex items-end gap-2 rounded-2xl px-3.5 py-2.5"
               style={{
-                background: "oklch(0.98 0.01 285 / 80%)",
-                border: "1.5px solid oklch(0.86 0.06 285 / 70%)",
-                boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                background: "oklch(0.98 0.01 285 / 82%)",
+                border: "1.5px solid oklch(0.86 0.06 285 / 65%)",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
               }}
             >
               <textarea
@@ -405,16 +386,15 @@ export function AiChatWidget() {
                 value={input}
                 onChange={e => {
                   setInput(e.target.value);
-                  // Auto-resize
                   e.target.style.height = "auto";
                   e.target.style.height = Math.min(e.target.scrollHeight, 112) + "px";
                 }}
                 onKeyDown={handleKey}
-                placeholder={rateLimited ? "Quota atteint — réessayez plus tard" : "Posez votre question…"}
+                placeholder={loading ? "L'IA répond…" : "Posez votre question…"}
                 disabled={loading}
                 rows={1}
-                maxLength={500}
-                className="flex-1 bg-transparent resize-none outline-none text-sm placeholder:text-muted-foreground/60 disabled:opacity-50 leading-relaxed"
+                maxLength={600}
+                className="flex-1 bg-transparent resize-none outline-none text-sm placeholder:text-muted-foreground/55 disabled:opacity-50 leading-relaxed"
                 style={{ scrollbarWidth: "none", minHeight: "1.5rem", maxHeight: "7rem" }}
               />
               <button
@@ -426,7 +406,7 @@ export function AiChatWidget() {
                     ? "linear-gradient(135deg, oklch(0.52 0.20 285), oklch(0.48 0.18 265))"
                     : "oklch(0.88 0.04 285)",
                   color: "white",
-                  boxShadow: input.trim() && !loading ? "0 2px 8px oklch(0.50 0.20 285 / 35%)" : "none",
+                  boxShadow: input.trim() && !loading ? "0 2px 8px oklch(0.50 0.20 285 / 32%)" : "none",
                 }}
                 aria-label="Envoyer"
               >
@@ -435,13 +415,13 @@ export function AiChatWidget() {
                   : <Send className="w-3.5 h-3.5" />}
               </button>
             </div>
-            <div className="flex items-center justify-between mt-2 px-1">
-              <span className="text-[10px] text-muted-foreground/50">
-                IA neutre · Données officielles AN
+            <div className="flex items-center justify-between mt-1.5 px-1">
+              <span className="text-[10px] text-muted-foreground/45">
+                IA neutre · Données officielles AN · Shift+Enter pour saut de ligne
               </span>
-              <span className="text-[10px] text-muted-foreground/50">
-                {input.length > 0 ? `${input.length}/500` : ""}
-              </span>
+              {input.length > 0 && (
+                <span className="text-[10px] text-muted-foreground/45">{input.length}/600</span>
+              )}
             </div>
           </div>
         </div>
