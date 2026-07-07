@@ -240,7 +240,7 @@ function ScrutinPage() {
                   <button key={g.organeRef}
                     onClick={() => setFilter(f => ({ ...f, groupe: f.groupe === g.organeRef ? "" : g.organeRef }))}
                     aria-pressed={isActive}
-                    className={`w-full text-left p-5 rounded-[2rem] border transition-all duration-300 animate-fade-up ${isActive ? "card-glass border-primary/50 shadow-lg ring-1 ring-primary/20" : "glass border-border/50 hover:border-primary/30 hover:shadow-md"}`}
+                    className={`w-full text-left p-5 rounded-[2rem] border transition-all duration-300 animate-fade-up ${isActive ? "card-glass border-blue-500/50 shadow-lg ring-1 ring-blue-500/20" : "glass border-border/50 hover:border-blue-500/30 hover:shadow-md"}`}
                     style={{ animationDelay: `${i*30}ms` }}>
                     <div className="flex items-center justify-between gap-3 mb-4">
                       <div className="flex items-center gap-3 flex-wrap">
@@ -290,7 +290,7 @@ function ScrutinPage() {
                   <button key={k}
                     onClick={() => setFilter(f => ({ ...f, pos: k as VotePosition|"all" }))}
                     aria-pressed={filter.pos===k}
-                    className={`px-4 py-2 rounded-full text-xs font-medium border transition-all duration-200 ${filter.pos===k ? "btn-primary border-transparent shadow-sm" : "glass border-border/50 text-foreground/70 hover:text-foreground hover:border-primary/30"}`}>
+                    className={`px-4 py-2 rounded-full text-xs font-medium border transition-all duration-200 ${filter.pos===k ? "btn-primary border-transparent shadow-sm" : "glass border-border/50 text-foreground/70 hover:text-foreground hover:border-blue-500/30"}`}>
                     {k==="all" ? `Tous (${votes.length})` : k==="pour" ? `Pour (${votesByPosition.pour.length})` : k==="contre" ? `Contre (${votesByPosition.contre.length})` : k==="abstention" ? `Abstention (${votesByPosition.abstention.length})` : `Absent (${votesByPosition.absent.length})`}
                   </button>
                 ))}
@@ -321,7 +321,7 @@ function ScrutinPage() {
                         const idAn = v.parlementaire_slug?.startsWith("PA") ? v.parlementaire_slug : undefined;
                         return (
                           <Link key={`${v.parlementaire_slug}-${i}`} to="/depute/$slug" params={{ slug }}
-                            className="flex items-center gap-2.5 p-2.5 rounded-2xl card-glass group hover:border-primary/30 border border-border/30 transition-colors"
+                            className="flex items-center gap-2.5 p-2.5 rounded-2xl card-glass group hover:border-blue-500/30 border border-border/30 transition-colors"
                             aria-label={`${nom}`}>
                             <DeputeAvatar nom={nom} idAn={idAn} position={v.position} />
                             <div className="min-w-0 flex-1">

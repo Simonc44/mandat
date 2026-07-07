@@ -152,7 +152,7 @@ function ProximiteHeatmap({ groupes, proximite }: { groupes: GroupeStats[]; prox
                 return (
                   <td key={colG.sigle} className="text-center" style={{ padding: "2px" }}>
                     <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold mx-auto cursor-default transition-transform duration-150 ${isHov ? "scale-110 ring-2 ring-primary/50" : ""}`}
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold mx-auto cursor-default transition-transform duration-150 ${isHov ? "scale-110 ring-2 ring-blue-500/50" : ""}`}
                       style={{
                         background: isDiag
                           ? `color-mix(in oklch, ${rowG.couleur} 35%, transparent)`

@@ -27,6 +27,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiVisitsRouteImport } from './routes/api/visits'
 import { Route as ApiStatusRouteImport } from './routes/api/status'
 import { Route as ApiMetaRouteImport } from './routes/api/meta'
+import { Route as ApiAiChatRouteImport } from './routes/api/ai-chat'
 
 const StatutRoute = StatutRouteImport.update({
   id: '/statut',
@@ -118,6 +119,11 @@ const ApiMetaRoute = ApiMetaRouteImport.update({
   path: '/api/meta',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiChatRoute = ApiAiChatRouteImport.update({
+  id: '/api/ai-chat',
+  path: '/api/ai-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
   '/statut': typeof StatutRoute
+  '/api/ai-chat': typeof ApiAiChatRoute
   '/api/meta': typeof ApiMetaRoute
   '/api/status': typeof ApiStatusRoute
   '/api/visits': typeof ApiVisitsRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
   '/statut': typeof StatutRoute
+  '/api/ai-chat': typeof ApiAiChatRoute
   '/api/meta': typeof ApiMetaRoute
   '/api/status': typeof ApiStatusRoute
   '/api/visits': typeof ApiVisitsRoute
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/recherche': typeof RechercheRoute
   '/scrutins': typeof ScrutinsRoute
   '/statut': typeof StatutRoute
+  '/api/ai-chat': typeof ApiAiChatRoute
   '/api/meta': typeof ApiMetaRoute
   '/api/status': typeof ApiStatusRoute
   '/api/visits': typeof ApiVisitsRoute
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/scrutins'
     | '/statut'
+    | '/api/ai-chat'
     | '/api/meta'
     | '/api/status'
     | '/api/visits'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/scrutins'
     | '/statut'
+    | '/api/ai-chat'
     | '/api/meta'
     | '/api/status'
     | '/api/visits'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/scrutins'
     | '/statut'
+    | '/api/ai-chat'
     | '/api/meta'
     | '/api/status'
     | '/api/visits'
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   RechercheRoute: typeof RechercheRoute
   ScrutinsRoute: typeof ScrutinsRoute
   StatutRoute: typeof StatutRoute
+  ApiAiChatRoute: typeof ApiAiChatRoute
   ApiMetaRoute: typeof ApiMetaRoute
   ApiStatusRoute: typeof ApiStatusRoute
   ApiVisitsRoute: typeof ApiVisitsRoute
@@ -387,6 +400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMetaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-chat': {
+      id: '/api/ai-chat'
+      path: '/api/ai-chat'
+      fullPath: '/api/ai-chat'
+      preLoaderRoute: typeof ApiAiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -424,6 +444,7 @@ const rootRouteChildren: RootRouteChildren = {
   RechercheRoute: RechercheRoute,
   ScrutinsRoute: ScrutinsRoute,
   StatutRoute: StatutRoute,
+  ApiAiChatRoute: ApiAiChatRoute,
   ApiMetaRoute: ApiMetaRoute,
   ApiStatusRoute: ApiStatusRoute,
   ApiVisitsRoute: ApiVisitsRoute,

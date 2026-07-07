@@ -157,11 +157,11 @@ export const Route = createFileRoute("/api/ai-chat")({
           });
         }
 
-        const lovableKey = process.env.LOVABLE_API_KEY;
-        if (!lovableKey) {
+        const groqKey = process.env.GROQ_API_KEY;
+        if (!groqKey) {
           return new Response(
             JSON.stringify({
-              error: "Clé API Lovable non configurée (LOVABLE_API_KEY)",
+              error: "Clé API Groq non configurée (GROQ_API_KEY)",
             }),
             {
               status: 500,
@@ -212,12 +212,12 @@ ${blog}
         let aiResponse: Response;
         try {
           aiResponse = await fetch(
-            "https://ai.gateway.lovable.dev/v1/chat/completions",
+            "https://api.groq.com/openai/v1/chat/completions",
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "Lovable-API-Key": lovableKey,
+                Authorization: `Bearer ${groqKey}`,
               },
               body: JSON.stringify({
                 model: "openai/gpt-oss-120b",
@@ -225,8 +225,11 @@ ${blog}
                   { role: "system", content: systemPrompt },
                   { role: "user", content: userMessage },
                 ],
-                temperature: 0.6,
-                max_tokens: 1024,
+                temperature: 1,
+                max_completion_tokens: 8192,
+                top_p: 1,
+                reasoning_effort: "medium",
+                stop: null,
                 stream: true,
               }),
             },
@@ -234,7 +237,7 @@ ${blog}
         } catch (e) {
           console.error("[ai-chat] AI fetch error:", e);
           return new Response(
-            JSON.stringify({ error: "Impossible de joindre l'API Lovable" }),
+            JSON.stringify({ error: "Impossible de joindre l'API Groq" }),
             {
               status: 502,
               headers: { "Content-Type": "application/json", ...CORS },
@@ -263,7 +266,7 @@ ${blog}
           const errText = await aiResponse.text();
           console.error("[ai-chat] AI error:", aiResponse.status, errText);
           return new Response(
-            JSON.stringify({ error: `Erreur Lovable ${aiResponse.status}` }),
+            JSON.stringify({ error: `Erreur Groq ${aiResponse.status}` }),
             {
               status: 502,
               headers: { "Content-Type": "application/json", ...CORS },
