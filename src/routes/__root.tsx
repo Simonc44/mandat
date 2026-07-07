@@ -21,6 +21,7 @@ import { Footer } from "../components/Footer";
 import { CookieBanner } from "../components/CookieBanner";
 import { PWAInstallPrompt } from "../components/PWAInstallPrompt";
 import { LoadingOverlay } from "../components/LoadingOverlay";
+import { AiChatWidget } from "../components/AiChatWidget";
 
 // ─── CONSTANTES ─────────────────────────────────────────────────────────
 
@@ -284,13 +285,6 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="fr">
       <head>
         <HeadContent />
-
-        {/*
-         * Google Analytics — Consent Mode v2 (RGPD)
-         * 1. Consentement par défaut : tout denied.
-         * 2. wait_for_update 500ms : laisse le CookieBanner appeler update avant le premier hit.
-         * 3. Restauration automatique si l'utilisateur a déjà répondu (localStorage).
-         */}
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-CMMWPQG5P6"
@@ -301,7 +295,6 @@ function RootShell({ children }: { children: ReactNode }) {
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-
               gtag('consent', 'default', {
                 'analytics_storage': 'denied',
                 'ad_storage': 'denied',
@@ -309,9 +302,7 @@ function RootShell({ children }: { children: ReactNode }) {
                 'ad_personalization': 'denied',
                 'wait_for_update': 500
               });
-
               gtag('config', 'G-CMMWPQG5P6');
-
               (function() {
                 try {
                   var saved = localStorage.getItem('mandat_analytics_consent');
@@ -328,8 +319,6 @@ function RootShell({ children }: { children: ReactNode }) {
             `,
           }}
         />
-
-        {/* Service Worker PWA */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -343,8 +332,6 @@ function RootShell({ children }: { children: ReactNode }) {
             `,
           }}
         />
-
-        {/* JSON-LD WebSite */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -369,30 +356,6 @@ function RootShell({ children }: { children: ReactNode }) {
             ),
           }}
         />
-
-        {/* JSON-LD LocalBusiness */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: safeJsonLd(
-              JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "LocalBusiness",
-                "@id": `${SITE_URL}/#localbusiness`,
-                name: SITE_NAME,
-                url: SITE_URL,
-                logo: `${SITE_URL}/favicon.svg`,
-                description: SITE_DESCRIPTION,
-                address: {
-                  "@type": "PostalAddress",
-                  addressCountry: "FR",
-                },
-              }),
-            ),
-          }}
-        />
-
-        {/* JSON-LD Organization */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -439,6 +402,8 @@ function RootComponent() {
         <Footer />
         <CookieBanner />
         <PWAInstallPrompt />
+        {/* Bouton IA flottant — monté sur toutes les pages */}
+        <AiChatWidget />
       </div>
     </QueryClientProvider>
   );
