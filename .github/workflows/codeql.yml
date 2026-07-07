@@ -7,7 +7,7 @@ on:
     branches: [main]
   schedule:
     # Tous les lundis à 8h UTC
-    - cron: '0 8 * * 1'
+    - cron: "0 8 * * 1"
 
 jobs:
   analyze:
@@ -39,4 +39,4 @@ jobs:
       - name: Analyse CodeQL
         uses: github/codeql-action/analyze@v3
         with:
-          category: '/language:${{ matrix.language }}'
+          category: "/language:${{ matrix.language }}"
