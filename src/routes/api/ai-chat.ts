@@ -18,13 +18,13 @@ async function getScrutins17Context(): Promise<string> {
        FROM scrutins
        WHERE legislature = 17
        ORDER BY numero DESC
-       LIMIT 15`,
+       LIMIT 8`,
     );
     if (!r.rows.length) return "Aucun scrutin 17e législature disponible.";
     return r.rows
       .map(
         (row) =>
-          `Scrutin n°${row.numero} (${row.date}) [${row.type ?? "public"}] — "${String(row.titre ?? "Sans titre").slice(0, 80)}" → ${row.sort} | Pour:${row.nombre_pours} Contre:${row.nombre_contres} Abst:${row.nombre_abstentions}`,
+          `Scrutin n°${row.numero} (${row.date}) — "${String(row.titre ?? "Sans titre").slice(0, 60)}" → ${row.sort} | Pour:${row.nombre_pours} Contre:${row.nombre_contres} Abst:${row.nombre_abstentions}`,
       )
       .join("\n");
   } catch (e) {
@@ -42,7 +42,7 @@ async function getDeputesContext(): Promise<string> {
               nom_circo, num_deptmt
        FROM deputes
        ORDER BY nom_de_famille COLLATE NOCASE
-       LIMIT 60`,
+       LIMIT 15`,
     );
     if (!r.rows.length) return "Aucune donnée de député disponible.";
     return r.rows
@@ -67,31 +67,17 @@ async function getScrutins16Context(): Promise<string> {
        FROM scrutins
        WHERE legislature = 16 OR CAST(numero AS INTEGER) < 10000
        ORDER BY date DESC
-       LIMIT 5`,
+       LIMIT 3`,
     );
     if (r.rows.length > 0) {
       return r.rows
         .map(
           (row) =>
-            `Scrutin 16e n°${row.numero} (${row.date}) — "${String(row.titre ?? "Sans titre").slice(0, 80)}" → ${row.sort} | Pour:${row.nombre_pours} Contre:${row.nombre_contres} Abst:${row.nombre_abstentions}`,
+            `Scrutin 16e n°${row.numero} (${row.date}) — "${String(row.titre ?? "Sans titre").slice(0, 60)}" → ${row.sort} | Pour:${row.nombre_pours} Contre:${row.nombre_contres} Abst:${row.nombre_abstentions}`,
         )
         .join("\n");
     }
-    const res = await fetch("https://www.nosdeputes.fr/16/scrutins/json", {
-      signal: AbortSignal.timeout(10_000),
-      headers: { Accept: "application/json" },
-    });
-    if (!res.ok) return "Scrutins 16e : API nosdeputes.fr indisponible.";
-    const data: any = await res.json();
-    const list: any[] = (data?.scrutins ?? []).slice(0, 5);
-    return list
-      .map((x) => {
-        const s = x?.scrutin ?? x;
-        const p = parseInt(s.nombre_pours ?? "0", 10) || 0;
-        const cn = parseInt(s.nombre_contres ?? "0", 10) || 0;
-        return `Scrutin 16e n°${s.numero} (${s.date}) — "${String(s.titre ?? "").slice(0, 80)}" → ${p > cn ? "adopté" : "rejeté"} | Pour:${p} Contre:${cn}`;
-      })
-      .join("\n");
+    return "Scrutins 16e : non disponibles.";
   } catch (e) {
     console.error("[ai-chat] scrutins16:", e);
     return "Scrutins 16e : données temporairement indisponibles.";
@@ -102,6 +88,7 @@ function getBlogContext(): string {
   try {
     const { POSTS } = require("@/lib/blog");
     return (POSTS as any[])
+      .slice(0, 2)
       .map(
         (p: {
           title: string;
@@ -109,7 +96,7 @@ function getBlogContext(): string {
           tags: string[];
           description: string;
         }) =>
-          `Article : "${p.title}" (${p.date}) [${p.tags.join(", ")}] — ${p.description}`,
+          `Article : "${p.title}" (${p.date}) — ${p.description}`,
       )
       .join("\n");
   } catch {
@@ -134,7 +121,7 @@ export const Route = createFileRoute("/api/ai-chat")({
           });
         }
 
-        const userMessage = (body.message ?? "").trim().slice(0, 600);
+        const userMessage = (body.message ?? "").trim().slice(0, 400);
         if (!userMessage) {
           return new Response(JSON.stringify({ error: "Message vide" }), {
             status: 400,
@@ -162,33 +149,19 @@ export const Route = createFileRoute("/api/ai-chat")({
         ]);
         const blog = getBlogContext();
 
-        const systemPrompt = `Tu es l'assistant IA de Mandat, un outil citoyen de transparence sur les votes de l'Assemblée nationale française (17e législature, 2024-…).
+        const systemPrompt = `Tu es l'assistant IA de Mandat (Assemblée nationale 17e législature).
+Réponds factuellement et synthétiquement en français. Ne prends pas parti.
 
-Règles :
-- Réponds en français, de manière factuelle, neutre et synthétique.
-- Ne prends JAMAIS parti politiquement. Si on te demande ton opinion politique, décline poliment.
-- Cite tes sources parmi les données ci-dessous quand c'est pertinent.
-- Si une information ne figure pas dans le contexte, dis-le clairement plutôt qu'inventer.
-- Reste focus sur le contenu parlementaire ; pour toute autre demande, redirige poliment.
-
-${"=".repeat(60)}
-DÉPUTÉS 17e LÉGISLATURE (${new Date().getFullYear()}) — 60 premiers (A-Z)
-${"=".repeat(60)}
+DÉPUTÉS (20 premiers):
 ${deputes}
 
-${"=".repeat(60)}
-SCRUTINS 17e LÉGISLATURE — 15 derniers
-${"=".repeat(60)}
+SCRUTINS 17e (8 derniers):
 ${scrutins17}
 
-${"=".repeat(60)}
-SCRUTINS 16e LÉGISLATURE (2022–2024) — 5 derniers
-${"=".repeat(60)}
+SCRUTINS 16e (3 derniers):
 ${scrutins16}
 
-${"=".repeat(60)}
-ARTICLES DU BLOG MANDAT
-${"=".repeat(60)}
+BLOG:
 ${blog}
 `;
 
@@ -208,11 +181,8 @@ ${blog}
                   { role: "system", content: systemPrompt },
                   { role: "user", content: userMessage },
                 ],
-                temperature: 1,
-                max_completion_tokens: 8192,
-                top_p: 1,
-                reasoning_effort: "medium",
-                stop: null,
+                temperature: 0.7,
+                max_completion_tokens: 1024,
                 stream: true,
               }),
             },
@@ -229,26 +199,15 @@ ${blog}
         }
 
         if (aiResponse.status === 429) {
-          const errBody = await aiResponse.text();
-          let reason =
-            "Le quota de l'API IA a été atteint. Cela peut prendre quelques secondes à quelques minutes. Merci de réessayer dans un instant.";
-          try {
-            const parsed = JSON.parse(errBody);
-            if (parsed?.error?.message) reason = parsed.error.message;
-          } catch {
-            /* ignore */
-          }
-          return new Response(JSON.stringify({ error: reason }), {
+          return new Response(JSON.stringify({ error: "Quota atteint, réessayez plus tard." }), {
             status: 429,
             headers: { "Content-Type": "application/json", ...CORS },
           });
         }
 
         if (!aiResponse.ok) {
-          const errText = await aiResponse.text();
-          console.error("[ai-chat] AI error:", aiResponse.status, errText);
           return new Response(
-            JSON.stringify({ error: `Erreur Groq ${aiResponse.status}` }),
+            JSON.stringify({ error: "Erreur IA" }),
             {
               status: 502,
               headers: { "Content-Type": "application/json", ...CORS },
