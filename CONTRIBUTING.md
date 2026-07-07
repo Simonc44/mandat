@@ -79,14 +79,14 @@ test: ajout tests unitaires normalize()
 
 ## 🏷️ Types d'issues
 
-| Label | Description |
-|---|---|
-| `good first issue` | Idéal pour commencer, scope limité |
-| `bug` | Comportement incorrect à corriger |
-| `enhancement` | Nouvelle fonctionnalité ou amélioration |
-| `documentation` | Amélioration de la doc |
-| `data` | Problème lié aux données AN/CIVIX/CLAIR |
-| `performance` | Optimisation vitesse ou taille |
+| Label              | Description                             |
+| ------------------ | --------------------------------------- |
+| `good first issue` | Idéal pour commencer, scope limité      |
+| `bug`              | Comportement incorrect à corriger       |
+| `enhancement`      | Nouvelle fonctionnalité ou amélioration |
+| `documentation`    | Amélioration de la doc                  |
+| `data`             | Problème lié aux données AN/CIVIX/CLAIR |
+| `performance`      | Optimisation vitesse ou taille          |
 
 ---
 
