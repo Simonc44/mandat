@@ -227,7 +227,7 @@ function DeputesPage() {
             value={dept || "all"}
             onValueChange={(v) => setFilter({ dept: v === "all" ? "" : v })}
           >
-            <SelectTrigger className="h-auto py-2.5 px-6 rounded-full glass border-border/50 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+            <SelectTrigger className="h-auto py-2.5 px-6 rounded-full glass border-border/50 text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
               <SelectValue placeholder="Tous les départements" />
             </SelectTrigger>
             <SelectContent className="glass-strong border-border/40 rounded-2xl overflow-hidden shadow-2xl">
@@ -476,7 +476,7 @@ function DepartementCard({
                     key={d.id || d.slug}
                     to="/depute/$slug"
                     params={{ slug: d.slug }}
-                    className="dept-hex group/hex outline-none focus:ring-2 focus:ring-primary rounded-full"
+                    className="dept-hex group/hex outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
                   >
                     <title>{`${d.num_circo}e circonscription — ${d.prenom} ${d.nom_de_famille} (${g.nom})`}</title>
                     <polygon

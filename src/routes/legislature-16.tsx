@@ -316,7 +316,7 @@ function DeputesTab({
             className="flex-1 flex gap-2"
             role="search"
           >
-            <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
               <svg
                 className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
                 viewBox="0 0 24 24"
@@ -517,7 +517,7 @@ function ScrutinsTab({
           className="flex gap-2"
           role="search"
         >
-          <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+          <div className="search-ring flex-1 flex items-center glass-strong rounded-full border border-white/30 px-5 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
             <svg
               className="w-4 h-4 text-muted-foreground shrink-0 mr-2"
               viewBox="0 0 24 24"
