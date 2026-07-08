@@ -149,16 +149,17 @@ export const Route = createFileRoute("/api/ai-chat")({
         ]);
         const blog = getBlogContext();
 
-        const systemPrompt = `Tu es l'assistant IA de Mandat (Assemblée nationale 17e législature).
-Réponds factuellement et synthétiquement en français. Ne prends pas parti.
+        const systemPrompt = `Tu es l'assistant IA de Mandat, un outil de transparence sur l'Assemblée nationale.
+Réponds de manière factuelle, neutre et synthétique en français.
+Utilise le format Markdown pour structurer tes réponses (gras, listes, etc.).
 
-DÉPUTÉS (20 premiers):
+DÉPUTÉS (échantillon):
 ${deputes}
 
-SCRUTINS 17e (8 derniers):
+SCRUTINS 17e (récents):
 ${scrutins17}
 
-SCRUTINS 16e (3 derniers):
+SCRUTINS 16e:
 ${scrutins16}
 
 BLOG:
