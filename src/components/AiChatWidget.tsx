@@ -45,11 +45,7 @@ interface Message {
 
 const SUGGESTIONS = [
   "Quels sont les derniers votes ?",
-  "Qui sont les députés de Paris ?",
-  "Scrutins adoptés à l'unanimité ?",
-  "Quels articles parlent du 49.3 ?",
   "Quel scrutin a été le plus serré ?",
-  "Combien de scrutins en 16e législature ?",
 ];
 
 // ─── Composant bulle assistant ─────────────────────────────────────────────
@@ -72,7 +68,6 @@ function AssistantBubble({ message }: { message: Message }) {
         maxWidth: "88%",
       }}
     >
-      {/* Indicateur 3 points pendant le début du streaming */}
       {isStreaming && isEmpty ? (
         <div className="px-4 py-3 flex gap-1 items-center h-10">
           {[0, 1, 2].map((j) => (
@@ -95,7 +90,6 @@ function AssistantBubble({ message }: { message: Message }) {
           ) : (
             <MarkdownRenderer content={message.content} />
           )}
-          {/* Curseur clignotant en fin de streaming */}
           {isStreaming && !isEmpty && (
             <span
               className="inline-block w-2 h-4 ml-0.5 rounded-sm animate-pulse align-middle"
@@ -110,10 +104,10 @@ function AssistantBubble({ message }: { message: Message }) {
 
 // ─── Composant principal ───────────────────────────────────────────────────
 export function AiChatWidget() {
-  const [open, setOpen]           = useState(false);
-  const [messages, setMessages]   = useState<Message[]>([]);
-  const [input, setInput]         = useState("");
-  const [loading, setLoading]     = useState(false);
+  const [open, setOpen]               = useState(false);
+  const [messages, setMessages]       = useState<Message[]>([]);
+  const [input, setInput]             = useState("");
+  const [loading, setLoading]         = useState(false);
   const [rateLimited, setRateLimited] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLTextAreaElement>(null);
@@ -350,7 +344,7 @@ export function AiChatWidget() {
             className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0"
             style={{ scrollbarWidth: "thin", scrollbarColor: "oklch(0.82 0.04 285) transparent" }}
           >
-            {/* État vide : suggestions */}
+            {/* État vide : 2 suggestions */}
             {!hasMessages && (
               <div className="py-2">
                 <div className="text-center mb-5">
@@ -365,12 +359,12 @@ export function AiChatWidget() {
                     J'ai accès aux 577 députés, aux scrutins des 17e et 16e législatures et aux articles du blog.
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col gap-2">
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}
                       onClick={() => sendMessage(s)}
-                      className="text-left text-xs px-3 py-2.5 rounded-2xl border transition-all duration-150 hover:scale-[1.02] active:scale-95 leading-snug"
+                      className="text-left text-xs px-4 py-3 rounded-2xl border transition-all duration-150 hover:scale-[1.01] active:scale-95 leading-snug"
                       style={{
                         borderColor: "oklch(0.88 0.05 285 / 70%)",
                         background: "oklch(0.97 0.02 285 / 55%)",
@@ -393,7 +387,6 @@ export function AiChatWidget() {
                   m.role === "user" ? "justify-end" : "justify-start items-end",
                 ].join(" ")}
               >
-                {/* Avatar assistant */}
                 {m.role === "assistant" && (
                   <div
                     className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center mb-0.5 bg-white"
@@ -403,7 +396,6 @@ export function AiChatWidget() {
                   </div>
                 )}
 
-                {/* Bulle utilisateur */}
                 {m.role === "user" ? (
                   <div
                     className="max-w-[80%] px-4 py-3 text-sm leading-relaxed rounded-3xl"
@@ -417,7 +409,6 @@ export function AiChatWidget() {
                     {m.content}
                   </div>
                 ) : (
-                  /* Bulle assistant avec Markdown */
                   <AssistantBubble message={m} />
                 )}
               </div>
