@@ -84,10 +84,7 @@ export function AiChatWidget() {
   const panelRef  = useRef<HTMLDivElement>(null);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
-
-  useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 100);
-  }, [open]);
+  useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 100); }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -130,7 +127,7 @@ export function AiChatWidget() {
         const data = await res.json().catch(() => ({}));
         setMessages((prev) => [...prev.slice(0, -1), {
           role: "assistant",
-          content: data.error ?? "⏳ Quota de l'API atteint. Réessayez dans quelques instants.",
+          content: data.error ?? "⏳ Quota atteint. Réessayez dans quelques instants.",
           isError: true,
         }]);
         setRateLimited(true);
@@ -141,7 +138,7 @@ export function AiChatWidget() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error ?? `Erreur ${res.status}`);
       }
-      const reader  = res.body!.getReader();
+      const reader = res.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = "", content = "";
       while (true) {
@@ -207,7 +204,7 @@ export function AiChatWidget() {
         ref={panelRef}
         className={[
           "fixed right-5 z-[9999]",
-          "w-[min(460px,calc(100vw-2.5rem))]",
+          "w-[min(400px,calc(100vw-2.5rem))]",
           "transition-all duration-300 origin-bottom-right",
           open ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none",
         ].join(" ")}
@@ -221,7 +218,7 @@ export function AiChatWidget() {
             backdropFilter: "blur(32px) saturate(1.8)",
             border: "1px solid oklch(0.90 0.04 285 / 55%)",
             boxShadow: "0 24px 64px oklch(0.50 0.20 285 / 18%), 0 4px 16px rgba(0,0,0,0.10)",
-            maxHeight: "min(600px, 76vh)",
+            maxHeight: "min(580px, 76vh)",
           }}
         >
           {/* Header */}
@@ -240,7 +237,7 @@ export function AiChatWidget() {
               <p className="font-semibold text-sm text-foreground leading-none">Assistant Mandat</p>
               <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1.5">
                 <span className={`w-1.5 h-1.5 rounded-full inline-block ${rateLimited ? "bg-amber-400" : "bg-green-500"}`} />
-                {rateLimited ? "Quota atteint — réessayez dans quelques secondes" : "Députés · Scrutins 17e & 16e · Blog"}
+                {rateLimited ? "Quota atteint — réessayez dans quelques secondes" : "Accès Turso en temps réel · Function calling"}
               </p>
             </div>
             <div className="flex items-center gap-1">
@@ -273,10 +270,9 @@ export function AiChatWidget() {
                   </div>
                   <p className="font-semibold text-sm text-foreground">Posez une question</p>
                   <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                    J'ai accès aux 577 députés, aux scrutins des 17e et 16e législatures et aux articles du blog.
+                    Accès en direct à la base de données : députés, scrutins 17e &amp; 16e, blog.
                   </p>
                 </div>
-                {/* 1 seule suggestion */}
                 <button
                   onClick={() => sendMessage(SUGGESTION)}
                   className="w-full text-left text-xs px-4 py-3 rounded-2xl border transition-all duration-150 hover:scale-[1.01] active:scale-95 leading-snug"
@@ -317,18 +313,18 @@ export function AiChatWidget() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Barre d'envoi */}
+          {/* Barre d'envoi — largeur réduite */}
           <div
-            className="px-4 pb-4 pt-3 shrink-0"
+            className="px-3 pb-3 pt-2.5 shrink-0"
             style={{ borderTop: "1px solid oklch(0.92 0.04 285 / 45%)" }}
           >
             <div
-              className="flex items-center gap-2 rounded-2xl px-3.5"
+              className="flex items-center gap-1.5 rounded-xl px-3"
               style={{
                 background: "white",
                 border: "1.5px solid oklch(0.90 0.04 285 / 50%)",
                 boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-                minHeight: "3rem",
+                minHeight: "2.6rem",
               }}
             >
               <textarea
@@ -337,42 +333,37 @@ export function AiChatWidget() {
                 onChange={(e) => {
                   setInput(e.target.value);
                   e.target.style.height = "auto";
-                  e.target.style.height = Math.min(e.target.scrollHeight, 112) + "px";
+                  e.target.style.height = Math.min(e.target.scrollHeight, 96) + "px";
                 }}
                 onKeyDown={handleKey}
-                placeholder={loading ? "L'IA répond…" : "Posez votre question…"}
+                placeholder={loading ? "Interrogation de la base…" : "Posez votre question…"}
                 disabled={loading}
                 rows={1}
-                maxLength={600}
-                className="flex-1 bg-transparent resize-none outline-none text-sm placeholder:text-muted-foreground/55 disabled:opacity-50 leading-relaxed py-3.5"
-                style={{ scrollbarWidth: "none", minHeight: "1.5rem", maxHeight: "7rem" }}
+                maxLength={500}
+                className="flex-1 bg-transparent resize-none outline-none text-xs placeholder:text-muted-foreground/50 disabled:opacity-50 leading-relaxed py-2.5"
+                style={{ scrollbarWidth: "none", minHeight: "1.4rem", maxHeight: "6rem" }}
               />
               <button
                 onClick={() => sendMessage()}
                 disabled={!input.trim() || loading}
-                className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-35 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
+                className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
                 style={{
                   background: input.trim() && !loading
                     ? "linear-gradient(135deg, oklch(0.52 0.20 285), oklch(0.48 0.18 265))"
                     : "oklch(0.90 0.03 285)",
                   color: "white",
-                  boxShadow: input.trim() && !loading ? "0 2px 8px oklch(0.50 0.20 285 / 32%)" : "none",
+                  boxShadow: input.trim() && !loading ? "0 2px 6px oklch(0.50 0.20 285 / 30%)" : "none",
                 }}
                 aria-label="Envoyer"
               >
                 {loading
-                  ? <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  ? <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                   : <SendIcon />}
               </button>
             </div>
-            <div className="flex items-center justify-between mt-1.5 px-1">
-              <span className="text-[10px] text-muted-foreground/45">
-                IA neutre · Données officielles AN · Shift+Enter pour saut de ligne
-              </span>
-              {input.length > 0 && (
-                <span className="text-[10px] text-muted-foreground/45">{input.length}/600</span>
-              )}
-            </div>
+            <p className="text-[9px] text-muted-foreground/40 text-center mt-1.5">
+              Données officielles AN · Shift+Enter pour saut de ligne
+            </p>
           </div>
         </div>
       </div>
