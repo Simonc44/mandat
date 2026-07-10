@@ -89,7 +89,7 @@ export const Route = createFileRoute("/api/v1/scrutins")({
                 "Content-Type": "application/json; charset=utf-8",
                 "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
                 "Access-Control-Allow-Origin": "*",
-                ...rateLimitHeaders(rl.remaining, rl.reset),
+                ...rateLimitHeaders(rl.limit, rl.remaining, rl.reset),
               },
             },
           );

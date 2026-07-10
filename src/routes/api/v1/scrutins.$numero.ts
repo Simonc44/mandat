@@ -73,7 +73,7 @@ export const Route = createFileRoute("/api/v1/scrutins/$numero")({
                 "Content-Type": "application/json; charset=utf-8",
                 "Cache-Control": "public, max-age=300",
                 "Access-Control-Allow-Origin": "*",
-                ...rateLimitHeaders(rl.remaining, rl.reset),
+                ...rateLimitHeaders(rl.limit, rl.remaining, rl.reset),
               },
             },
           );
