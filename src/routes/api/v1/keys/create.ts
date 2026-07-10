@@ -43,7 +43,7 @@ export const Route = createFileRoute("/api/v1/keys/create")({
         // Appel Unkey — crée une clé avec préfixe mk_live_
         let unkeyRes: Response;
         try {
-          unkeyRes = await fetch("https://api.unkey.dev/v1/keys.createKey", {
+          unkeyRes = await fetch("https://api.unkey.com/v2/keys.createKey", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -54,12 +54,13 @@ export const Route = createFileRoute("/api/v1/keys/create")({
               prefix: "mk_live",
               name:   `${name} <${email}>`,
               meta:   { email, name, created_at: new Date().toISOString() },
-              ratelimit: {
-                type:           "fast",
-                limit:          60,
-                refillRate:     60,
-                refillInterval: 60_000,
-              },
+              ratelimits: [
+                {
+                  name:     "requests",
+                  limit:    60,
+                  duration: 60_000,
+                },
+              ],
               // Expiration : 1 an
               expires: Date.now() + 365 * 24 * 60 * 60 * 1000,
             }),
