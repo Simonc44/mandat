@@ -74,7 +74,7 @@ async function verifyWithUnkey(key: string): Promise<{
   if (!apiId) return { valid: false, error: "UNKEY_API_ID not configured" };
 
   try {
-    const res = await fetch("https://api.unkey.dev/v1/keys.verifyKey", {
+    const res = await fetch("https://api.unkey.com/v2/keys.verifyKey", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key, apiId }),
@@ -85,7 +85,11 @@ async function verifyWithUnkey(key: string): Promise<{
       return { valid: false, error: `Unkey error ${res.status}` };
     }
 
-    return await res.json();
+    const payload = await res.json();
+    return {
+      valid: payload.data?.valid ?? false,
+      ratelimit: payload.data?.ratelimit,
+    };
   } catch (e) {
     console.error("[Unkey] fetch error:", e);
     return { valid: false, error: "Unkey unreachable" };

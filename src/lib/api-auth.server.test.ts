@@ -42,8 +42,10 @@ describe("apiGuard", () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
-        valid: true,
-        ratelimit: { limit: 100, remaining: 99, reset: 123456789 }
+        data: {
+          valid: true,
+          ratelimit: { limit: 100, remaining: 99, reset: 123456789 }
+        }
       })
     } as Response);
 
@@ -60,7 +62,7 @@ describe("apiGuard", () => {
     }
 
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://api.unkey.dev/v1/keys.verifyKey",
+      "https://api.unkey.com/v2/keys.verifyKey",
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ key: "unkey_abc", apiId: "api_123" })
@@ -73,7 +75,9 @@ describe("apiGuard", () => {
     const mockFetch = vi.mocked(fetch);
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ valid: false })
+      json: async () => ({
+        data: { valid: false }
+      })
     } as Response);
 
     const request = new Request("https://api.example.com/data", {
