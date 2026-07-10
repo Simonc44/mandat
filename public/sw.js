@@ -125,10 +125,25 @@ async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
 
-  const networkPromise = fetch(request).then((response) => {
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  });
+  const networkPromise = fetch(request)
+    .then((response) => {
+      if (response.ok) cache.put(request, response.clone());
+      return response;
+    })
+    .catch((err) => {
+      console.warn("[SW] Fetch failed in staleWhileRevalidate:", err);
+      // Return cached response if available, or propagate/handle gracefully
+      if (cached) return cached;
+      throw err;
+    });
 
-  return cached ?? networkPromise;
+  // If there's a cached response, return it immediately and let the network fetch complete silently in the background.
+  // Otherwise, await the network request.
+  if (cached) {
+    // Avoid unhandled promise rejection if background fetch fails
+    networkPromise.catch(() => {});
+    return cached;
+  }
+
+  return networkPromise;
 }
