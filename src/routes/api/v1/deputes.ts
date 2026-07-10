@@ -15,6 +15,7 @@ import {
   parseIntParam,
   rateLimitHeaders,
 } from "@/lib/api-auth.server";
+import { GROUPES } from "@/lib/api";
 
 export const Route = createFileRoute("/api/v1/deputes")({
   server: {
@@ -46,7 +47,7 @@ export const Route = createFileRoute("/api/v1/deputes")({
           if (groupe) conditions.push(`groupe_sigle = '${groupe.replace(/'/g, "''")}'`);
           if (departement) {
             const safe = departement.replace(/'/g, "''");
-            conditions.push(`(num_deptmt = '${safe}' OR nom_deptmt LIKE '%${safe}%')`);
+            conditions.push(`(num_deptmt = '${safe}' OR nom_circo LIKE '%${safe}%')`);
           }
 
           const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
@@ -54,8 +55,8 @@ export const Route = createFileRoute("/api/v1/deputes")({
           const [rows, countRow] = await Promise.all([
             db.execute(
               `SELECT id_an, slug, prenom, nom_de_famille, sexe,
-                      groupe_sigle, groupe_libelle,
-                      num_circo, nom_circo, num_deptmt, nom_deptmt,
+                      groupe_sigle,
+                      num_circo, nom_circo, num_deptmt,
                       profession, date_naissance, mandat_debut
                FROM deputes ${where}
                ORDER BY nom_de_famille COLLATE NOCASE, prenom COLLATE NOCASE
@@ -69,27 +70,31 @@ export const Route = createFileRoute("/api/v1/deputes")({
 
           return new Response(
             JSON.stringify({
-              data: rows.rows.map((r) => ({
-                id:            r.id_an,
-                slug:          r.slug,
-                prenom:        r.prenom,
-                nom:           r.nom_de_famille,
-                sexe:          r.sexe,
-                groupe: {
-                  sigle:   r.groupe_sigle,
-                  libelle: r.groupe_libelle,
-                },
-                circonscription: {
-                  numero:     r.num_circo,
-                  nom:        r.nom_circo,
-                  departement: r.num_deptmt,
-                  nom_departement: r.nom_deptmt,
-                },
-                profession:      r.profession,
-                date_naissance:  r.date_naissance,
-                mandat_debut:    r.mandat_debut,
-                url:             `https://mandat-fr.is-a.dev/depute/${r.slug}`,
-              })),
+              data: rows.rows.map((r) => {
+                const sigle = String(r.groupe_sigle ?? "NI");
+                const gMeta = GROUPES[sigle] ?? { nom: sigle };
+                return {
+                  id:            r.id_an,
+                  slug:          r.slug,
+                  prenom:        r.prenom,
+                  nom:           r.nom_de_famille,
+                  sexe:          r.sexe,
+                  groupe: {
+                    sigle:   sigle,
+                    libelle: gMeta.nom,
+                  },
+                  circonscription: {
+                    numero:     r.num_circo,
+                    nom:        r.nom_circo,
+                    departement: r.num_deptmt,
+                    nom_departement: r.nom_circo,
+                  },
+                  profession:      r.profession,
+                  date_naissance:  r.date_naissance,
+                  mandat_debut:    r.mandat_debut,
+                  url:             `https://mandat-fr.is-a.dev/depute/${r.slug}`,
+                };
+              }),
               meta: { total, page, pages, limit },
             }, null, 2),
             {
@@ -98,7 +103,7 @@ export const Route = createFileRoute("/api/v1/deputes")({
                 "Content-Type": "application/json; charset=utf-8",
                 "Cache-Control": "public, max-age=300",
                 "Access-Control-Allow-Origin": "*",
-                ...rateLimitHeaders(rl.remaining, rl.reset),
+                ...rateLimitHeaders(rl.limit, rl.remaining, rl.reset),
               },
             },
           );
