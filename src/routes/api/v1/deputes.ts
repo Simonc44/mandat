@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/v1/deputes")({
       OPTIONS: async () => optionsResponse(),
 
       GET: async ({ request }: { request: Request }) => {
-        const guard = apiGuard(request);
+        const guard = await apiGuard(request);
         if ("error" in guard) return guard.error;
         const { rl } = guard;
 
