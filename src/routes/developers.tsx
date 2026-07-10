@@ -18,6 +18,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+const BASE_URL = "https://mandat-fr.vercel.app";
+
 export const Route = createFileRoute("/developers")({
   head: () => ({
     meta: createSeoMeta({
@@ -30,7 +32,7 @@ export const Route = createFileRoute("/developers")({
   component: DevelopersPage,
 });
 
-// ─── Utilitaires ──────────────────────────────────────────────────────────────
+// ─── Utilitaires ───────────────────────────────────────────────────────────
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -61,8 +63,10 @@ function CodeBlock({ code, lang = "bash" }: { code: string; lang?: string }) {
       className="relative rounded-2xl overflow-hidden"
       style={{ background: "oklch(0.14 0.04 285)", border: "1px solid oklch(0.25 0.06 285 / 60%)" }}
     >
-      <div className="flex items-center justify-between px-4 py-2 border-b"
-        style={{ borderColor: "oklch(0.25 0.06 285 / 60%)", background: "oklch(0.18 0.04 285)" }}>
+      <div
+        className="flex items-center justify-between px-4 py-2 border-b"
+        style={{ borderColor: "oklch(0.25 0.06 285 / 60%)", background: "oklch(0.18 0.04 285)" }}
+      >
         <span className="text-[10px] uppercase tracking-widest font-mono" style={{ color: "oklch(0.65 0.10 285)" }}>{lang}</span>
         <CopyButton text={code} />
       </div>
@@ -82,29 +86,29 @@ function Badge({ children, color = "purple" }: { children: React.ReactNode; colo
     amber:  { background: "oklch(0.92 0.08  80 / 60%)", color: "oklch(0.48 0.16  70)" },
   };
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider"
-      style={styles[color]}>
+    <span
+      className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider"
+      style={styles[color]}
+    >
       {children}
     </span>
   );
 }
 
-// ─── Générateur de clé API ─────────────────────────────────────────────────────
+// ─── Générateur de clé ─────────────────────────────────────────────────────
 
 function ApiKeyGenerator() {
-  const [name, setName]   = useState("");
+  const [name,  setName]  = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult]   = useState<{ key: string; expires: string } | null>(null);
-  const [error, setError]     = useState<string | null>(null);
-  const [copied, setCopied]   = useState(false);
+  const [result,  setResult]  = useState<{ key: string; expires: string } | null>(null);
+  const [error,   setError]   = useState<string | null>(null);
+  const [copied,  setCopied]  = useState(false);
 
   const generate = async () => {
     if (!name.trim() || !email.trim()) { setError("Nom et email requis."); return; }
     if (!email.includes("@")) { setError("Email invalide."); return; }
-    setLoading(true);
-    setError(null);
-    setResult(null);
+    setLoading(true); setError(null); setResult(null);
     try {
       const res = await fetch("/api/v1/keys/create", {
         method: "POST",
@@ -139,12 +143,13 @@ function ApiKeyGenerator() {
         backdropFilter: "blur(16px)",
       }}
     >
-      {/* Header */}
-      <div className="px-8 py-6 border-b flex items-center gap-4"
+      <div
+        className="px-8 py-6 border-b flex items-center gap-4"
         style={{
           borderColor: "oklch(0.88 0.06 285 / 40%)",
           background: "linear-gradient(90deg, oklch(0.93 0.07 280 / 50%), oklch(0.93 0.06 310 / 35%))",
-        }}>
+        }}
+      >
         <div className="w-10 h-10 rounded-2xl flex items-center justify-center"
           style={{ background: "oklch(0.50 0.20 285)", color: "white" }}>
           <Key className="w-5 h-5" />
@@ -166,11 +171,7 @@ function ApiKeyGenerator() {
                 placeholder="Mon Projet Citoyen"
                 maxLength={80}
                 className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
-                style={{
-                  background: "white",
-                  border: "1.5px solid oklch(0.88 0.06 285 / 60%)",
-                  color: "oklch(0.25 0.05 285)",
-                }}
+                style={{ background: "white", border: "1.5px solid oklch(0.88 0.06 285 / 60%)", color: "oklch(0.25 0.05 285)" }}
                 onFocus={(e) => (e.target.style.borderColor = "oklch(0.52 0.20 285)")}
                 onBlur={(e)  => (e.target.style.borderColor = "oklch(0.88 0.06 285 / 60%)")}
               />
@@ -184,24 +185,18 @@ function ApiKeyGenerator() {
                 placeholder="dev@example.com"
                 maxLength={200}
                 className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all"
-                style={{
-                  background: "white",
-                  border: "1.5px solid oklch(0.88 0.06 285 / 60%)",
-                  color: "oklch(0.25 0.05 285)",
-                }}
+                style={{ background: "white", border: "1.5px solid oklch(0.88 0.06 285 / 60%)", color: "oklch(0.25 0.05 285)" }}
                 onFocus={(e) => (e.target.style.borderColor = "oklch(0.52 0.20 285)")}
                 onBlur={(e)  => (e.target.style.borderColor = "oklch(0.88 0.06 285 / 60%)")}
                 onKeyDown={(e) => e.key === "Enter" && generate()}
               />
             </div>
-
             {error && (
               <p className="text-xs px-3 py-2 rounded-xl"
                 style={{ background: "oklch(0.96 0.03 25 / 70%)", color: "oklch(0.45 0.16 25)" }}>
                 ⚠️ {error}
               </p>
             )}
-
             <button
               onClick={generate}
               disabled={loading || !name.trim() || !email.trim()}
@@ -219,7 +214,6 @@ function ApiKeyGenerator() {
                 </span>
               )}
             </button>
-
             <p className="text-[10px] text-muted-foreground text-center">
               En générant une clé, vous acceptez une utilisation non commerciale des données.
             </p>
@@ -229,7 +223,6 @@ function ApiKeyGenerator() {
             <div className="flex items-center gap-2 text-sm font-medium" style={{ color: "oklch(0.42 0.18 145)" }}>
               <Check className="w-5 h-5" /> Clé générée avec succès !
             </div>
-
             <div className="rounded-2xl p-4"
               style={{ background: "oklch(0.14 0.04 285)", border: "1px solid oklch(0.25 0.06 285 / 60%)" }}>
               <div className="flex items-center justify-between mb-1">
@@ -245,17 +238,13 @@ function ApiKeyGenerator() {
                   {copied ? <><Check className="w-3 h-3" /> Copié !</> : <><Copy className="w-3 h-3" /> Copier</>}
                 </button>
               </div>
-              <p className="font-mono text-sm break-all" style={{ color: "oklch(0.88 0.08 285)" }}>
-                {result.key}
-              </p>
+              <p className="font-mono text-sm break-all" style={{ color: "oklch(0.88 0.08 285)" }}>{result.key}</p>
             </div>
-
             <div className="rounded-xl p-3 text-xs space-y-1"
               style={{ background: "oklch(0.92 0.06 80 / 30%)", border: "1px solid oklch(0.85 0.08 80 / 40%)", color: "oklch(0.45 0.14 70)" }}>
               <p className="font-semibold">⚠️ Sauvegardez cette clé maintenant</p>
               <p>Elle ne sera plus affichée. Expiration : {new Date(result.expires).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}.</p>
             </div>
-
             <button
               onClick={() => { setResult(null); setName(""); setEmail(""); }}
               className="text-xs text-muted-foreground hover:text-primary transition-colors"
@@ -269,7 +258,7 @@ function ApiKeyGenerator() {
   );
 }
 
-// ─── Endpoint cards ───────────────────────────────────────────────────────────
+// ─── Endpoints ─────────────────────────────────────────────────────────────
 
 const ENDPOINTS = [
   {
@@ -298,10 +287,10 @@ const ENDPOINTS = [
         "nom": "11e circonscription du Pas-de-Calais",
         "departement": "62"
       },
-      "url": "https://mandat-fr.is-a.dev/depute/marine-le-pen"
+      "url": "https://mandat-fr.vercel.app/depute/marine-le-pen"
     }
   ],
-  "meta": { "total": 125, "page": 1, "pages": 13, "limit": 10 }
+  "meta": { "total": 125, "page": 1, "pages": 13, "limit": 5 }
 }`,
   },
   {
@@ -321,17 +310,12 @@ const ENDPOINTS = [
   "data": [
     {
       "numero": "4921",
-      "titre": "sur l'amendement n\u00b0 42 ...",
+      "titre": "sur l'amendement n° 42 ...",
       "date": "2025-06-12",
       "legislature": 17,
       "sort": "rejeté",
-      "votes": {
-        "pour": 82,
-        "contre": 201,
-        "abstentions": 14,
-        "total": 297
-      },
-      "url": "https://mandat-fr.is-a.dev/scrutin/4921"
+      "votes": { "pour": 82, "contre": 201, "abstentions": 14, "total": 297 },
+      "url": "https://mandat-fr.vercel.app/scrutin/4921"
     }
   ],
   "meta": { "total": 1832, "page": 1, "pages": 611, "limit": 3 }
@@ -355,14 +339,8 @@ const ENDPOINTS = [
     "legislature": 17,
     "sort": "adopté",
     "adopte": true,
-    "votes": {
-      "pour": 289,
-      "contre": 242,
-      "abstentions": 26,
-      "total": 557,
-      "majorite": 279
-    },
-    "url": "https://mandat-fr.is-a.dev/scrutin/4872"
+    "votes": { "pour": 289, "contre": 242, "abstentions": 26, "total": 557, "majorite": 279 },
+    "url": "https://mandat-fr.vercel.app/scrutin/4872"
   }
 }`,
   },
@@ -375,9 +353,9 @@ const ENDPOINTS = [
     example: `/api/v1/groupes`,
     response: `{
   "data": [
-    { "sigle": "RN",  "libelle": "Rassemblement National",    "nb_deputes": 126 },
+    { "sigle": "RN",  "libelle": "Rassemblement National",     "nb_deputes": 126 },
     { "sigle": "EPR", "libelle": "Ensemble pour la République", "nb_deputes": 99 },
-    { "sigle": "SOC", "libelle": "Socialistes",                "nb_deputes": 64 }
+    { "sigle": "SOC", "libelle": "Socialistes",                 "nb_deputes": 64 }
   ],
   "meta": { "total": 9 }
 }`,
@@ -387,7 +365,6 @@ const ENDPOINTS = [
 function EndpointCard({ ep }: { ep: typeof ENDPOINTS[0] }) {
   const [open, setOpen] = useState(false);
   const Icon = ep.icon;
-
   return (
     <div className="card-glass rounded-3xl overflow-hidden">
       <button
@@ -396,7 +373,7 @@ function EndpointCard({ ep }: { ep: typeof ENDPOINTS[0] }) {
       >
         <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
           style={{ background: "oklch(0.90 0.08 285 / 50%)", color: "oklch(0.45 0.18 285)" }}>
-          <Icon className="w-4.5 h-4.5" />
+          <Icon className="w-4 h-4" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -407,7 +384,6 @@ function EndpointCard({ ep }: { ep: typeof ENDPOINTS[0] }) {
         </div>
         <ChevronRight className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200 ${open ? "rotate-90" : ""}`} />
       </button>
-
       {open && (
         <div className="border-t px-5 pb-5 pt-4 space-y-4" style={{ borderColor: "oklch(0.88 0.05 285 / 40%)" }}>
           {ep.params.length > 0 && (
@@ -426,13 +402,10 @@ function EndpointCard({ ep }: { ep: typeof ENDPOINTS[0] }) {
               </div>
             </div>
           )}
-
           <div>
             <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-2 font-medium">Exemple</p>
-            <CodeBlock code={`curl https://mandat-fr.is-a.dev${ep.example} \\
-  -H "X-Api-Key: mk_live_votre_cle"`} lang="bash" />
+            <CodeBlock code={`curl ${BASE_URL}${ep.example} \\\n  -H "X-Api-Key: mk_live_votre_cle"`} lang="bash" />
           </div>
-
           <div>
             <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-2 font-medium">Réponse</p>
             <CodeBlock code={ep.response} lang="json" />
@@ -443,7 +416,7 @@ function EndpointCard({ ep }: { ep: typeof ENDPOINTS[0] }) {
   );
 }
 
-// ─── Page principale ───────────────────────────────────────────────────────────
+// ─── Page principale ───────────────────────────────────────────────────────
 
 function DevelopersPage() {
   return (
@@ -459,7 +432,7 @@ function DevelopersPage() {
         <div className="container-app relative z-10 py-20 md:py-28">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-6">
-              <Code className="w-3.5 h-3.5" /> API REST publique · v1.0
+              <Code className="w-3.5 h-3.5" /> API REST publique · v1.0 · Gratuite
             </div>
             <h1 className="font-display text-4xl sm:text-6xl md:text-7xl leading-[1.02] tracking-tight mb-6">
               Pour les
@@ -467,9 +440,9 @@ function DevelopersPage() {
               <span className="text-gradient italic">développeurs.</span>
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-2xl">
-              Accédez aux données de l’Assemblée nationale en JSON.
+              Accédez aux données de l'Assemblée nationale en JSON.
               Député·es, scrutins, groupes politiques — mis à jour chaque nuit,
-              sous licence ouverte.
+              sous licence ouverte, gratuitement.
             </p>
             <div className="flex flex-wrap gap-3">
               <a href="#get-key"
@@ -487,13 +460,13 @@ function DevelopersPage() {
 
       <div className="container-app py-16 space-y-20">
 
-        {/* Stats rapides */}
+        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: "Député·es",     value: "577",     color: "purple" },
-            { label: "Scrutins",       value: "5 000+",  color: "blue" },
-            { label: "Mise à jour",    value: "Nightly", color: "green" },
-            { label: "Rate limit",     value: "60/min",  color: "amber" },
+            { label: "Député·es",  value: "577" },
+            { label: "Scrutins",   value: "5 000+" },
+            { label: "Mise à jour",value: "Nightly" },
+            { label: "Rate limit", value: "60/min" },
           ].map((s) => (
             <div key={s.label} className="card-glass rounded-3xl p-5 text-center">
               <div className="font-display text-3xl font-bold text-foreground mb-1">{s.value}</div>
@@ -502,40 +475,42 @@ function DevelopersPage() {
           ))}
         </div>
 
-        {/* Auth rapide */}
+        {/* Auth */}
         <section>
           <h2 className="font-display text-3xl md:text-4xl mb-2">Authentification</h2>
-          <p className="text-muted-foreground mb-6">Passez votre clé dans le header <code className="text-xs px-1.5 py-0.5 rounded-md" style={{ background: "oklch(0.90 0.06 285 / 40%)", color: "oklch(0.42 0.18 285)" }}>X-Api-Key</code>, en <code className="text-xs px-1.5 py-0.5 rounded-md" style={{ background: "oklch(0.90 0.06 285 / 40%)", color: "oklch(0.42 0.18 285)" }}>Authorization: Bearer</code>, ou en query param.</p>
+          <p className="text-muted-foreground mb-6 text-sm">
+            Passez votre clé dans le header{" "}
+            <code className="text-xs px-1.5 py-0.5 rounded-md" style={{ background: "oklch(0.90 0.06 285 / 40%)", color: "oklch(0.42 0.18 285)" }}>X-Api-Key</code>,
+            en <code className="text-xs px-1.5 py-0.5 rounded-md" style={{ background: "oklch(0.90 0.06 285 / 40%)", color: "oklch(0.42 0.18 285)" }}>Authorization: Bearer</code>,
+            ou en query param.
+          </p>
           <div className="space-y-3">
             <CodeBlock lang="bash" code={`# Header recommandé
-curl https://mandat-fr.is-a.dev/api/v1/deputes \\
+curl ${BASE_URL}/api/v1/deputes \\
   -H "X-Api-Key: mk_live_votre_cle"
 
 # Ou Authorization Bearer
-curl https://mandat-fr.is-a.dev/api/v1/scrutins \\
+curl ${BASE_URL}/api/v1/scrutins \\
   -H "Authorization: Bearer mk_live_votre_cle"
 
 # Ou query param (pratique pour tester)
-curl "https://mandat-fr.is-a.dev/api/v1/groupes?api_key=mk_live_votre_cle"`} />
-
+curl "${BASE_URL}/api/v1/groupes?api_key=mk_live_votre_cle"`} />
             <CodeBlock lang="javascript" code={`// JavaScript / TypeScript
-const res = await fetch("https://mandat-fr.is-a.dev/api/v1/scrutins?limit=10", {
+const res = await fetch("${BASE_URL}/api/v1/scrutins?limit=10", {
   headers: { "X-Api-Key": process.env.MANDAT_API_KEY },
 });
 const { data, meta } = await res.json();
-console.log(data[0].titre); // "sur l'article 1er..."`} />
-
+console.log(data[0].titre);`} />
             <CodeBlock lang="python" code={`# Python
 import requests
 
 headers = {"X-Api-Key": "mk_live_votre_cle"}
 res = requests.get(
-    "https://mandat-fr.is-a.dev/api/v1/deputes",
+    "${BASE_URL}/api/v1/deputes",
     params={"groupe": "LFI", "limit": 20},
     headers=headers,
 )
-data = res.json()
-print(data["meta"]["total"], "députés")`} />
+print(res.json()["meta"]["total"], "députés")`} />
           </div>
         </section>
 
@@ -544,7 +519,12 @@ print(data["meta"]["total"], "députés")`} />
           <div className="flex items-end justify-between mb-6">
             <div>
               <h2 className="font-display text-3xl md:text-4xl mb-1">Endpoints</h2>
-              <p className="text-muted-foreground text-sm">Base URL : <code className="text-xs px-1.5 py-0.5 rounded-md" style={{ background: "oklch(0.90 0.06 285 / 40%)", color: "oklch(0.42 0.18 285)" }}>https://mandat-fr.is-a.dev/api/v1</code></p>
+              <p className="text-muted-foreground text-sm">
+                Base URL :{" "}
+                <code className="text-xs px-1.5 py-0.5 rounded-md" style={{ background: "oklch(0.90 0.06 285 / 40%)", color: "oklch(0.42 0.18 285)" }}>
+                  {BASE_URL}/api/v1
+                </code>
+              </p>
             </div>
             <a href="/api/v1" target="_blank"
               className="text-xs text-primary hover:underline inline-flex items-center gap-1">
@@ -566,10 +546,11 @@ print(data["meta"]["total"], "députés")`} />
             <h2 className="font-display text-2xl">Rate limiting</h2>
           </div>
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-              <p>Chaque clé API est limitée à <strong className="text-foreground">60 requêtes par minute</strong>. Les limites sont gérées par <strong className="text-foreground">Unkey</strong>, une plateforme open source de gestion de clés.</p>
-              <p>Les headers de réponse indiquent votre consommation en temps réel.</p>
-            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Chaque clé est limitée à <strong className="text-foreground">60 requêtes par minute</strong>.
+              Les limites sont gérées par <strong className="text-foreground">Unkey</strong>, plateforme open source de gestion de clés.
+              Les headers de réponse indiquent votre consommation en temps réel.
+            </p>
             <CodeBlock lang="http" code={`HTTP/1.1 200 OK
 X-RateLimit-Limit: 60
 X-RateLimit-Remaining: 58
@@ -593,8 +574,8 @@ Retry-After: 42`} />
           <div className="grid md:grid-cols-3 gap-6 text-sm">
             {[
               { title: "Licence ouverte", desc: "Données sous Licence Ouverte v2.0 (Etalab). Usage non commercial uniquement pour l'API Mandat." },
-              { title: "Source officielle", desc: "Toutes les données proviennent de l'AN Open Data, CLAIR et CIVIX. Aucune modification ni interprétation." },
-              { title: "Données fraîches", desc: "Mise à jour automatique chaque nuit à 3h UTC via GitHub Actions. Date de dernière sync visible sur /api/status." },
+              { title: "Source officielle", desc: "Données provenant de l'AN Open Data, CLAIR et CIVIX. Aucune modification ni interprétation." },
+              { title: "Données fraîches", desc: "Mise à jour automatique chaque nuit à 3h UTC via GitHub Actions. Statut visible sur /statut." },
             ].map((item) => (
               <div key={item.title}>
                 <h3 className="font-semibold text-foreground mb-1.5">{item.title}</h3>
@@ -613,10 +594,10 @@ Retry-After: 42`} />
             className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors">
             <ExternalLink className="w-3.5 h-3.5" /> Code source GitHub
           </a>
-          <a href="/api/status" target="_blank"
+          <Link to="/statut"
             className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors">
             <ExternalLink className="w-3.5 h-3.5" /> Statut de l'API
-          </a>
+          </Link>
           <a href="https://www.unkey.com" target="_blank" rel="noreferrer"
             className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors">
             <ExternalLink className="w-3.5 h-3.5" /> Powered by Unkey
