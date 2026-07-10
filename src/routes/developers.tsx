@@ -115,7 +115,17 @@ function ApiKeyGenerator() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name.trim(), email: email.trim() }),
       });
-      const data = await res.json();
+
+      const contentType = res.headers.get("content-type") ?? "";
+      let data: any = {};
+
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(text || `Erreur serveur ${res.status}`);
+      }
+
       if (!res.ok) throw new Error(data.error ?? `Erreur ${res.status}`);
       setResult({ key: data.key, expires: data.expires });
     } catch (e: unknown) {

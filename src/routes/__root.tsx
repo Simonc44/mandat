@@ -80,7 +80,7 @@ export function createSeoMeta(config: SeoConfig) {
     { name: "author", content: "Simon Chusseau" },
     { name: "robots", content: "index, follow" },
     { name: "apple-mobile-web-app-title", content: "Mandat" },
-    { name: "apple-mobile-web-app-capable", content: "yes" },
+    { name: "mobile-web-app-capable", content: "yes" },
     { name: "apple-mobile-web-app-status-bar-style", content: "default" },
     { property: "og:site_name", content: SITE_NAME },
     { property: "og:type", content: config.ogType ?? "website" },
