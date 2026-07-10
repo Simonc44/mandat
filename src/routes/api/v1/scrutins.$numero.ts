@@ -16,7 +16,7 @@ export const Route = createFileRoute("/api/v1/scrutins/$numero")({
       OPTIONS: async () => optionsResponse(),
 
       GET: async ({ request, params }: { request: Request; params: { numero: string } }) => {
-        const guard = apiGuard(request);
+        const guard = await apiGuard(request);
         if ("error" in guard) return guard.error;
         const { rl } = guard;
 
