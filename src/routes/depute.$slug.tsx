@@ -51,7 +51,6 @@ export const Route = createFileRoute("/depute/$slug")({
         description: `Comment vote ${name}${circo} ? Positions, taux de présence et historique complet des scrutins durant la 17e législature.`,
         canonical,
         ogType: "article",
-
       }),
       links: createSeoLinks(canonical),
     };
@@ -82,14 +81,12 @@ export const Route = createFileRoute("/depute/$slug")({
 
 // ── HELPERS SCORES ────────────────────────────────────────────────────────────
 
-/** Couleur dégradée selon un score 0-100 : rouge → orange → vert */
 function scoreColor(pct: number): string {
   if (pct >= 75) return "var(--color-pour)";
   if (pct >= 40) return "var(--color-abstention)";
   return "var(--color-contre)";
 }
 
-/** Label qualitatif du taux de participation */
 function participationLabel(pct: number): string {
   if (pct >= 80) return "Très actif·ve";
   if (pct >= 60) return "Actif·ve";
@@ -97,7 +94,6 @@ function participationLabel(pct: number): string {
   return "Peu présent·e";
 }
 
-/** Label qualitatif du score de loyauté */
 function loyauteLabel(pct: number): string {
   if (pct >= 90) return "Très loyal·e";
   if (pct >= 70) return "Loyal·e";
@@ -123,7 +119,6 @@ function DeputePage() {
     return () => clearTimeout(t);
   }, []);
 
-  // ── Calcul des stats ──
   const stats = useMemo(() => {
     const total = votes.length;
     let pour = 0, contre = 0, abstention = 0, absent = 0;
@@ -135,8 +130,6 @@ function DeputePage() {
       else if (v.position === "abstention") abstention++;
       else absent++;
 
-      // Loyauté = voter dans le même sens que la majorité du groupe
-      // On utilise position_groupe quand disponible
       if (v.position !== "nonVotant" && v.position !== "nonVotantVolontaire") {
         loyauteTotal++;
         if (
@@ -152,8 +145,6 @@ function DeputePage() {
 
     const exprimes = pour + contre + abstention;
     const participation = total ? Math.round((exprimes / total) * 100) : 0;
-    // Loyauté : ratio votes dans la ligne du groupe / votes exprimés
-    // Si position_groupe non renseigné (votes locaux), on met null
     const loyaute =
       loyauteTotal >= 5
         ? Math.round((loyauteVotes / loyauteTotal) * 100)
@@ -198,6 +189,11 @@ function DeputePage() {
   const photo17 = d.id_an ? photoUrl(d.id_an, 17) : "";
   const photo16 = d.id_an ? photoUrl(d.id_an, 16) : "";
   const initials = `${d.prenom?.[0] ?? ""}${d.nom_de_famille?.[0] ?? ""}`.toUpperCase();
+
+  // Nom complet fiable pour le FollowButton
+  const deputeNomComplet = `${sanitizeText(d.prenom)} ${sanitizeText(d.nom_de_famille)}`.trim()
+    || sanitizeText(d.nom)
+    || safeSlug.replace(/-/g, " ");
 
   return (
     <>
@@ -284,8 +280,13 @@ function DeputePage() {
                 </a>
               )}
             </div>
+
+            {/* ── BOUTON SUIVRE ── */}
             <div className="mt-4">
-              <FollowButton deputeSlug={safeSlug} deputeNom={d.nom} />
+              <FollowButton
+                deputeSlug={safeSlug}
+                deputeNom={deputeNomComplet}
+              />
             </div>
           </div>
         </div>
@@ -299,13 +300,9 @@ function DeputePage() {
           <StatBox label="Présence" value={`${stats.participation}%`} color="oklch(0.50 0.20 285)" />
         </div>
 
-        {/* ── SCORES : PARTICIPATION + LOYAUTÉ ── */}
+        {/* ── SCORES ── */}
         {stats.total > 0 && (
-          <div
-            className="grid md:grid-cols-2 gap-4 mb-8 animate-fade-up"
-            style={{ animationDelay: "150ms" }}
-          >
-            {/* Taux de participation */}
+          <div className="grid md:grid-cols-2 gap-4 mb-8 animate-fade-up" style={{ animationDelay: "150ms" }}>
             <div className="card-glass rounded-[2rem] p-6">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium">Taux de participation</span>
@@ -328,7 +325,6 @@ function DeputePage() {
               </div>
             </div>
 
-            {/* Score de loyauté */}
             <div className="card-glass rounded-[2rem] p-6">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium">Loyauté au groupe</span>
@@ -366,7 +362,7 @@ function DeputePage() {
           </div>
         )}
 
-        {/* ── FILTRES VOTES ── */}
+        {/* ── FILTRES ── */}
         <div
           className="flex flex-wrap gap-2 mb-4 animate-fade-in"
           style={{ animationDelay: "200ms" }}
