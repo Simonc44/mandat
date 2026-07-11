@@ -98,7 +98,7 @@ const DOC = {
   license: "Usage non commercial uniquement. Données : Licence Ouverte v2.0 (Etalab).",
 };
 
-export const Route = createFileRoute("/api/v1")({
+export const Route = createFileRoute("/api/v1/")({
   server: {
     handlers: {
       OPTIONS: async () => optionsResponse(),

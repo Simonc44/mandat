@@ -14,6 +14,7 @@ import { Route as ScrutinsRouteImport } from './routes/scrutins'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as Legislature16RouteImport } from './routes/legislature-16'
 import { Route as GroupesRouteImport } from './routes/groupes'
+import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as DeputesRouteImport } from './routes/deputes'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as BlogRouteImport } from './routes/blog'
@@ -25,9 +26,17 @@ import { Route as GroupesSigleRouteImport } from './routes/groupes.$sigle'
 import { Route as DeputeSlugRouteImport } from './routes/depute.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiVisitsRouteImport } from './routes/api/visits'
+import { Route as ApiUnsubscribeRouteImport } from './routes/api/unsubscribe'
+import { Route as ApiSubscribeRouteImport } from './routes/api/subscribe'
 import { Route as ApiStatusRouteImport } from './routes/api/status'
 import { Route as ApiMetaRouteImport } from './routes/api/meta'
 import { Route as ApiAiChatRouteImport } from './routes/api/ai-chat'
+import { Route as ApiV1IndexRouteImport } from './routes/api/v1/index'
+import { Route as ApiV1ScrutinsRouteImport } from './routes/api/v1/scrutins'
+import { Route as ApiV1GroupesRouteImport } from './routes/api/v1/groupes'
+import { Route as ApiV1DeputesRouteImport } from './routes/api/v1/deputes'
+import { Route as ApiV1ScrutinsNumeroRouteImport } from './routes/api/v1/scrutins.$numero'
+import { Route as ApiV1KeysCreateRouteImport } from './routes/api/v1/keys/create'
 
 const StatutRoute = StatutRouteImport.update({
   id: '/statut',
@@ -52,6 +61,11 @@ const Legislature16Route = Legislature16RouteImport.update({
 const GroupesRoute = GroupesRouteImport.update({
   id: '/groupes',
   path: '/groupes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevelopersRoute = DevelopersRouteImport.update({
+  id: '/developers',
+  path: '/developers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeputesRoute = DeputesRouteImport.update({
@@ -109,6 +123,16 @@ const ApiVisitsRoute = ApiVisitsRouteImport.update({
   path: '/api/visits',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUnsubscribeRoute = ApiUnsubscribeRouteImport.update({
+  id: '/api/unsubscribe',
+  path: '/api/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSubscribeRoute = ApiSubscribeRouteImport.update({
+  id: '/api/subscribe',
+  path: '/api/subscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStatusRoute = ApiStatusRouteImport.update({
   id: '/api/status',
   path: '/api/status',
@@ -124,6 +148,36 @@ const ApiAiChatRoute = ApiAiChatRouteImport.update({
   path: '/api/ai-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiV1IndexRoute = ApiV1IndexRouteImport.update({
+  id: '/api/v1/',
+  path: '/api/v1/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ScrutinsRoute = ApiV1ScrutinsRouteImport.update({
+  id: '/api/v1/scrutins',
+  path: '/api/v1/scrutins',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1GroupesRoute = ApiV1GroupesRouteImport.update({
+  id: '/api/v1/groupes',
+  path: '/api/v1/groupes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1DeputesRoute = ApiV1DeputesRouteImport.update({
+  id: '/api/v1/deputes',
+  path: '/api/v1/deputes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ScrutinsNumeroRoute = ApiV1ScrutinsNumeroRouteImport.update({
+  id: '/$numero',
+  path: '/$numero',
+  getParentRoute: () => ApiV1ScrutinsRoute,
+} as any)
+const ApiV1KeysCreateRoute = ApiV1KeysCreateRouteImport.update({
+  id: '/api/v1/keys/create',
+  path: '/api/v1/keys/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRouteWithChildren
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/developers': typeof DevelopersRoute
   '/groupes': typeof GroupesRouteWithChildren
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
@@ -139,18 +194,27 @@ export interface FileRoutesByFullPath {
   '/api/ai-chat': typeof ApiAiChatRoute
   '/api/meta': typeof ApiMetaRoute
   '/api/status': typeof ApiStatusRoute
+  '/api/subscribe': typeof ApiSubscribeRoute
+  '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/api/visits': typeof ApiVisitsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/groupes/$sigle': typeof GroupesSigleRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
   '/blog/': typeof BlogIndexRoute
+  '/api/v1/deputes': typeof ApiV1DeputesRoute
+  '/api/v1/groupes': typeof ApiV1GroupesRoute
+  '/api/v1/scrutins': typeof ApiV1ScrutinsRouteWithChildren
+  '/api/v1/': typeof ApiV1IndexRoute
+  '/api/v1/keys/create': typeof ApiV1KeysCreateRoute
+  '/api/v1/scrutins/$numero': typeof ApiV1ScrutinsNumeroRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/developers': typeof DevelopersRoute
   '/groupes': typeof GroupesRouteWithChildren
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
@@ -159,12 +223,20 @@ export interface FileRoutesByTo {
   '/api/ai-chat': typeof ApiAiChatRoute
   '/api/meta': typeof ApiMetaRoute
   '/api/status': typeof ApiStatusRoute
+  '/api/subscribe': typeof ApiSubscribeRoute
+  '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/api/visits': typeof ApiVisitsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/groupes/$sigle': typeof GroupesSigleRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
   '/blog': typeof BlogIndexRoute
+  '/api/v1/deputes': typeof ApiV1DeputesRoute
+  '/api/v1/groupes': typeof ApiV1GroupesRoute
+  '/api/v1/scrutins': typeof ApiV1ScrutinsRouteWithChildren
+  '/api/v1': typeof ApiV1IndexRoute
+  '/api/v1/keys/create': typeof ApiV1KeysCreateRoute
+  '/api/v1/scrutins/$numero': typeof ApiV1ScrutinsNumeroRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -173,6 +245,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRouteWithChildren
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/developers': typeof DevelopersRoute
   '/groupes': typeof GroupesRouteWithChildren
   '/legislature-16': typeof Legislature16Route
   '/recherche': typeof RechercheRoute
@@ -181,12 +254,20 @@ export interface FileRoutesById {
   '/api/ai-chat': typeof ApiAiChatRoute
   '/api/meta': typeof ApiMetaRoute
   '/api/status': typeof ApiStatusRoute
+  '/api/subscribe': typeof ApiSubscribeRoute
+  '/api/unsubscribe': typeof ApiUnsubscribeRoute
   '/api/visits': typeof ApiVisitsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/depute/$slug': typeof DeputeSlugRoute
   '/groupes/$sigle': typeof GroupesSigleRoute
   '/scrutin/$numero': typeof ScrutinNumeroRoute
   '/blog/': typeof BlogIndexRoute
+  '/api/v1/deputes': typeof ApiV1DeputesRoute
+  '/api/v1/groupes': typeof ApiV1GroupesRoute
+  '/api/v1/scrutins': typeof ApiV1ScrutinsRouteWithChildren
+  '/api/v1/': typeof ApiV1IndexRoute
+  '/api/v1/keys/create': typeof ApiV1KeysCreateRoute
+  '/api/v1/scrutins/$numero': typeof ApiV1ScrutinsNumeroRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -196,6 +277,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/confidentialite'
     | '/deputes'
+    | '/developers'
     | '/groupes'
     | '/legislature-16'
     | '/recherche'
@@ -204,18 +286,27 @@ export interface FileRouteTypes {
     | '/api/ai-chat'
     | '/api/meta'
     | '/api/status'
+    | '/api/subscribe'
+    | '/api/unsubscribe'
     | '/api/visits'
     | '/blog/$slug'
     | '/depute/$slug'
     | '/groupes/$sigle'
     | '/scrutin/$numero'
     | '/blog/'
+    | '/api/v1/deputes'
+    | '/api/v1/groupes'
+    | '/api/v1/scrutins'
+    | '/api/v1/'
+    | '/api/v1/keys/create'
+    | '/api/v1/scrutins/$numero'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/a-propos'
     | '/confidentialite'
     | '/deputes'
+    | '/developers'
     | '/groupes'
     | '/legislature-16'
     | '/recherche'
@@ -224,12 +315,20 @@ export interface FileRouteTypes {
     | '/api/ai-chat'
     | '/api/meta'
     | '/api/status'
+    | '/api/subscribe'
+    | '/api/unsubscribe'
     | '/api/visits'
     | '/blog/$slug'
     | '/depute/$slug'
     | '/groupes/$sigle'
     | '/scrutin/$numero'
     | '/blog'
+    | '/api/v1/deputes'
+    | '/api/v1/groupes'
+    | '/api/v1/scrutins'
+    | '/api/v1'
+    | '/api/v1/keys/create'
+    | '/api/v1/scrutins/$numero'
   id:
     | '__root__'
     | '/'
@@ -237,6 +336,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/confidentialite'
     | '/deputes'
+    | '/developers'
     | '/groupes'
     | '/legislature-16'
     | '/recherche'
@@ -245,12 +345,20 @@ export interface FileRouteTypes {
     | '/api/ai-chat'
     | '/api/meta'
     | '/api/status'
+    | '/api/subscribe'
+    | '/api/unsubscribe'
     | '/api/visits'
     | '/blog/$slug'
     | '/depute/$slug'
     | '/groupes/$sigle'
     | '/scrutin/$numero'
     | '/blog/'
+    | '/api/v1/deputes'
+    | '/api/v1/groupes'
+    | '/api/v1/scrutins'
+    | '/api/v1/'
+    | '/api/v1/keys/create'
+    | '/api/v1/scrutins/$numero'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -259,6 +367,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRouteWithChildren
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   DeputesRoute: typeof DeputesRoute
+  DevelopersRoute: typeof DevelopersRoute
   GroupesRoute: typeof GroupesRouteWithChildren
   Legislature16Route: typeof Legislature16Route
   RechercheRoute: typeof RechercheRoute
@@ -267,9 +376,16 @@ export interface RootRouteChildren {
   ApiAiChatRoute: typeof ApiAiChatRoute
   ApiMetaRoute: typeof ApiMetaRoute
   ApiStatusRoute: typeof ApiStatusRoute
+  ApiSubscribeRoute: typeof ApiSubscribeRoute
+  ApiUnsubscribeRoute: typeof ApiUnsubscribeRoute
   ApiVisitsRoute: typeof ApiVisitsRoute
   DeputeSlugRoute: typeof DeputeSlugRoute
   ScrutinNumeroRoute: typeof ScrutinNumeroRoute
+  ApiV1DeputesRoute: typeof ApiV1DeputesRoute
+  ApiV1GroupesRoute: typeof ApiV1GroupesRoute
+  ApiV1ScrutinsRoute: typeof ApiV1ScrutinsRouteWithChildren
+  ApiV1IndexRoute: typeof ApiV1IndexRoute
+  ApiV1KeysCreateRoute: typeof ApiV1KeysCreateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -307,6 +423,13 @@ declare module '@tanstack/react-router' {
       path: '/groupes'
       fullPath: '/groupes'
       preLoaderRoute: typeof GroupesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developers': {
+      id: '/developers'
+      path: '/developers'
+      fullPath: '/developers'
+      preLoaderRoute: typeof DevelopersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/deputes': {
@@ -386,6 +509,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiVisitsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/unsubscribe': {
+      id: '/api/unsubscribe'
+      path: '/api/unsubscribe'
+      fullPath: '/api/unsubscribe'
+      preLoaderRoute: typeof ApiUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/subscribe': {
+      id: '/api/subscribe'
+      path: '/api/subscribe'
+      fullPath: '/api/subscribe'
+      preLoaderRoute: typeof ApiSubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/status': {
       id: '/api/status'
       path: '/api/status'
@@ -405,6 +542,48 @@ declare module '@tanstack/react-router' {
       path: '/api/ai-chat'
       fullPath: '/api/ai-chat'
       preLoaderRoute: typeof ApiAiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/': {
+      id: '/api/v1/'
+      path: '/api/v1'
+      fullPath: '/api/v1/'
+      preLoaderRoute: typeof ApiV1IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/scrutins': {
+      id: '/api/v1/scrutins'
+      path: '/api/v1/scrutins'
+      fullPath: '/api/v1/scrutins'
+      preLoaderRoute: typeof ApiV1ScrutinsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/groupes': {
+      id: '/api/v1/groupes'
+      path: '/api/v1/groupes'
+      fullPath: '/api/v1/groupes'
+      preLoaderRoute: typeof ApiV1GroupesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/deputes': {
+      id: '/api/v1/deputes'
+      path: '/api/v1/deputes'
+      fullPath: '/api/v1/deputes'
+      preLoaderRoute: typeof ApiV1DeputesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/scrutins/$numero': {
+      id: '/api/v1/scrutins/$numero'
+      path: '/$numero'
+      fullPath: '/api/v1/scrutins/$numero'
+      preLoaderRoute: typeof ApiV1ScrutinsNumeroRouteImport
+      parentRoute: typeof ApiV1ScrutinsRoute
+    }
+    '/api/v1/keys/create': {
+      id: '/api/v1/keys/create'
+      path: '/api/v1/keys/create'
+      fullPath: '/api/v1/keys/create'
+      preLoaderRoute: typeof ApiV1KeysCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -433,12 +612,25 @@ const GroupesRouteChildren: GroupesRouteChildren = {
 const GroupesRouteWithChildren =
   GroupesRoute._addFileChildren(GroupesRouteChildren)
 
+interface ApiV1ScrutinsRouteChildren {
+  ApiV1ScrutinsNumeroRoute: typeof ApiV1ScrutinsNumeroRoute
+}
+
+const ApiV1ScrutinsRouteChildren: ApiV1ScrutinsRouteChildren = {
+  ApiV1ScrutinsNumeroRoute: ApiV1ScrutinsNumeroRoute,
+}
+
+const ApiV1ScrutinsRouteWithChildren = ApiV1ScrutinsRoute._addFileChildren(
+  ApiV1ScrutinsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AProposRoute: AProposRoute,
   BlogRoute: BlogRouteWithChildren,
   ConfidentialiteRoute: ConfidentialiteRoute,
   DeputesRoute: DeputesRoute,
+  DevelopersRoute: DevelopersRoute,
   GroupesRoute: GroupesRouteWithChildren,
   Legislature16Route: Legislature16Route,
   RechercheRoute: RechercheRoute,
@@ -447,9 +639,16 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAiChatRoute: ApiAiChatRoute,
   ApiMetaRoute: ApiMetaRoute,
   ApiStatusRoute: ApiStatusRoute,
+  ApiSubscribeRoute: ApiSubscribeRoute,
+  ApiUnsubscribeRoute: ApiUnsubscribeRoute,
   ApiVisitsRoute: ApiVisitsRoute,
   DeputeSlugRoute: DeputeSlugRoute,
   ScrutinNumeroRoute: ScrutinNumeroRoute,
+  ApiV1DeputesRoute: ApiV1DeputesRoute,
+  ApiV1GroupesRoute: ApiV1GroupesRoute,
+  ApiV1ScrutinsRoute: ApiV1ScrutinsRouteWithChildren,
+  ApiV1IndexRoute: ApiV1IndexRoute,
+  ApiV1KeysCreateRoute: ApiV1KeysCreateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

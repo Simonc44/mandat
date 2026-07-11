@@ -31,3 +31,9 @@ dist-ssr
 *.sln
 *.sw?
 coverage
+
+# Local databases & env files
+local.db*
+.env
+.env.*
+!.env.example

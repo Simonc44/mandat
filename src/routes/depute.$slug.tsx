@@ -14,6 +14,7 @@ import {
   type VotePosition,
 } from "@/lib/api";
 import { GroupBadge } from "@/components/GroupBadge";
+import { FollowButton } from "@/components/FollowButton";
 import {
   createSeoMeta,
   createSeoLinks,
@@ -282,6 +283,9 @@ function DeputePage() {
                   𝕏 @{d.twitter}
                 </a>
               )}
+            </div>
+            <div className="mt-4">
+              <FollowButton deputeSlug={safeSlug} deputeNom={d.nom} />
             </div>
           </div>
         </div>
