@@ -68,9 +68,42 @@ await db.batch(
     groupes_json TEXT
   )`,
     `CREATE INDEX IF NOT EXISTS idx_scrutins_date ON scrutins(date DESC)`,
+    `CREATE TABLE IF NOT EXISTS meta (
+    key TEXT PRIMARY KEY,
+    value TEXT
+  )`,
+    `CREATE TABLE IF NOT EXISTS subscriptions (
+    id          TEXT PRIMARY KEY,
+    email       TEXT NOT NULL,
+    depute_slug TEXT NOT NULL,
+    depute_nom  TEXT NOT NULL,
+    token       TEXT NOT NULL UNIQUE,
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    active      INTEGER NOT NULL DEFAULT 1
+  )`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_subscriptions_email_slug
+    ON subscriptions (email, depute_slug)
+    WHERE active = 1`,
+    `CREATE INDEX IF NOT EXISTS idx_subscriptions_depute_slug
+    ON subscriptions (depute_slug, active)`,
+    `CREATE INDEX IF NOT EXISTS idx_subscriptions_token
+    ON subscriptions (token)`,
+    `CREATE TABLE IF NOT EXISTS visits (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    count INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`
   ],
   "write",
 );
+
+// Insérer la date de dernière mise à jour par défaut et la visite par défaut
+try {
+  await db.execute(`INSERT OR IGNORE INTO meta (key, value) VALUES ('last_updated', '${new Date().toISOString()}')`);
+  await db.execute(`INSERT OR IGNORE INTO visits (id, count) VALUES (1, 0)`);
+} catch (e) {
+  console.warn("Avertissement lors de l'initialisation des valeurs par défaut :", e);
+}
 
 console.log("→ Lecture deputes-17.json…");
 const deputes = JSON.parse(
