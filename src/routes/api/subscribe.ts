@@ -24,11 +24,9 @@ function ok(data: unknown) {
 }
 
 function generateId(): string {
-  // crypto.randomUUID() disponible dans Node 19+ et Edge Runtime
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
   }
-  // Fallback
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
@@ -48,37 +46,45 @@ export const Route = createFileRoute("/api/subscribe")({
         const email       = (body.email ?? "").trim().toLowerCase();
         const depute_slug = (body.depute_slug ?? "").trim();
 
-        if (!email || !email.includes("@")) return err("Email invalide", 400);
         if (!depute_slug) return err("depute_slug requis", 400);
+
+        const { validateEmailForSubscription } = await import("@/lib/email-validator");
+        const validation = validateEmailForSubscription(email);
+        if (!validation.isValid) {
+          return err(validation.error || "Email invalide", 400);
+        }
 
         const { tursoClient } = await import("@/lib/turso.server");
         const db = tursoClient();
 
-        // Récupérer le député
-        const deputeRes = await db.execute(
-          `SELECT prenom, nom_de_famille, slug FROM deputes WHERE slug = '${depute_slug.replace(/'/g, "''")}' LIMIT 1`,
-        );
+        // Récupérer le député de manière sécurisée via requête paramétrée
+        const deputeRes = await db.execute({
+          sql: "SELECT prenom, nom_de_famille, slug FROM deputes WHERE slug = ? LIMIT 1",
+          args: [depute_slug],
+        });
         if (!deputeRes.rows.length) return err("Député introuvable", 404);
         const depute = deputeRes.rows[0];
         const depute_nom = `${depute.prenom} ${depute.nom_de_famille}`;
 
-        // Vérifier si déjà abonné
-        const existing = await db.execute(
-          `SELECT id FROM subscriptions WHERE email = '${email.replace(/'/g, "''")}' AND depute_slug = '${depute_slug.replace(/'/g, "''")}' AND active = 1 LIMIT 1`,
-        );
+        // Vérifier si déjà abonné de manière sécurisée via requête paramétrée
+        const existing = await db.execute({
+          sql: "SELECT id FROM subscriptions WHERE email = ? AND depute_slug = ? AND active = 1 LIMIT 1",
+          args: [email, depute_slug],
+        });
         if (existing.rows.length) {
           return ok({ message: "Déjà abonné", already: true });
         }
 
-        // Créer la subscription
+        // Créer la subscription de manière sécurisée via requête paramétrée
         const id    = generateId();
         const token = generateId();
         const now   = new Date().toISOString();
 
-        await db.execute(
-          `INSERT INTO subscriptions (id, email, depute_slug, depute_nom, token, created_at, active)
-           VALUES ('${id}', '${email.replace(/'/g, "''")}', '${depute_slug.replace(/'/g, "''")}', '${depute_nom.replace(/'/g, "''")}', '${token}', '${now}', 1)`,
-        );
+        await db.execute({
+          sql: `INSERT INTO subscriptions (id, email, depute_slug, depute_nom, token, created_at, active)
+                VALUES (?, ?, ?, ?, ?, ?, 1)`,
+          args: [id, email, depute_slug, depute_nom, token, now],
+        });
 
         // Envoyer email de confirmation via Resend
         const resendKey = process.env.RESEND_API_KEY;

@@ -16,11 +16,14 @@ export function FollowButton({ deputeSlug, deputeNom }: FollowButtonProps) {
   const [error, setError] = useState<string | null>(null);
 
   const subscribe = async () => {
-    if (!email.trim() || !email.includes("@")) {
-      setError("Email invalide.");
+    setError(null);
+    const { validateEmailForSubscription } = await import("../lib/email-validator");
+    const validation = validateEmailForSubscription(email);
+    if (!validation.isValid) {
+      setError(validation.error || "Email invalide.");
       return;
     }
-    setError(null);
+
     setStep("loading");
 
     try {
