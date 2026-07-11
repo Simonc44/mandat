@@ -1,23 +1,30 @@
-name: Nightly Deploy Trigger
+name: Nightly Deploy + Alertes
 
 on:
-  # GitHub Actions cron s'exécute en UTC.
-  # 03:00 UTC ≈ 04:00 Paris en hiver / 05:00 en été.
   schedule:
+    # 03:00 UTC ≈ 04:00 Paris hiver / 05:00 été
     - cron: "0 3 * * *"
   workflow_dispatch:
 
 permissions: {}
 
 jobs:
-  trigger-vercel-build:
+  deploy-and-alert:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Vérifier la présence du deploy hook
         run: |
           if [ -z "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" ]; then
             echo "❌ Le secret VERCEL_DEPLOY_HOOK_URL n'est pas configuré."
-            echo "→ Ajoute-le dans Settings → Secrets and variables → Actions."
             exit 1
           fi
           echo "✅ Secret présent."
@@ -29,7 +36,25 @@ jobs:
           echo "HTTP $HTTP_CODE"
           cat /tmp/resp.txt || true
           if [ "$HTTP_CODE" -ge 400 ]; then
-            echo "❌ Échec du déclenchement du déploiement."
+            echo "❌ Échec du déclenchement."
             exit 1
           fi
-          echo "✅ Déploiement déclenché avec succès."
+          echo "✅ Déploiement déclenché."
+
+      - name: Attendre la fin du déploiement (5 min)
+        run: sleep 300
+
+      - name: Envoyer les alertes email aux abonnés
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN:   ${{ secrets.TURSO_AUTH_TOKEN }}
+          RESEND_API_KEY:     ${{ secrets.RESEND_API_KEY }}
+          SITE_URL:           https://mandat-fr.vercel.app
+        run: |
+          if [ -z "$RESEND_API_KEY" ]; then
+            echo "⚠️ RESEND_API_KEY non configuré, étape alertes ignorée."
+            exit 0
+          fi
+          # Installer la dépendance Turso client
+          npm install --no-save @libsql/client
+          node scripts/send-alerts.mjs
