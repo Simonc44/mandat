@@ -20,10 +20,11 @@ export const Route = createFileRoute("/api/unsubscribe")({
           const { tursoClient } = await import("@/lib/turso.server");
           const db = tursoClient();
 
-          // Trouver la subscription
-          const r = await db.execute(
-            `SELECT id, depute_nom, email FROM subscriptions WHERE token = '${token.replace(/'/g, "''")}' AND active = 1 LIMIT 1`,
-          );
+          // Trouver la subscription de manière sécurisée via requête paramétrée
+          const r = await db.execute({
+            sql: "SELECT id, depute_nom, email FROM subscriptions WHERE token = ? AND active = 1 LIMIT 1",
+            args: [token],
+          });
 
           if (!r.rows.length) {
             return new Response(null, { status: 302, headers: { Location: `${siteUrl}/?unsub=notfound` } });
@@ -31,10 +32,11 @@ export const Route = createFileRoute("/api/unsubscribe")({
 
           const sub = r.rows[0];
 
-          // Désactiver
-          await db.execute(
-            `UPDATE subscriptions SET active = 0 WHERE token = '${token.replace(/'/g, "''")}' AND active = 1`,
-          );
+          // Désactiver de manière sécurisée via requête paramétrée
+          await db.execute({
+            sql: "UPDATE subscriptions SET active = 0 WHERE token = ? AND active = 1",
+            args: [token],
+          });
 
           // Page de confirmation inline
           const html = `<!DOCTYPE html>

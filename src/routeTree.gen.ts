@@ -15,6 +15,7 @@ import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as Legislature16RouteImport } from './routes/legislature-16'
 import { Route as GroupesRouteImport } from './routes/groupes'
 import { Route as DevelopersRouteImport } from './routes/developers'
+import { Route as DesabonnementRouteImport } from './routes/desabonnement'
 import { Route as DeputesRouteImport } from './routes/deputes'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as BlogRouteImport } from './routes/blog'
@@ -30,6 +31,8 @@ import { Route as ApiUnsubscribeRouteImport } from './routes/api/unsubscribe'
 import { Route as ApiSubscribeRouteImport } from './routes/api/subscribe'
 import { Route as ApiStatusRouteImport } from './routes/api/status'
 import { Route as ApiMetaRouteImport } from './routes/api/meta'
+import { Route as ApiGetSubscriptionsRouteImport } from './routes/api/get-subscriptions'
+import { Route as ApiDeleteSubscriptionsRouteImport } from './routes/api/delete-subscriptions'
 import { Route as ApiAiChatRouteImport } from './routes/api/ai-chat'
 import { Route as ApiV1IndexRouteImport } from './routes/api/v1/index'
 import { Route as ApiV1ScrutinsRouteImport } from './routes/api/v1/scrutins'
@@ -66,6 +69,11 @@ const GroupesRoute = GroupesRouteImport.update({
 const DevelopersRoute = DevelopersRouteImport.update({
   id: '/developers',
   path: '/developers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesabonnementRoute = DesabonnementRouteImport.update({
+  id: '/desabonnement',
+  path: '/desabonnement',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeputesRoute = DeputesRouteImport.update({
@@ -143,6 +151,16 @@ const ApiMetaRoute = ApiMetaRouteImport.update({
   path: '/api/meta',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGetSubscriptionsRoute = ApiGetSubscriptionsRouteImport.update({
+  id: '/api/get-subscriptions',
+  path: '/api/get-subscriptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDeleteSubscriptionsRoute = ApiDeleteSubscriptionsRouteImport.update({
+  id: '/api/delete-subscriptions',
+  path: '/api/delete-subscriptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAiChatRoute = ApiAiChatRouteImport.update({
   id: '/api/ai-chat',
   path: '/api/ai-chat',
@@ -185,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRouteWithChildren
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/desabonnement': typeof DesabonnementRoute
   '/developers': typeof DevelopersRoute
   '/groupes': typeof GroupesRouteWithChildren
   '/legislature-16': typeof Legislature16Route
@@ -192,6 +211,8 @@ export interface FileRoutesByFullPath {
   '/scrutins': typeof ScrutinsRoute
   '/statut': typeof StatutRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/delete-subscriptions': typeof ApiDeleteSubscriptionsRoute
+  '/api/get-subscriptions': typeof ApiGetSubscriptionsRoute
   '/api/meta': typeof ApiMetaRoute
   '/api/status': typeof ApiStatusRoute
   '/api/subscribe': typeof ApiSubscribeRoute
@@ -214,6 +235,7 @@ export interface FileRoutesByTo {
   '/a-propos': typeof AProposRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/desabonnement': typeof DesabonnementRoute
   '/developers': typeof DevelopersRoute
   '/groupes': typeof GroupesRouteWithChildren
   '/legislature-16': typeof Legislature16Route
@@ -221,6 +243,8 @@ export interface FileRoutesByTo {
   '/scrutins': typeof ScrutinsRoute
   '/statut': typeof StatutRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/delete-subscriptions': typeof ApiDeleteSubscriptionsRoute
+  '/api/get-subscriptions': typeof ApiGetSubscriptionsRoute
   '/api/meta': typeof ApiMetaRoute
   '/api/status': typeof ApiStatusRoute
   '/api/subscribe': typeof ApiSubscribeRoute
@@ -245,6 +269,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRouteWithChildren
   '/confidentialite': typeof ConfidentialiteRoute
   '/deputes': typeof DeputesRoute
+  '/desabonnement': typeof DesabonnementRoute
   '/developers': typeof DevelopersRoute
   '/groupes': typeof GroupesRouteWithChildren
   '/legislature-16': typeof Legislature16Route
@@ -252,6 +277,8 @@ export interface FileRoutesById {
   '/scrutins': typeof ScrutinsRoute
   '/statut': typeof StatutRoute
   '/api/ai-chat': typeof ApiAiChatRoute
+  '/api/delete-subscriptions': typeof ApiDeleteSubscriptionsRoute
+  '/api/get-subscriptions': typeof ApiGetSubscriptionsRoute
   '/api/meta': typeof ApiMetaRoute
   '/api/status': typeof ApiStatusRoute
   '/api/subscribe': typeof ApiSubscribeRoute
@@ -277,6 +304,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/confidentialite'
     | '/deputes'
+    | '/desabonnement'
     | '/developers'
     | '/groupes'
     | '/legislature-16'
@@ -284,6 +312,8 @@ export interface FileRouteTypes {
     | '/scrutins'
     | '/statut'
     | '/api/ai-chat'
+    | '/api/delete-subscriptions'
+    | '/api/get-subscriptions'
     | '/api/meta'
     | '/api/status'
     | '/api/subscribe'
@@ -306,6 +336,7 @@ export interface FileRouteTypes {
     | '/a-propos'
     | '/confidentialite'
     | '/deputes'
+    | '/desabonnement'
     | '/developers'
     | '/groupes'
     | '/legislature-16'
@@ -313,6 +344,8 @@ export interface FileRouteTypes {
     | '/scrutins'
     | '/statut'
     | '/api/ai-chat'
+    | '/api/delete-subscriptions'
+    | '/api/get-subscriptions'
     | '/api/meta'
     | '/api/status'
     | '/api/subscribe'
@@ -336,6 +369,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/confidentialite'
     | '/deputes'
+    | '/desabonnement'
     | '/developers'
     | '/groupes'
     | '/legislature-16'
@@ -343,6 +377,8 @@ export interface FileRouteTypes {
     | '/scrutins'
     | '/statut'
     | '/api/ai-chat'
+    | '/api/delete-subscriptions'
+    | '/api/get-subscriptions'
     | '/api/meta'
     | '/api/status'
     | '/api/subscribe'
@@ -367,6 +403,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRouteWithChildren
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   DeputesRoute: typeof DeputesRoute
+  DesabonnementRoute: typeof DesabonnementRoute
   DevelopersRoute: typeof DevelopersRoute
   GroupesRoute: typeof GroupesRouteWithChildren
   Legislature16Route: typeof Legislature16Route
@@ -374,6 +411,8 @@ export interface RootRouteChildren {
   ScrutinsRoute: typeof ScrutinsRoute
   StatutRoute: typeof StatutRoute
   ApiAiChatRoute: typeof ApiAiChatRoute
+  ApiDeleteSubscriptionsRoute: typeof ApiDeleteSubscriptionsRoute
+  ApiGetSubscriptionsRoute: typeof ApiGetSubscriptionsRoute
   ApiMetaRoute: typeof ApiMetaRoute
   ApiStatusRoute: typeof ApiStatusRoute
   ApiSubscribeRoute: typeof ApiSubscribeRoute
@@ -430,6 +469,13 @@ declare module '@tanstack/react-router' {
       path: '/developers'
       fullPath: '/developers'
       preLoaderRoute: typeof DevelopersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desabonnement': {
+      id: '/desabonnement'
+      path: '/desabonnement'
+      fullPath: '/desabonnement'
+      preLoaderRoute: typeof DesabonnementRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/deputes': {
@@ -537,6 +583,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMetaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/get-subscriptions': {
+      id: '/api/get-subscriptions'
+      path: '/api/get-subscriptions'
+      fullPath: '/api/get-subscriptions'
+      preLoaderRoute: typeof ApiGetSubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/delete-subscriptions': {
+      id: '/api/delete-subscriptions'
+      path: '/api/delete-subscriptions'
+      fullPath: '/api/delete-subscriptions'
+      preLoaderRoute: typeof ApiDeleteSubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai-chat': {
       id: '/api/ai-chat'
       path: '/api/ai-chat'
@@ -630,6 +690,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRouteWithChildren,
   ConfidentialiteRoute: ConfidentialiteRoute,
   DeputesRoute: DeputesRoute,
+  DesabonnementRoute: DesabonnementRoute,
   DevelopersRoute: DevelopersRoute,
   GroupesRoute: GroupesRouteWithChildren,
   Legislature16Route: Legislature16Route,
@@ -637,6 +698,8 @@ const rootRouteChildren: RootRouteChildren = {
   ScrutinsRoute: ScrutinsRoute,
   StatutRoute: StatutRoute,
   ApiAiChatRoute: ApiAiChatRoute,
+  ApiDeleteSubscriptionsRoute: ApiDeleteSubscriptionsRoute,
+  ApiGetSubscriptionsRoute: ApiGetSubscriptionsRoute,
   ApiMetaRoute: ApiMetaRoute,
   ApiStatusRoute: ApiStatusRoute,
   ApiSubscribeRoute: ApiSubscribeRoute,
