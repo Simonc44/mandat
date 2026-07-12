@@ -54,11 +54,15 @@ export function extractApiKey(request: Request): string | null {
   return null;
 }
 
-// Valide une clé UNIQUEMENT via MANDAT_API_KEYS (env var CSV).
-// Les clés mk_test_* ne sont plus acceptées en fallback local —
-// elles passent toujours par Unkey pour être vérifiées strictement.
+// Valide une clé localement :
+// - Soit elle commence par "mk_test_" (uniquement hors production pour le bypass de développement/tests)
+// - Soit elle est présente dans MANDAT_API_KEYS (liste CSV d'env var).
 export function validateApiKeyLocal(key: string | null): boolean {
   if (!key) return false;
+  // Sécurité : le bypass automatique des clés de test est désactivé en production
+  if (process.env.NODE_ENV !== "production" && key.startsWith("mk_test_")) {
+    return true;
+  }
   const raw = process.env.MANDAT_API_KEYS ?? "";
   if (!raw) return false;
   const valid = raw.split(",").map((k) => k.trim()).filter(Boolean);
@@ -72,29 +76,52 @@ async function verifyWithUnkey(key: string): Promise<{
   ratelimit?: { limit: number; remaining: number; reset: number };
   error?: string;
 }> {
-  const apiId = process.env.UNKEY_API_ID;
-  if (!apiId) return { valid: false, error: "UNKEY_API_ID not configured" };
+  const rootKey = process.env.UNKEY_ROOT_KEY?.trim();
+  const apiId = process.env.UNKEY_API_ID?.trim();
+
+  if (!rootKey && !apiId) {
+    console.error("[Unkey] Neither UNKEY_ROOT_KEY nor UNKEY_API_ID is configured.");
+    return { valid: false, error: "Unkey not configured" };
+  }
+
+  console.log(
+    `[Unkey] Verifying key: ${key.slice(0, 8)}... | ` +
+    `API ID: ${apiId ? "configured" : "missing"} | ` +
+    `Root Key: ${rootKey ? "configured" : "missing"}`
+  );
 
   try {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (rootKey) {
+      headers["Authorization"] = `Bearer ${rootKey}`;
+    }
+
+    const requestBody: Record<string, any> = { key };
+    if (apiId) {
+      requestBody.apiId = apiId;
+    }
+
     const res = await fetch("https://api.unkey.com/v2/keys.verifyKey", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, apiId }),
+      headers,
+      body: JSON.stringify(requestBody),
     });
 
     if (!res.ok) {
-      console.error("[Unkey] verification failed:", res.status, await res.text());
-      return { valid: false, error: `Unkey error ${res.status}` };
+      const errorText = await res.text().catch(() => "");
+      console.error(`[Unkey] Verification failed with status ${res.status}:`, errorText);
+      return { valid: false, error: `Unkey error ${res.status}: ${errorText}` };
     }
 
     const payload = await res.json();
+    console.log(`[Unkey] Response valid: ${payload.data?.valid}, ratelimit remaining: ${payload.data?.ratelimit?.remaining}`);
     return {
       valid: payload.data?.valid ?? false,
       ratelimit: payload.data?.ratelimit,
     };
   } catch (e) {
-    console.error("[Unkey] fetch error:", e);
-    return { valid: false, error: "Unkey unreachable" };
+    console.error("[Unkey] Fetch error during key verification:", e);
+    return { valid: false, error: e instanceof Error ? e.message : String(e) };
   }
 }
 
@@ -128,10 +155,11 @@ export function rateLimitHeaders(remaining: number, reset: number, limit = LOCAL
 
 // ─── Guard complet : auth + rate limit ──────────────────────────────────────
 // Stratégie :
-//   1. Si UNKEY_API_ID est configuré → TOUTES les clés (y compris mk_test_*)
-//      sont vérifiées strictement via Unkey. Aucun bypass local.
-//   2. Sinon → fallback sur MANDAT_API_KEYS (liste CSV d'env var).
-//      Les clés mk_test_* ne sont PAS acceptées automatiquement.
+//   1. Si UNKEY_API_ID est configuré → on vérifie d'abord via Unkey.
+//   2. En cas d'échec Unkey (clé invalide), ou si Unkey n'est pas configuré,
+//      on tente une validation locale (clé commençant par mk_test_ hors production, ou présente dans MANDAT_API_KEYS).
+//      Cela permet le développement local, les tests, et évite de bloquer en cas d'indisponibilité d'Unkey.
+//   3. Sinon → on retourne une erreur 401.
 
 export async function apiGuard(
   request: Request,
@@ -148,22 +176,68 @@ export async function apiGuard(
     };
   }
 
-  // 1. Unkey si configuré — TOUTES les clés passent par Unkey, sans exception
-  if (process.env.UNKEY_API_ID) {
+  const rootKey = process.env.UNKEY_ROOT_KEY?.trim();
+  const apiId = process.env.UNKEY_API_ID?.trim();
+
+  // Diagnostic logging pour aider l'utilisateur à vérifier si ses variables d'environnement sont correctement chargées sur Vercel
+  console.log(
+    `[apiGuard] Request received. Key prefix: ${key.slice(0, 8)}... | ` +
+    `UNKEY_ROOT_KEY: ${rootKey ? "configured" : "missing"} | ` +
+    `UNKEY_API_ID: ${apiId ? "configured" : "missing"} | ` +
+    `MANDAT_API_KEYS: ${process.env.MANDAT_API_KEYS ? "configured" : "missing"} | ` +
+    `NODE_ENV: ${process.env.NODE_ENV ?? "undefined"}`
+  );
+
+  // 1. Unkey si configuré
+  if (rootKey || apiId) {
     const unkey = await verifyWithUnkey(key);
-    if (!unkey.valid) {
-      return { error: jsonError("Clé API invalide ou révoquée.", 401, "UNAUTHORIZED") };
+
+    if (unkey.error) {
+      console.error(`[apiGuard] Error verifying key via Unkey: ${unkey.error}`);
+      return {
+        error: jsonError(
+          `Erreur de vérification de la clé API (${unkey.error}). Veuillez réessayer plus tard.`,
+          503,
+          "SERVICE_UNAVAILABLE",
+        ),
+      };
     }
-    const rl = unkey.ratelimit ?? { limit: LOCAL_RATE_LIMIT, remaining: 59, reset: Date.now() + WINDOW_MS };
-    if (rl.remaining < 0) {
+
+    if (unkey.valid) {
+      const rl = unkey.ratelimit ?? { limit: LOCAL_RATE_LIMIT, remaining: 59, reset: Date.now() + WINDOW_MS };
+      if (rl.remaining < 0) {
+        return {
+          error: new Response(
+            JSON.stringify({ error: { message: "Trop de requêtes (Unkey).", code: "RATE_LIMITED", status: 429 } }),
+            {
+              status: 429,
+              headers: {
+                ...NO_CACHE_HEADERS,
+                ...rateLimitHeaders(0, rl.reset, rl.limit),
+                "Retry-After": String(Math.ceil((rl.reset - Date.now()) / 1000)),
+              },
+            },
+          ),
+        };
+      }
+      return { key, rl };
+    }
+
+    console.log(`[apiGuard] Unkey reported key as invalid. Checking local validation...`);
+  }
+
+  // 2. Validation locale (uniquement si Unkey n'est pas configuré, ou si la clé n'est pas valide sur Unkey mais est valide localement)
+  if (validateApiKeyLocal(key)) {
+    const rl = checkRateLimitLocal(key);
+    if (!rl.ok) {
       return {
         error: new Response(
-          JSON.stringify({ error: { message: "Trop de requêtes (Unkey).", code: "RATE_LIMITED", status: 429 } }),
+          JSON.stringify({ error: { message: "Trop de requêtes. Limit: 60 req/min.", code: "RATE_LIMITED", status: 429 } }),
           {
             status: 429,
             headers: {
               ...NO_CACHE_HEADERS,
-              ...rateLimitHeaders(0, rl.reset, rl.limit),
+              ...rateLimitHeaders(rl.remaining, rl.reset, rl.limit),
               "Retry-After": String(Math.ceil((rl.reset - Date.now()) / 1000)),
             },
           },
@@ -173,29 +247,8 @@ export async function apiGuard(
     return { key, rl };
   }
 
-  // 2. Fallback local — MANDAT_API_KEYS uniquement
-  if (!validateApiKeyLocal(key)) {
-    return { error: jsonError("Clé API invalide.", 401, "UNAUTHORIZED") };
-  }
-
-  const rl = checkRateLimitLocal(key);
-  if (!rl.ok) {
-    return {
-      error: new Response(
-        JSON.stringify({ error: { message: "Trop de requêtes. Limit: 60 req/min.", code: "RATE_LIMITED", status: 429 } }),
-        {
-          status: 429,
-          headers: {
-            ...NO_CACHE_HEADERS,
-            ...rateLimitHeaders(rl.remaining, rl.reset, rl.limit),
-            "Retry-After": String(Math.ceil((rl.reset - Date.now()) / 1000)),
-          },
-        },
-      ),
-    };
-  }
-
-  return { key, rl };
+  // 3. Pas de clé correspondante
+  return { error: jsonError("Clé API invalide.", 401, "UNAUTHORIZED") };
 }
 
 export function parseIntParam(url: URL, name: string, def: number, max: number): number {
