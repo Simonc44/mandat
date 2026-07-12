@@ -140,7 +140,7 @@ function DesabonnementPage() {
 
       window.google.accounts.id.renderButton(
         document.getElementById("google-signin-btn"),
-        { theme: "outline", size: "large", width: "100%", shape: "pill" }
+        { theme: "filled_blue", size: "large", width: "280", shape: "pill" }
       );
     }
   };
