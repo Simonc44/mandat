@@ -11,6 +11,30 @@ import {
   photoUrl,
 } from "@/lib/api";
 
+import React from "react";
+
+class WebGLErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.warn("WebGL or Three.js component crashed. Gracefully falling back:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.72_0.16_285_/_18%)] to-[oklch(0.985_0.01_285)] opacity-50 pointer-events-none" />;
+    }
+    return this.props.children;
+  }
+}
+
 // Client-only component wrapper for ShaderGradient
 const ShaderGradientBackground = () => {
   const [mounted, setMounted] = useState(false);
@@ -21,14 +45,17 @@ const ShaderGradientBackground = () => {
   if (!mounted) return null;
 
   return (
-    <Suspense fallback={null}>
-      <LazyShaderGradient />
-    </Suspense>
+    <WebGLErrorBoundary>
+      <Suspense fallback={null}>
+        <LazyShaderGradient />
+      </Suspense>
+    </WebGLErrorBoundary>
   );
 };
 
 const LazyShaderGradient = lazy(async () => {
   const { ShaderGradientCanvas, ShaderGradient } = await import("@shadergradient/react");
+  const ShaderGradientAny = ShaderGradient as any;
   return {
     default: () => (
       <ShaderGradientCanvas
@@ -36,7 +63,7 @@ const LazyShaderGradient = lazy(async () => {
         pixelDensity={1}
         fov={45}
       >
-        <ShaderGradient
+        <ShaderGradientAny
           animate="on"
           axesHelper="on"
           brightness={1.1}
@@ -106,7 +133,7 @@ export const Route = createFileRoute("/")({
   }),
   loader: async () => {
     let stats = { deputesCount: 577, scrutinsCount: 124, groupesCount: 11 };
-    let latest = [];
+    let latest: any[] = [];
     try {
       const [dbStats, dbLatest] = await Promise.all([
         getHomeStats().catch(() => ({ deputesCount: 577, scrutinsCount: 124, groupesCount: 11 })),
@@ -818,4 +845,3 @@ function DeputeAvatarSmall({ d }: { d: Depute }) {
   return <img src={src} alt={`${d.prenom} ${d.nom_de_famille}`} className="w-7 h-7 rounded-full object-cover shrink-0" onError={() => setErr(true)} />;
 }
 
-import type React from "react";

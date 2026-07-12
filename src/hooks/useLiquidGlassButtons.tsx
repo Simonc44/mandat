@@ -138,11 +138,30 @@ export function useLiquidGlassButtons() {
         }
       });
 
+      // Wrap bare text nodes in <span> elements so they can be positioned above the injected <canvas>
+      const wrapTextNodes = (node: HTMLElement) => {
+        const childNodes = Array.from(node.childNodes);
+        childNodes.forEach((child) => {
+          if (child.nodeType === Node.TEXT_NODE && child.textContent?.trim()) {
+            const span = document.createElement("span");
+            span.className = "liquid-wrapped-text";
+            span.style.position = "relative";
+            span.style.zIndex = "10";
+            span.textContent = child.textContent;
+            node.replaceChild(span, child);
+          } else if (child.nodeType === Node.ELEMENT_NODE) {
+            const el = child as HTMLElement;
+            if (el.tagName !== "CANVAS" && !el.classList.contains("liquid-button-bg")) {
+              el.style.position = "relative";
+              el.style.zIndex = "10";
+            }
+          }
+        });
+      };
+
+      wrapTextNodes(btn);
+
       // Setup styles on button to make it transparent and ready for glass rendering
-      btn.style.background = "transparent";
-      btn.style.backgroundImage = "none";
-      btn.style.boxShadow = "none";
-      btn.style.borderColor = "transparent";
       btn.style.position = "relative";
 
       // Setup IntersectionObserver for on-demand WebGL rendering
