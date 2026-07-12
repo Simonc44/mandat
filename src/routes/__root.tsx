@@ -18,6 +18,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import { getCspNonce } from "../router";
 import { CookieBanner } from "../components/CookieBanner";
 import { PWAInstallPrompt } from "../components/PWAInstallPrompt";
 import { LoadingOverlay } from "../components/LoadingOverlay";
@@ -281,57 +282,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 // ─── SHELL & COMPONENT ──────────────────────────────────────────────────
 
 function RootShell({ children }: { children: ReactNode }) {
+  const nonce = getCspNonce();
+
   return (
     <html lang="fr">
       <head>
         <HeadContent />
+        {nonce && <meta property="csp-nonce" content={nonce} />}
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-CMMWPQG5P6"
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('consent', 'default', {
-                'analytics_storage': 'denied',
-                'ad_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
-                'wait_for_update': 500
-              });
-              gtag('config', 'G-CMMWPQG5P6');
-              (function() {
-                try {
-                  var saved = localStorage.getItem('mandat_analytics_consent');
-                  if (saved === 'granted') {
-                    gtag('consent', 'update', {
-                      'analytics_storage': 'granted',
-                      'ad_storage': 'denied',
-                      'ad_user_data': 'denied',
-                      'ad_personalization': 'denied'
-                    });
-                  }
-                } catch(e) {}
-              })();
-            `,
-          }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').catch(function(e) {
-                    console.warn('[SW] Registration failed:', e);
-                  });
-                });
-              }
-            `,
-          }}
-        />
+        <script src="/gtag-init.js" defer />
+        <script src="/sw-register.js" defer />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

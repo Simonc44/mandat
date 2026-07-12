@@ -8,14 +8,13 @@ import {
   Trash2,
   ArrowLeft,
   LogOut,
-  Mail,
-  Sparkles,
   UserCheck,
   Loader2,
   Calendar,
   ExternalLink
 } from "lucide-react";
 import { createSeoMeta, createSeoLinks, SITE_URL } from "./__root";
+import { getGoogleClientId } from "../lib/google-config.functions";
 
 // Types globaux pour Google Identity Services
 declare global {
@@ -24,7 +23,7 @@ declare global {
       accounts: {
         id: {
           initialize: (config: { client_id: string; callback: (response: { credential: string }) => void }) => void;
-          renderButton: (element: HTMLElement | null, options: { theme?: string; size?: string; width?: string }) => void;
+          renderButton: (element: HTMLElement | null, options: { theme?: string; size?: string; width?: string; shape?: string }) => void;
           prompt: () => void;
         };
       };
@@ -41,6 +40,9 @@ export const Route = createFileRoute("/desabonnement")({
     }),
     links: createSeoLinks(`${SITE_URL}/desabonnement`),
   }),
+  loader: async () => {
+    return await getGoogleClientId();
+  },
   component: DesabonnementPage,
 });
 
@@ -77,16 +79,13 @@ function decodeGoogleJwt(token: string): { email: string; name?: string; picture
 }
 
 function DesabonnementPage() {
+  const { googleClientId } = Route.useLoaderData();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-
-  // Simulation de connexion pour les environnements de test / local ou si les clés Google manquent
-  const [simEmail, setSimEmail] = useState("");
-  const [simError, setSimError] = useState("");
 
   // Charger l'API Google Identity Services
   useEffect(() => {
@@ -107,19 +106,19 @@ function DesabonnementPage() {
     script.async = true;
     script.defer = true;
     script.onload = () => {
-      initializeGoogleSignIn();
+      initializeGoogleSignIn(googleClientId);
     };
     document.body.appendChild(script);
 
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
+  }, [googleClientId]);
 
-  const initializeGoogleSignIn = () => {
+  const initializeGoogleSignIn = (clientIdToUse = googleClientId) => {
     if (window.google?.accounts?.id) {
       window.google.accounts.id.initialize({
-        client_id: "788417855681-3g32890scg7on4tq0fksb5aocn9s6u10.apps.googleusercontent.com",
+        client_id: clientIdToUse,
         callback: (response) => {
           const profile = decodeGoogleJwt(response.credential);
           if (profile && profile.email) {
@@ -141,7 +140,7 @@ function DesabonnementPage() {
 
       window.google.accounts.id.renderButton(
         document.getElementById("google-signin-btn"),
-        { theme: "outline", size: "large", width: "100%" }
+        { theme: "filled_blue", size: "large", width: "280", shape: "pill" }
       );
     }
   };
@@ -165,29 +164,6 @@ function DesabonnementPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Simuler la connexion avec un email de test
-  const handleSimulationLogin = () => {
-    if (!simEmail.trim() || !simEmail.includes("@")) {
-      setSimError("Veuillez saisir une adresse email valide.");
-      return;
-    }
-    setSimError("");
-
-    const email = simEmail.trim().toLowerCase();
-    const simToken = `simulation-token:${email}`;
-
-    const simProfile: UserProfile = {
-      email,
-      name: "Utilisateur Test",
-      picture: undefined,
-      credential: simToken,
-    };
-    setUser(simProfile);
-    localStorage.setItem("mandat_auth_user", JSON.stringify(simProfile));
-    setMessage(null);
-    fetchSubscriptions(simToken);
   };
 
   const handleLogout = () => {
@@ -299,55 +275,19 @@ function DesabonnementPage() {
 
       {/* ── PHASE 1 : CONNEXION REQUISE ── */}
       {!user ? (
-        <div className="space-y-6">
-          <div className="card-glass rounded-[2rem] p-8 border border-border/40 text-center space-y-6">
-            <h2 className="font-display text-xl tracking-tight">Authentification Google</h2>
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
-              Cliquez ci-dessous pour vous connecter. Cela nous permettra de retrouver instantanément tous les députés que vous suivez.
-            </p>
+        <div className="card-glass rounded-[2rem] p-8 border border-border/40 text-center space-y-6">
+          <h2 className="font-display text-xl tracking-tight">Authentification Google</h2>
+          <p className="text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
+            Cliquez ci-dessous pour vous connecter. Cela nous permettra de retrouver instantanément tous les députés que vous suivez.
+          </p>
 
-            <div className="flex justify-center py-2 max-w-xs mx-auto">
-              <div id="google-signin-btn" className="w-full min-h-[44px]"></div>
-            </div>
-
-            <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
-              <UserCheck className="w-3.5 h-3.5 text-primary" />
-              Connexion sécurisée par Google Identity Services
-            </div>
+          <div className="flex justify-center py-2 max-w-xs mx-auto">
+            <div id="google-signin-btn" className="w-full min-h-[44px]"></div>
           </div>
 
-          {/* SIMULATEUR DE TEST POUR LOCAL / DÉVELOPPEMENT */}
-          <div className="card-glass rounded-[1.5rem] p-6 border border-primary/20 bg-primary/5 space-y-4">
-            <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider">
-              <Sparkles className="w-4 h-4 animate-pulse" />
-              Mode Simulation / Test de l'interface
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Utile pour valider l'interface en local ou si vous n'avez pas de configuration Google active.
-            </p>
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Mail className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
-                  <input
-                    type="email"
-                    value={simEmail}
-                    onChange={(e) => setSimEmail(e.target.value)}
-                    placeholder="Saisissez un email de test..."
-                    className="w-full pl-9 pr-3 py-2 rounded-xl text-xs bg-background border border-border/60 outline-none focus:border-primary transition-colors"
-                  />
-                </div>
-                <button
-                  onClick={handleSimulationLogin}
-                  className="px-4 py-2 bg-primary text-white font-semibold text-xs rounded-xl hover:bg-primary/90 transition-colors shrink-0"
-                >
-                  Se connecter (Simulation)
-                </button>
-              </div>
-              {simError && (
-                <p className="text-[11px] text-destructive">⚠️ {simError}</p>
-              )}
-            </div>
+          <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground">
+            <UserCheck className="w-3.5 h-3.5 text-primary" />
+            Connexion sécurisée par Google Identity Services
           </div>
         </div>
       ) : (
@@ -456,7 +396,8 @@ function DesabonnementPage() {
                       </div>
 
                       <Link
-                        to={`/depute/${sub.depute_slug}`}
+                        to="/depute/$slug"
+                        params={{ slug: sub.depute_slug }}
                         onClick={(e) => e.stopPropagation()} // Éviter de déclencher la sélection du checkbox
                         className="inline-flex items-center gap-1 text-xs text-primary font-semibold hover:underline glass border border-primary/20 px-3 py-1.5 rounded-xl transition-colors hover:bg-primary/5 shrink-0"
                       >

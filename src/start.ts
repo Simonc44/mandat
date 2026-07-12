@@ -2,6 +2,15 @@ import { createStart, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
 
+const requestCspNonceMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const nonce = request.headers.get("x-csp-nonce") || "";
+  return next({
+    context: {
+      cspNonce: nonce,
+    },
+  });
+});
+
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
     return await next();
@@ -18,5 +27,5 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
 });
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [errorMiddleware],
+  requestMiddleware: [requestCspNonceMiddleware, errorMiddleware],
 }));

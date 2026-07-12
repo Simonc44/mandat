@@ -1,6 +1,26 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
+import { createIsomorphicFn, getGlobalStartContext } from "@tanstack/react-start";
+
+export const getCspNonce = createIsomorphicFn()
+  .server(() => {
+    try {
+      const ctx = getGlobalStartContext();
+      return (ctx?.cspNonce as string) || "";
+    } catch (e) {
+      return "";
+    }
+  })
+  .client(() => {
+    if (typeof document !== "undefined") {
+      const el = document.querySelector(
+        "meta[property=csp-nonce]",
+      ) as HTMLMetaElement | null;
+      return el?.content || "";
+    }
+    return "";
+  });
 
 export const getRouter = () => {
   // Query client partagé (nouveau à chaque requête SSR, réutilisé côté client).
@@ -17,6 +37,8 @@ export const getRouter = () => {
     },
   });
 
+  const nonce = getCspNonce();
+
   const router = createRouter({
     routeTree,
     context: { queryClient },
@@ -27,6 +49,9 @@ export const getRouter = () => {
     defaultPreloadStaleTime: 0,
     // Cache le HTML rendu pendant 30s en mémoire pour retour arrière rapide.
     defaultStaleTime: 1000 * 30,
+    ssr: {
+      nonce,
+    },
   });
 
   return router;
