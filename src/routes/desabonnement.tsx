@@ -121,6 +121,9 @@ function DesabonnementPage() {
 
   // Charger les abonnements pour un email donné
   const fetchSubscriptions = useCallback(async (email: string) => {
+    if (!email || !email.includes("@")) {
+      return;
+    }
     setLoading(true);
     setMessage(null);
     try {
@@ -144,7 +147,7 @@ function DesabonnementPage() {
   const handleGoogleCallback = useCallback((response: { credential: string }) => {
     setGoogleLoading(true);
     const profile = decodeGoogleJwt(response.credential);
-    if (!profile) {
+    if (!profile || !profile.email || !profile.email.includes("@")) {
       setMessage({ type: "error", text: "Impossible de lire les informations Google." });
       setGoogleLoading(false);
       return;
@@ -163,8 +166,12 @@ function DesabonnementPage() {
     if (saved) {
       try {
         const p = JSON.parse(saved) as UserProfile;
-        setUser(p);
-        fetchSubscriptions(p.email);
+        if (p && p.email && p.email.includes("@")) {
+          setUser(p);
+          fetchSubscriptions(p.email);
+        } else {
+          sessionStorage.removeItem("mandat_user");
+        }
       } catch {
         sessionStorage.removeItem("mandat_user");
       }
