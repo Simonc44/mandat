@@ -1,5 +1,5 @@
 // routes/index.tsx
-// Section ApiSection ajoutée après SimulatorCTASection
+// Hero section : ShaderGradient (@shadergradient/react) remplace les vagues SVG
 
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
@@ -23,7 +23,7 @@ import { getAllPosts, type BlogPost } from "@/lib/blog";
 import { Unlock, Scale, ShieldCheck, Code, Zap, Database, Key, Bell } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/")(({
   head: () => ({
     meta: createSeoMeta({
       title: "Mandat — Cherchez comment votre député a voté à l'Assemblée",
@@ -42,7 +42,86 @@ export const Route = createFileRoute("/")({
     return { stats, latest, latestPost: posts[0] || null };
   },
   component: Home,
-});
+} as any));
+
+// ─── ShaderGradient Hero Background ─────────────────────────────────────────
+// Chargé dynamiquement (client-only) pour éviter le SSR crash WebGL
+
+function HeroShaderGradient() {
+  const [ShaderComp, setShaderComp] = useState<React.ComponentType<Record<string, unknown>> | null>(null);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    import("@shadergradient/react")
+      .then((mod) => {
+        setShaderComp(() => mod.ShaderGradient as React.ComponentType<Record<string, unknown>>);
+      })
+      .catch((e) => {
+        console.warn("[ShaderGradient] could not load:", e);
+      });
+  }, [reducedMotion]);
+
+  // Fallback statique — prefers-reduced-motion ou chargement en cours
+  const staticBg = (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0 w-full h-full"
+      style={{
+        background:
+          "radial-gradient(ellipse 80% 60% at 40% 30%, oklch(0.36 0.20 285 / 70%), transparent 70%), " +
+          "radial-gradient(ellipse 60% 50% at 75% 60%, oklch(0.42 0.22 260 / 50%), transparent 70%), " +
+          "oklch(0.10 0.03 285)",
+      }}
+    />
+  );
+
+  if (reducedMotion || !ShaderComp) return staticBg;
+
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0 w-full h-full"
+      style={{ opacity: 0.75 }}
+    >
+      <ShaderComp
+        type="plane"
+        animate="on"
+        uSpeed={0.3}
+        uStrength={2.5}
+        uDensity={1.2}
+        uFrequency={5.5}
+        uAmplitude={5}
+        positionX={0}
+        positionY={0}
+        positionZ={0}
+        rotationX={0}
+        rotationY={0}
+        rotationZ={235}
+        color1="#3730a3"
+        color2="#7c3aed"
+        color3="#0f0e1a"
+        grain="on"
+        lightType="3d"
+        envPreset="city"
+        reflection={0.1}
+        brightness={1.1}
+        cAzimuthAngle={180}
+        cPolarAngle={90}
+        cDistance={3.5}
+        cameraZoom={1}
+      />
+    </div>
+  );
+}
 
 function Home() {
   const { stats, latest, latestPost } = Route.useLoaderData() as {
@@ -54,16 +133,19 @@ function Home() {
 
   return (
     <div className="page-enter">
-      <section className="hero-attach relative">
+      {/* ─── HERO ──────────────────────────────────────────────────────────── */}
+      <section className="hero-attach relative overflow-hidden">
+        {/* ShaderGradient — remplace les orbs et les vagues SVG */}
+        <HeroShaderGradient />
+
+        {/* Voile sombre pour lisibilité du texte sur le gradient */}
         <div
-          className="hero-orb-slow w-[520px] h-[520px] -top-24 -left-32 opacity-60"
-          style={{ background: "radial-gradient(circle, oklch(0.70 0.18 285 / 55%), transparent 70%)" }}
           aria-hidden="true"
-        />
-        <div
-          className="hero-orb-slow w-[420px] h-[420px] -top-10 right-[-8rem] opacity-50"
-          style={{ background: "radial-gradient(circle, oklch(0.72 0.14 305 / 45%), transparent 70%)", animationDelay: "-5s" }}
-          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(to bottom, oklch(0.08 0.03 285 / 30%) 0%, transparent 40%, oklch(0.10 0.03 285 / 80%) 85%, oklch(0.10 0.03 285) 100%)",
+          }}
         />
 
         <div className="container-app relative z-10 pt-14 sm:pt-20 md:pt-24 pb-56 sm:pb-72 md:pb-80 text-center">
@@ -100,28 +182,7 @@ function Home() {
           </div>
         </div>
 
-        <div className="hero-wave" aria-hidden="true">
-          <svg viewBox="0 0 1600 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="wave1" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%"   stopColor="oklch(0.72 0.16 285 / 65%)" />
-                <stop offset="50%"  stopColor="oklch(0.60 0.22 275 / 70%)" />
-                <stop offset="100%" stopColor="oklch(0.68 0.16 305 / 60%)" />
-              </linearGradient>
-              <linearGradient id="wave2" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%"   stopColor="oklch(0.78 0.12 290 / 50%)" />
-                <stop offset="100%" stopColor="oklch(0.66 0.18 265 / 60%)" />
-              </linearGradient>
-              <linearGradient id="wave3" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%"   stopColor="oklch(0.86 0.08 295 / 45%)" />
-                <stop offset="100%" stopColor="oklch(0.72 0.14 285 / 50%)" />
-              </linearGradient>
-            </defs>
-            <path className="hero-wave-path p3" fill="url(#wave3)" d="M-80,260 C240,340 560,180 880,220 C1200,260 1440,360 1680,290 L1680,400 L-80,400 Z" />
-            <path className="hero-wave-path p2" fill="url(#wave2)" d="M-80,300 C240,220 560,340 880,280 C1200,220 1440,300 1680,260 L1680,400 L-80,400 Z" />
-            <path className="hero-wave-path"  fill="url(#wave1)" d="M-80,340 C240,280 560,380 880,320 C1200,260 1440,340 1680,320 L1680,400 L-80,400 Z" />
-          </svg>
-        </div>
+        {/* Fondu bas vers le reste de la page */}
         <div className="hero-fade-out" aria-hidden="true" />
       </section>
 
