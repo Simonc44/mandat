@@ -42,14 +42,25 @@ const ShaderGradientBackground = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
   return (
-    <WebGLErrorBoundary>
-      <Suspense fallback={null}>
-        <LazyShaderGradient />
-      </Suspense>
-    </WebGLErrorBoundary>
+    <div className="absolute inset-0 w-full h-full overflow-hidden select-none pointer-events-none">
+      {/* Instant, stunning CSS fallback gradient that renders during SSR & initial mount */}
+      <div
+        className="absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out opacity-20 dark:opacity-10"
+        style={{
+          background: "radial-gradient(circle at 20% 30%, #5606ff 0%, transparent 60%), radial-gradient(circle at 80% 70%, #fe8989 0%, transparent 60%)",
+        }}
+      />
+      {mounted && (
+        <div className="absolute inset-0 w-full h-full animate-fade-in">
+          <WebGLErrorBoundary>
+            <Suspense fallback={null}>
+              <LazyShaderGradient />
+            </Suspense>
+          </WebGLErrorBoundary>
+        </div>
+      )}
+    </div>
   );
 };
 

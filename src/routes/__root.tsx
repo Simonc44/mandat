@@ -13,7 +13,6 @@ import { useEffect, type ReactNode } from "react";
 import { Landmark, AlertTriangle, Home, RotateCcw } from "lucide-react";
 
 import appCss from "../styles.css?url";
-import { useLiquidGlassButtons } from "../hooks/useLiquidGlassButtons";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
@@ -389,7 +388,6 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useLocation();
-  useLiquidGlassButtons();
 
   return (
     <QueryClientProvider client={queryClient}>

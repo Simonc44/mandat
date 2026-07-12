@@ -408,56 +408,6 @@
   transition-duration: 60ms;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   LIQUID GLASS WRAPPER STYLE
-   ═══════════════════════════════════════════════════════════ */
-button[data-liquid-processed="true"] {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-  outline: none !important;
-}
-
-/* Base styles for buttons with liquid glass to preserve layout and force elements above canvas */
-button[data-liquid-processed="true"] * {
-  position: relative !important;
-  z-index: 10 !important;
-}
-
-button[data-liquid-processed="true"] canvas {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 1 !important;
-  pointer-events: none !important;
-}
-
-.btn-primary[data-liquid-processed="true"] {
-  color: oklch(0.12 0.05 285) !important; /* High contrast ink color on light glass */
-}
-
-.dark .btn-primary[data-liquid-processed="true"] {
-  color: oklch(0.99 0 0) !important; /* White color on dark glass */
-}
-
-/* Style the sibling background elements correctly */
-.liquid-button-bg {
-  z-index: 0 !important;
-  box-shadow: var(--glass-shadow) !important;
-  border: 1px solid var(--glass-border) !important;
-  transition: transform 150ms ease, opacity 150ms ease;
-  opacity: 0.95;
-}
-
-.liquid-button-root {
-  transition: transform 150ms ease;
-}
-
-.liquid-button-root:active {
-  transform: scale(0.97);
-}
 
 /* ═══════════════════════════════════════════════════════════
    SKELETONS — Shimmer élégant
