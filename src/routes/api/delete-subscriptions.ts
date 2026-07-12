@@ -1,5 +1,5 @@
-// /api/delete-subscriptions — Désabonner en masse plusieurs abonnements d'un email sécurisé par Google JWT
-// POST { credential, ids }
+// /api/delete-subscriptions
+// POST { email, ids: string[] }
 
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -11,14 +11,12 @@ const CORS = {
 
 function err(msg: string, status: number) {
   return new Response(JSON.stringify({ error: msg }), {
-    status,
-    headers: { "Content-Type": "application/json", ...CORS },
+    status, headers: { "Content-Type": "application/json", ...CORS },
   });
 }
 function ok(data: unknown) {
   return new Response(JSON.stringify(data), {
-    status: 200,
-    headers: { "Content-Type": "application/json", ...CORS },
+    status: 200, headers: { "Content-Type": "application/json", ...CORS },
   });
 }
 
@@ -28,59 +26,41 @@ export const Route = createFileRoute("/api/delete-subscriptions")({
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
 
       POST: async ({ request }: { request: Request }) => {
-        let body: { credential?: string; ids?: string[] };
-        try {
-          body = await request.json();
-        } catch {
-          return err("JSON invalide", 400);
-        }
+        let body: { email?: string; ids?: string[] };
+        try { body = await request.json(); }
+        catch { return err("JSON invalide", 400); }
 
-        const credential = (body.credential ?? "").trim();
-        const ids = body.ids ?? [];
+        const email = (body.email ?? "").trim().toLowerCase();
+        const ids   = body.ids ?? [];
 
-        if (!credential) return err("Identifiant requis", 400);
-        if (!Array.isArray(ids) || ids.length === 0) return err("Liste d'IDs invalide", 400);
+        if (!email || !email.includes("@")) return err("Email invalide", 400);
+        if (!ids.length) return err("Aucun ID fourni", 400);
 
-        const { verifyGoogleToken } = await import("@/lib/google-auth.server");
-        const session = await verifyGoogleToken(credential);
-        if (!session) return err("Authentification Google invalide", 401);
+        // Sécuriser les IDs (UUID v4 uniquement)
+        const safeIds = ids
+          .map((id) => String(id).trim())
+          .filter((id) => /^[0-9a-f-]{36}$/i.test(id))
+          .slice(0, 100);
 
-        const email = session.email;
+        if (!safeIds.length) return err("IDs invalides", 400);
 
         try {
           const { tursoClient } = await import("@/lib/turso.server");
           const db = tursoClient();
 
-          // Utiliser un batch d'updates paramétrés individuellement ou construire une clause IN sécurisée avec des placeholders.
-          // Comme libsql supporte les placeholders positionnels, on génère un tableau de placeholders "?"
-          // correspondant exactement au nombre d'IDs reçus pour éviter toute injection SQL.
-          const placeholders = ids.map(() => "?").join(", ");
-          const query = `
-            UPDATE subscriptions
-            SET active = 0
-            WHERE email = ?
-              AND id IN (${placeholders})
-          `;
-
-          await db.execute({
-            sql: query,
-            args: [email, ...ids],
-          });
-
-          return ok({ success: true, message: `${ids.length} abonnements supprimés avec succès.` });
-        } catch (e: unknown) {
-          console.error("[delete-subscriptions] database error:", e);
-
-          // Simulation réussie si le compte de test est actif (même si la DB n'est pas connectée en local)
-          if (email === "test.grade@gmail.com") {
-            return ok({
-              success: true,
-              simulated: true,
-              message: `${ids.length} abonnements simulés supprimés avec succès.`
+          // Désactiver uniquement les abonnements appartenant à cet email
+          for (const id of safeIds) {
+            await db.execute({
+              sql: `UPDATE subscriptions SET active = 0
+                    WHERE id = ? AND email = ? AND active = 1`,
+              args: [id, email],
             });
           }
 
-          return err("Erreur lors de la suppression des abonnements", 500);
+          return ok({ deleted: safeIds.length, email });
+        } catch (e) {
+          console.error("[delete-subscriptions] db error:", e);
+          return err("Erreur base de données", 500);
         }
       },
     },
