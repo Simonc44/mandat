@@ -76,19 +76,35 @@ async function verifyWithUnkey(key: string): Promise<{
   ratelimit?: { limit: number; remaining: number; reset: number };
   error?: string;
 }> {
-  const apiId = process.env.UNKEY_API_ID;
-  if (!apiId) {
-    console.error("[Unkey] UNKEY_API_ID is not configured in environment variables.");
-    return { valid: false, error: "UNKEY_API_ID not configured" };
+  const rootKey = process.env.UNKEY_ROOT_KEY?.trim();
+  const apiId = process.env.UNKEY_API_ID?.trim();
+
+  if (!rootKey && !apiId) {
+    console.error("[Unkey] Neither UNKEY_ROOT_KEY nor UNKEY_API_ID is configured.");
+    return { valid: false, error: "Unkey not configured" };
   }
 
-  console.log(`[Unkey] Verifying key: ${key.slice(0, 8)}... with API ID: ${apiId}`);
+  console.log(
+    `[Unkey] Verifying key: ${key.slice(0, 8)}... | ` +
+    `API ID: ${apiId ? "configured" : "missing"} | ` +
+    `Root Key: ${rootKey ? "configured" : "missing"}`
+  );
 
   try {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (rootKey) {
+      headers["Authorization"] = `Bearer ${rootKey}`;
+    }
+
+    const requestBody: Record<string, any> = { key };
+    if (apiId) {
+      requestBody.apiId = apiId;
+    }
+
     const res = await fetch("https://api.unkey.com/v2/keys.verifyKey", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, apiId }),
+      headers,
+      body: JSON.stringify(requestBody),
     });
 
     if (!res.ok) {
@@ -160,16 +176,20 @@ export async function apiGuard(
     };
   }
 
+  const rootKey = process.env.UNKEY_ROOT_KEY?.trim();
+  const apiId = process.env.UNKEY_API_ID?.trim();
+
   // Diagnostic logging pour aider l'utilisateur à vérifier si ses variables d'environnement sont correctement chargées sur Vercel
   console.log(
     `[apiGuard] Request received. Key prefix: ${key.slice(0, 8)}... | ` +
-    `UNKEY_API_ID: ${process.env.UNKEY_API_ID ? "configured" : "missing"} | ` +
+    `UNKEY_ROOT_KEY: ${rootKey ? "configured" : "missing"} | ` +
+    `UNKEY_API_ID: ${apiId ? "configured" : "missing"} | ` +
     `MANDAT_API_KEYS: ${process.env.MANDAT_API_KEYS ? "configured" : "missing"} | ` +
     `NODE_ENV: ${process.env.NODE_ENV ?? "undefined"}`
   );
 
   // 1. Unkey si configuré
-  if (process.env.UNKEY_API_ID) {
+  if (rootKey || apiId) {
     const unkey = await verifyWithUnkey(key);
 
     if (unkey.error) {

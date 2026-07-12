@@ -65,7 +65,49 @@ describe("apiGuard", () => {
       "https://api.unkey.com/v2/keys.verifyKey",
       expect.objectContaining({
         method: "POST",
+        headers: expect.objectContaining({
+          "Content-Type": "application/json",
+        }),
         body: JSON.stringify({ key: "unkey_abc", apiId: "api_123" })
+      })
+    );
+  });
+
+  it("should validate via Unkey with Authorization header if UNKEY_ROOT_KEY is set", async () => {
+    process.env.UNKEY_ROOT_KEY = "root_key_123";
+    delete process.env.UNKEY_API_ID;
+
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: {
+          valid: true,
+          ratelimit: { limit: 200, remaining: 199, reset: 123456789 }
+        }
+      })
+    } as Response);
+
+    const request = new Request("https://api.example.com/data", {
+      headers: { "X-Api-Key": "unkey_abc" }
+    });
+
+    const result = await apiGuard(request);
+    expect("key" in result).toBe(true);
+    if ("key" in result) {
+      expect(result.key).toBe("unkey_abc");
+      expect(result.rl.limit).toBe(200);
+    }
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://api.unkey.com/v2/keys.verifyKey",
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({
+          "Content-Type": "application/json",
+          "Authorization": "Bearer root_key_123",
+        }),
+        body: JSON.stringify({ key: "unkey_abc" })
       })
     );
   });
