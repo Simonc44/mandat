@@ -48,7 +48,8 @@ export const Route = createFileRoute("/")(({
 // Chargé dynamiquement (client-only) pour éviter le SSR crash WebGL
 
 function HeroShaderGradient() {
-  const [ShaderComp, setShaderComp] = useState<React.ComponentType<Record<string, unknown>> | null>(null);
+  const [ShaderComp, setShaderComp] = useState<React.ComponentType<any> | null>(null);
+  const [ShaderCanvas, setShaderCanvas] = useState<React.ComponentType<any> | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -63,7 +64,8 @@ function HeroShaderGradient() {
     if (reducedMotion) return;
     import("@shadergradient/react")
       .then((mod) => {
-        setShaderComp(() => mod.ShaderGradient as React.ComponentType<Record<string, unknown>>);
+        setShaderComp(() => mod.ShaderGradient);
+        setShaderCanvas(() => mod.ShaderGradientCanvas);
       })
       .catch((e) => {
         console.warn("[ShaderGradient] could not load:", e);
@@ -84,7 +86,7 @@ function HeroShaderGradient() {
     />
   );
 
-  if (reducedMotion || !ShaderComp) return staticBg;
+  if (reducedMotion || !ShaderComp || !ShaderCanvas) return staticBg;
 
   return (
     <div
@@ -92,33 +94,39 @@ function HeroShaderGradient() {
       className="absolute inset-0 w-full h-full"
       style={{ opacity: 0.75 }}
     >
-      <ShaderComp
-        type="plane"
-        animate="on"
-        uSpeed={0.3}
-        uStrength={2.5}
-        uDensity={1.2}
-        uFrequency={5.5}
-        uAmplitude={5}
-        positionX={0}
-        positionY={0}
-        positionZ={0}
-        rotationX={0}
-        rotationY={0}
-        rotationZ={235}
-        color1="#3730a3"
-        color2="#7c3aed"
-        color3="#0f0e1a"
-        grain="on"
-        lightType="3d"
-        envPreset="city"
-        reflection={0.1}
-        brightness={1.1}
-        cAzimuthAngle={180}
-        cPolarAngle={90}
-        cDistance={3.5}
-        cameraZoom={1}
-      />
+      <ShaderCanvas
+        pointerEvents="none"
+        pixelDensity={1}
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+      >
+        <ShaderComp
+          type="plane"
+          animate="on"
+          uSpeed={0.3}
+          uStrength={2.5}
+          uDensity={1.2}
+          uFrequency={5.5}
+          uAmplitude={5}
+          positionX={0}
+          positionY={0}
+          positionZ={0}
+          rotationX={0}
+          rotationY={0}
+          rotationZ={235}
+          color1="#3730a3"
+          color2="#7c3aed"
+          color3="#0f0e1a"
+          grain="on"
+          lightType="3d"
+          envPreset="city"
+          reflection={0.1}
+          brightness={1.1}
+          cAzimuthAngle={180}
+          cPolarAngle={90}
+          cDistance={3.5}
+          cameraZoom={1}
+        />
+      </ShaderCanvas>
     </div>
   );
 }
