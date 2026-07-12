@@ -1,7 +1,7 @@
 // src/lib/google-auth.server.ts
 // Validation serveur du JWT de connexion Google
 
-const GOOGLE_CLIENT_ID = "788417855681-3g32890scg7on4tq0fksb5aocn9s6u10.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "788417855681-3g32890scg7on4tq0fksb5aocn9s6u10.apps.googleusercontent.com";
 
 export interface GoogleUserSession {
   email: string;
