@@ -66,6 +66,7 @@ export function Footer() {
             <Link to="/developers"    className="text-muted-foreground hover:text-primary transition-colors py-1">API développeurs</Link>
             <Link to="/confidentialite" className="text-muted-foreground hover:text-primary transition-colors py-1">Confidentialité</Link>
             <Link to="/statut"        className="text-muted-foreground hover:text-primary transition-colors py-1">Statut du service</Link>
+            <Link to="/desabonnement"  className="text-muted-foreground hover:text-primary transition-colors py-1">Désabonnement</Link>
             <a href="https://data.assemblee-nationale.fr" target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-primary transition-colors py-1">Données AN ↗</a>
             <a href="https://clair-production.up.railway.app/docs" target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-primary transition-colors py-1">API CLAIR ↗</a>
             <a href="https://www.civix.fr" target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-primary transition-colors py-1">API CIVIX ↗</a>

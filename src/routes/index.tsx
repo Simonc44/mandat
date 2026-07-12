@@ -20,7 +20,7 @@ import { GroupBadge } from "@/components/GroupBadge";
 import { ScrollScene } from "@/components/ScrollScene";
 import { StoryReveal } from "@/components/StoryReveal";
 import { getAllPosts, type BlogPost } from "@/lib/blog";
-import { Unlock, Scale, ShieldCheck, Code, Zap, Database, Key } from "lucide-react";
+import { Unlock, Scale, ShieldCheck, Code, Zap, Database, Key, Bell } from "lucide-react";
 import { createSeoMeta, SITE_URL } from "./__root";
 
 export const Route = createFileRoute("/")({
@@ -198,10 +198,43 @@ function Home() {
       <StatsSection stats={stats} />
       <LatestBlogSection post={latestPost} />
       <SimulatorCTASection />
+      <AbonnementsSection />
       <ApiSection />
       <HowItWorksSection />
       <TrustSection />
     </div>
+  );
+}
+
+// ─── AbonnementsSection ────────────────────────────────────────────────────────────
+
+function AbonnementsSection() {
+  return (
+    <section className="py-24 border-t border-border/40 bg-muted/10 relative overflow-hidden">
+      <div className="container-app">
+        <div className="max-w-3xl mx-auto text-center space-y-6">
+          <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-3">
+            <Bell className="w-3.5 h-3.5" /> Alertes e-mails gratuites
+          </div>
+          <h2 className="font-display text-3xl md:text-5xl leading-[1.05] tracking-tight">
+            Gérez vos abonnements
+            <br />
+            <span className="text-gradient italic">aux alertes de vote.</span>
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+            Vous suivez des députés et souhaitez modifier vos abonnements ou vous désabonner ? Accédez à tout moment à votre espace de gestion sécurisé.
+          </p>
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/desabonnement"
+              className="btn-primary px-8 py-4 rounded-2xl font-semibold text-sm inline-flex items-center gap-2 hover:scale-105 transition-transform"
+            >
+              <Bell className="w-4 h-4" /> Gérer mes abonnements / Désabonnement
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
