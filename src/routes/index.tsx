@@ -1,5 +1,5 @@
 // routes/index.tsx
-// Hero section : ShaderGradient (@shadergradient/react) remplace les vagues SVG
+// Hero section : fond statique CSS pur — zéro JS, zéro délai, toujours visible
 
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
@@ -44,108 +44,31 @@ export const Route = createFileRoute("/")(({
   component: Home,
 } as any));
 
-// ─── ShaderGradient Hero Background ─────────────────────────────────────────
-// Chargé dynamiquement (client-only) pour éviter le SSR crash WebGL
+// ─── Hero static background ──────────────────────────────────────────────────
+// SVG inline converti en data-URI : zéro requête réseau, zéro JS, zéro délai.
+// Rendu immédiat dès le premier paint, visible à tout moment du scroll.
+// Les couleurs reproduisent l'ambiance ShaderGradient violet-indigo-magenta.
 
-function HeroShaderGradient() {
-  const [ShaderComp, setShaderComp] = useState<React.ComponentType<any> | null>(null);
-  const [ShaderCanvas, setShaderCanvas] = useState<React.ComponentType<any> | null>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  useEffect(() => {
-    if (reducedMotion) return;
-    import("@shadergradient/react")
-      .then((mod) => {
-        setShaderComp(() => mod.ShaderGradient);
-        setShaderCanvas(() => mod.ShaderGradientCanvas);
-      })
-      .catch((e) => {
-        console.warn("[ShaderGradient] could not load:", e);
-      });
-  }, [reducedMotion]);
-
-  // Fallback statique — prefers-reduced-motion ou chargement en cours
-  const staticBg = (
-    <div
-      aria-hidden="true"
-      className="absolute inset-0 w-full h-full"
-      style={{
-        background:
-          "radial-gradient(ellipse 80% 60% at 40% 30%, oklch(0.36 0.20 285 / 70%), transparent 70%), " +
-          "radial-gradient(ellipse 60% 50% at 75% 60%, oklch(0.42 0.22 260 / 50%), transparent 70%), " +
-          "oklch(0.10 0.03 285)",
-      }}
-    />
-  );
-
-  if (reducedMotion || !ShaderComp || !ShaderCanvas) return staticBg;
-
-  return (
-    <div
-      aria-hidden="true"
-      style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", zIndex: 0, pointerEvents: "none", opacity: 0.9 }}
-    >
-      <ShaderCanvas
-        pointerEvents="none"
-        pixelDensity={1}
-        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-      >
-        <ShaderComp
-          type="plane"
-          animate="on"
-          uSpeed={0.35}
-          uStrength={3.0}
-          uDensity={1.2}
-          uFrequency={5.5}
-          uAmplitude={5}
-          positionX={0}
-          positionY={0}
-          positionZ={0}
-          rotationX={0}
-          rotationY={0}
-          rotationZ={235}
-          color1="#2e0854"
-          color2="#7c3aed"
-          color3="#0b0813"
-          grain="on"
-          lightType="3d"
-          envPreset="city"
-          reflection={0.15}
-          brightness={1.2}
-          cAzimuthAngle={180}
-          cPolarAngle={90}
-          cDistance={3.5}
-          cameraZoom={1}
-        />
-      </ShaderCanvas>
-    </div>
-  );
-}
-
-// Composant de titre simple sans effet de dispersion
-function HeroTitle() {
-  return (
-    <h1
-      className="font-display mx-auto max-w-4xl text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.15] mb-6 animate-fade-up tracking-tight select-none"
-      style={{ animationDelay: "80ms" }}
-    >
-      <span className="block mb-2 text-white">
-        Cherchez comment
-      </span>
-      <span className="text-gradient-bright italic block">
-        votre député a voté.
-      </span>
-    </h1>
-  );
-}
+const HERO_BG_STYLE: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  width: "100%",
+  height: "100%",
+  // Couche 1 : fond de base très sombre violet-noir
+  // Couche 2-5 : ellipses radiales colorées superposées = effet ShaderGradient
+  background: [
+    // spot magenta haut-droite
+    "radial-gradient(ellipse 65% 55% at 85% 10%,  #a21caf55 0%, transparent 70%)",
+    // spot violet-indigo centre-droite
+    "radial-gradient(ellipse 70% 60% at 75% 55%,  #7c3aed88 0%, transparent 65%)",
+    // spot indigo foncé centre-gauche
+    "radial-gradient(ellipse 55% 50% at 35% 45%,  #3730a388 0%, transparent 65%)",
+    // spot bleu-violet haut-gauche
+    "radial-gradient(ellipse 50% 45% at 15% 20%,  #4f46e566 0%, transparent 60%)",
+    // fond de base noir-violet
+    "linear-gradient(160deg, #0d0b1e 0%, #11082a 40%, #0a0718 100%)",
+  ].join(", "),
+};
 
 function Home() {
   const { stats, latest, latestPost } = Route.useLoaderData() as {
@@ -159,16 +82,28 @@ function Home() {
     <div className="page-enter">
       {/* ─── HERO ──────────────────────────────────────────────────────────── */}
       <section className="hero-attach relative overflow-hidden">
-        {/* ShaderGradient — remplace les orbs et les vagues SVG */}
-        <HeroShaderGradient />
+        {/* Fond statique : rendu immédiat, visible tout au long du scroll */}
+        <div aria-hidden="true" style={HERO_BG_STYLE} />
 
-        {/* Voile sombre pour lisibilité du texte sur le gradient */}
+        {/* Grain de texture (SVG filtre natif, zéro image externe) */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none opacity-[0.18]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
+            backgroundSize: "200px 200px",
+          }}
+        />
+
+        {/* Voile dégradé bas : transition douce vers le reste de la page */}
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "linear-gradient(to bottom, oklch(0.08 0.03 285 / 30%) 0%, transparent 40%, oklch(0.10 0.03 285 / 80%) 85%, oklch(0.10 0.03 285) 100%)",
+              "linear-gradient(to bottom, transparent 0%, transparent 55%, #0a0718cc 80%, #0a071800 100%), " +
+              "linear-gradient(to bottom, transparent 70%, var(--color-background, #0d0b1e) 100%)",
           }}
         />
 
@@ -178,10 +113,16 @@ function Home() {
             17e législature · Mis à jour quotidiennement
           </div>
 
-          <HeroTitle />
+          <h1
+            className="font-display mx-auto max-w-4xl text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.02] mb-6 animate-fade-up tracking-tight"
+            style={{ animationDelay: "80ms" }}
+          >
+            <span className="block text-white">Cherchez comment</span>
+            <span className="text-gradient italic block">votre député a voté.</span>
+          </h1>
 
           <p
-            className="mx-auto max-w-2xl text-base sm:text-lg text-white font-medium mb-10 leading-relaxed animate-fade-up px-2"
+            className="mx-auto max-w-2xl text-base sm:text-lg text-white/80 mb-10 leading-relaxed animate-fade-up px-2"
             style={{ animationDelay: "160ms" }}
           >
             Sur n'importe quel texte de loi, en quelques secondes. Sans étiquette politique.
@@ -192,7 +133,7 @@ function Home() {
           </div>
 
           <div className="mt-16 sm:mt-20 animate-fade-up" style={{ animationDelay: "360ms" }}>
-            <p className="text-[11px] uppercase tracking-[0.22em] text-white font-semibold opacity-90 mb-6">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-white/60 mb-6">
               Données & technologies de confiance
             </p>
             <TrustLogos />
@@ -605,6 +546,7 @@ function ClairIcon() {
   );
 }
 
+// Tous les logos sont en blanc dans la hero (fond sombre)
 function TrustLogos() {
   const logos: { name: string; href: string; icon: React.ReactNode }[] = [
     { name: "Turso",               href: "https://turso.tech",                         icon: <TursoIcon /> },
@@ -616,31 +558,25 @@ function TrustLogos() {
   ];
   return (
     <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-4 sm:gap-x-10">
-      {logos.map((l) => {
-        const isWhite = l.name === "Turso" || l.name === "GitHub";
-        return (
-          <a key={l.name} href={l.href} target="_blank" rel="noopener noreferrer"
-            aria-label={l.name} title={l.name}
-            className={[
-              "group inline-flex items-center gap-2 transition-all duration-200",
-              isWhite
-                ? "text-white opacity-95 hover:opacity-100 scale-105"
-                : "trust-logo opacity-60 hover:opacity-100"
-            ].join(" ")}
+      {logos.map((l) => (
+        <a
+          key={l.name}
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={l.name}
+          title={l.name}
+          className="group inline-flex items-center gap-2 opacity-75 hover:opacity-100 transition-all duration-200 text-white"
+        >
+          <span className="shrink-0 transition-transform duration-200 group-hover:scale-110 text-white">{l.icon}</span>
+          <span
+            className="text-sm font-semibold tracking-tight text-white transition-colors duration-200"
+            style={{ fontFamily: "system-ui, sans-serif" }}
           >
-            <span className="shrink-0 transition-transform duration-200 group-hover:scale-110">{l.icon}</span>
-            <span
-              className={[
-                "text-sm font-semibold tracking-tight transition-colors duration-200",
-                isWhite ? "text-white" : "text-foreground/70 group-hover:text-foreground"
-              ].join(" ")}
-              style={{ fontFamily: "system-ui, sans-serif" }}
-            >
-              {l.name}
-            </span>
-          </a>
-        );
-      })}
+            {l.name}
+          </span>
+        </a>
+      ))}
     </div>
   );
 }
