@@ -9,37 +9,38 @@ export function useLiquidGlassButtons() {
 
     const activeInstances = new Map<HTMLElement, { destroy: () => void }>();
     const observers = new Map<HTMLElement, IntersectionObserver>();
+    const resizeObservers = new Map<HTMLElement, ResizeObserver>();
+    const bgElements = new Map<HTMLElement, HTMLDivElement>();
 
     const processButton = async (btn: HTMLElement) => {
       if (btn.dataset.liquidProcessed === "true") return;
       btn.dataset.liquidProcessed = "true";
 
       const parent = btn.parentElement;
-      if (!parent) return;
-
-      // Create a wrapper that matches the original layout
-      const wrapper = document.createElement("div");
-      wrapper.className = "liquid-button-root inline-block relative overflow-visible";
+      if (!parent) {
+        delete btn.dataset.liquidProcessed;
+        return;
+      }
 
       const computedStyle = window.getComputedStyle(btn);
-      wrapper.style.margin = computedStyle.margin;
-      wrapper.style.display = computedStyle.display === "block" ? "block" : "inline-block";
-      wrapper.style.verticalAlign = computedStyle.verticalAlign;
-      wrapper.style.width = computedStyle.width;
+      const borderRadius = computedStyle.borderRadius || "14px";
 
-      // Reset margin on original button so we don't have double spacing
-      btn.style.margin = "0";
+      // Store original button inline styles for perfect restoration on destruction
+      const originalStyles = {
+        background: btn.style.background,
+        backgroundImage: btn.style.backgroundImage,
+        boxShadow: btn.style.boxShadow,
+        borderColor: btn.style.borderColor,
+        position: btn.style.position,
+      };
 
-      // Insert wrapper in place of button
-      parent.insertBefore(wrapper, btn);
-
-      // Create background sibling
+      // Create background sibling element
       const bg = document.createElement("div");
-      bg.className = "liquid-button-bg absolute inset-0 pointer-events-none";
-      bg.style.borderRadius = computedStyle.borderRadius || "14px";
-      bg.style.zIndex = "1";
+      bg.className = "liquid-button-bg absolute pointer-events-none";
+      bg.style.borderRadius = borderRadius;
+      bg.style.boxSizing = "border-box";
 
-      // Determine original background styling
+      // Copy original background style
       const bgImage = computedStyle.backgroundImage;
       const bgColor = computedStyle.backgroundColor;
       if (bgImage && bgImage !== "none") {
@@ -50,18 +51,101 @@ export function useLiquidGlassButtons() {
         bg.style.background = "var(--gradient-primary)";
       }
 
-      // Configure button style so it is prepared for liquid glass
+      let inserted = false;
+      let insertFrame: number | null = null;
+
+      // Setup dynamic positioning and sizing sync using ResizeObserver
+      const syncPosition = () => {
+        if (!document.body.contains(btn)) return;
+        bg.style.left = `${btn.offsetLeft}px`;
+        bg.style.top = `${btn.offsetTop}px`;
+        bg.style.width = `${btn.offsetWidth}px`;
+        bg.style.height = `${btn.offsetHeight}px`;
+        bg.style.display = window.getComputedStyle(btn).display;
+      };
+
+      const resizeObserver = new ResizeObserver(() => {
+        syncPosition();
+      });
+      resizeObserver.observe(btn);
+      resizeObservers.set(btn, resizeObserver);
+
+      // Define cleanup helper first so it can be called safely
+      const cleanupButton = () => {
+        if (insertFrame !== null) {
+          cancelAnimationFrame(insertFrame);
+        }
+
+        // Stop observation
+        observer.disconnect();
+        resizeObserver.disconnect();
+
+        // Restore original inline styles
+        btn.style.background = originalStyles.background;
+        btn.style.backgroundImage = originalStyles.backgroundImage;
+        btn.style.boxShadow = originalStyles.boxShadow;
+        btn.style.borderColor = originalStyles.borderColor;
+        btn.style.position = originalStyles.position;
+        delete btn.dataset.liquidProcessed;
+
+        // Remove background element from DOM
+        // Defer removal to prevent synchronous DOM hierarchy conflicts during React's commit/reconciliation
+        if (inserted) {
+          inserted = false;
+          requestAnimationFrame(() => {
+            if (bg.parentNode) {
+              try {
+                bg.parentNode.removeChild(bg);
+              } catch (e) {
+                console.warn("Failed to remove button background safely:", e);
+              }
+            }
+          });
+        }
+
+        // Destroy LiquidGlass instance
+        const instance = activeInstances.get(btn);
+        if (instance) {
+          try {
+            instance.destroy();
+          } catch (e) {}
+          activeInstances.delete(btn);
+        }
+
+        bgElements.delete(btn);
+        observers.delete(btn);
+        resizeObservers.delete(btn);
+      };
+
+      // Store cleanup function on the button element for easy access in MutationObserver
+      (btn as any)._liquidCleanup = cleanupButton;
+
+      // Defer DOM insertion to requestAnimationFrame to safely decouple from React's synchronous render/commit cycle
+      insertFrame = requestAnimationFrame(() => {
+        const currentParent = btn.parentElement;
+        if (!currentParent || !document.body.contains(btn)) {
+          cleanupButton();
+          return;
+        }
+        try {
+          currentParent.insertBefore(bg, btn);
+          inserted = true;
+          bgElements.set(btn, bg);
+          syncPosition();
+        } catch (err) {
+          console.warn("Deferred background insertion failed:", err);
+          cleanupButton();
+        }
+      });
+
+      // Setup styles on button to make it transparent and ready for glass rendering
       btn.style.background = "transparent";
-      btn.style.border = "none";
+      btn.style.backgroundImage = "none";
       btn.style.boxShadow = "none";
+      btn.style.borderColor = "transparent";
       btn.style.position = "relative";
-      btn.style.zIndex = "2";
 
-      // Append bg and btn to wrapper
-      wrapper.appendChild(bg);
-      wrapper.appendChild(btn);
-
-      // Setup IntersectionObserver for on-demand initialization to avoid WebGL context limit (max 16)
+      // Setup IntersectionObserver for on-demand WebGL rendering
       const observer = new IntersectionObserver(
         async ([entry]) => {
           if (entry.isIntersecting) {
@@ -69,17 +153,21 @@ export function useLiquidGlassButtons() {
               try {
                 const { LiquidGlass } = await import("@ybouane/liquidglass");
 
-                // Set dataset configuration for the button
                 btn.dataset.config = JSON.stringify({
                   button: true,
-                  cornerRadius: parseInt(computedStyle.borderRadius) || 14,
+                  cornerRadius: parseInt(borderRadius) || 14,
                   blurAmount: 0.15,
-                  refraction: 0.35,
+                  refraction: 0.4,
                   chromAberration: 0.04,
+                  edgeHighlight: 0.2,
+                  specular: 0.8,
+                  fresnel: 1.0,
+                  tintStrength: 0.25,
+                  brightness: 0.05,
                 });
 
                 const instance = await LiquidGlass.init({
-                  root: wrapper,
+                  root: parent,
                   glassElements: [btn],
                 });
 
@@ -89,7 +177,6 @@ export function useLiquidGlassButtons() {
               }
             }
           } else {
-            // Clean up when off-screen to save precious WebGL contexts
             const instance = activeInstances.get(btn);
             if (instance) {
               try {
@@ -102,28 +189,33 @@ export function useLiquidGlassButtons() {
         { threshold: 0.01 }
       );
 
-      observer.observe(wrapper);
+      observer.observe(btn);
       observers.set(btn, observer);
     };
 
     const scanAndProcess = () => {
-      // Find all primary buttons, link primary buttons, or standard button tags
       const buttons = document.querySelectorAll<HTMLElement>("button:not([disabled]), .btn-primary");
       buttons.forEach((btn) => {
         if (btn.dataset.liquidProcessed === "true") return;
-        if (btn.closest(".liquid-button-root")) return;
-        // Don't wrap tiny toggle buttons, icons, or specific widgets if they are too small (e.g. AI widget, cookie banner close)
         if (btn.offsetWidth < 35 || btn.offsetHeight < 25) return;
-
         processButton(btn);
       });
     };
 
-    // Run initial scan
     scanAndProcess();
 
-    // Setup MutationObserver to watch for newly inserted elements (like client-side route changes or dynamic updates)
+    // Setup MutationObserver to watch for newly inserted elements, and clean up removed ones
     const mutationObserver = new MutationObserver(() => {
+      // Clean up orphaned buttons that were removed from the DOM
+      bgElements.forEach((_, btn) => {
+        if (!document.body.contains(btn)) {
+          const cleanup = (btn as any)._liquidCleanup;
+          if (typeof cleanup === "function") {
+            cleanup();
+          }
+        }
+      });
+
       scanAndProcess();
     });
 
@@ -134,11 +226,13 @@ export function useLiquidGlassButtons() {
 
     return () => {
       mutationObserver.disconnect();
-      observers.forEach((obs) => obs.disconnect());
-      activeInstances.forEach((inst) => {
-        try {
-          inst.destroy();
-        } catch (e) {}
+
+      // Clean up all active state
+      bgElements.forEach((_, btn) => {
+        const cleanup = (btn as any)._liquidCleanup;
+        if (typeof cleanup === "function") {
+          cleanup();
+        }
       });
     };
   }, [location.pathname]);
