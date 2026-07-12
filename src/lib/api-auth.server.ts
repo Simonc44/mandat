@@ -56,7 +56,7 @@ export function extractApiKey(request: Request): string | null {
 
 export function validateApiKeyLocal(key: string | null): boolean {
   if (!key) return false;
-  if (key.startsWith("mk_test_")) return true;
+  if (key.startsWith("mk_test_") && process.env.NODE_ENV !== "production") return true;
   const raw = process.env.MANDAT_API_KEYS ?? "";
   if (!raw) return false;
   const valid = raw.split(",").map((k) => k.trim()).filter(Boolean);

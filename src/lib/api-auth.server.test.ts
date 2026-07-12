@@ -24,7 +24,8 @@ describe("apiGuard", () => {
     }
   });
 
-  it("should validate local test keys (mk_test_)", async () => {
+  it("should validate local test keys (mk_test_) in development", async () => {
+    process.env.NODE_ENV = "development";
     const request = new Request("https://api.example.com/data", {
       headers: { "X-Api-Key": "mk_test_123" }
     });
@@ -33,6 +34,27 @@ describe("apiGuard", () => {
     if ("key" in result) {
       expect(result.key).toBe("mk_test_123");
       expect(result.rl.limit).toBe(60);
+    }
+  });
+
+  it("should NOT validate local test keys (mk_test_) in production unless explicitly present in MANDAT_API_KEYS", async () => {
+    process.env.NODE_ENV = "production";
+    delete process.env.MANDAT_API_KEYS;
+    const request = new Request("https://api.example.com/data", {
+      headers: { "X-Api-Key": "mk_test_123" }
+    });
+    const result = await apiGuard(request);
+    expect("error" in result).toBe(true);
+    if ("error" in result) {
+      expect(result.error.status).toBe(401);
+    }
+
+    // Now put it in MANDAT_API_KEYS
+    process.env.MANDAT_API_KEYS = "mk_test_123,other_key";
+    const result2 = await apiGuard(request);
+    expect("key" in result2).toBe(true);
+    if ("key" in result2) {
+      expect(result2.key).toBe("mk_test_123");
     }
   });
 
