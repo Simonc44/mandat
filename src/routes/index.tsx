@@ -91,8 +91,7 @@ function HeroShaderGradient() {
   return (
     <div
       aria-hidden="true"
-      className="absolute inset-0 w-full h-full"
-      style={{ opacity: 0.75 }}
+      style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", zIndex: 0, pointerEvents: "none", opacity: 0.75 }}
     >
       <ShaderCanvas
         pointerEvents="none"
@@ -131,6 +130,55 @@ function HeroShaderGradient() {
   );
 }
 
+// Composant pour séparer les lettres et assigner des coordonnées aléatoires pour l'effet de dispersion
+function DispersingTitle() {
+  const text1 = "Cherchez comment";
+  const text2 = "votre député a voté.";
+
+  const splitToSpans = (text: string) => {
+    return text.split("").map((char, index) => {
+      if (char === " ") return <span key={index}>&nbsp;</span>;
+
+      // Translations 3D, rotations et échelles aléatoires pour la dispersion en "air"
+      const rx = (Math.random() * 140 - 70).toFixed(1); // -70px à +70px
+      const ry = (Math.random() * 140 - 70).toFixed(1); // -70px à +70px
+      const rdeg = (Math.random() * 180 - 90).toFixed(1); // -90deg à +90deg
+      const rscale = (Math.random() * 0.5 + 0.3).toFixed(2); // scale down de 0.3 à 0.8
+      const delay = (Math.random() * 0.08).toFixed(3); // Petit délai aléatoire pour un mouvement fluide
+
+      return (
+        <span
+          key={index}
+          className="inline-block transition-all duration-[750ms] ease-out hover-disperse-char"
+          style={{
+            "--rx": `${rx}px`,
+            "--ry": `${ry}px`,
+            "--rdeg": `${rdeg}deg`,
+            "--rscale": rscale,
+            transitionDelay: `${delay}s`,
+          } as React.CSSProperties}
+        >
+          {char}
+        </span>
+      );
+    });
+  };
+
+  return (
+    <h1
+      className="font-display mx-auto max-w-4xl text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.15] mb-6 animate-fade-up tracking-tight select-none group-disperse"
+      style={{ animationDelay: "80ms" }}
+    >
+      <span className="block mb-2 text-white">
+        {splitToSpans(text1)}
+      </span>
+      <span className="text-gradient italic block">
+        {splitToSpans(text2)}
+      </span>
+    </h1>
+  );
+}
+
 function Home() {
   const { stats, latest, latestPost } = Route.useLoaderData() as {
     stats: HomeStats;
@@ -162,17 +210,10 @@ function Home() {
             17e législature · Mis à jour quotidiennement
           </div>
 
-          <h1
-            className="font-display mx-auto max-w-4xl text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.02] mb-6 animate-fade-up tracking-tight"
-            style={{ animationDelay: "80ms" }}
-          >
-            Cherchez comment
-            <br />
-            <span className="text-gradient italic">votre député a voté.</span>
-          </h1>
+          <DispersingTitle />
 
           <p
-            className="mx-auto max-w-2xl text-base sm:text-lg text-muted-foreground mb-10 leading-relaxed animate-fade-up px-2"
+            className="mx-auto max-w-2xl text-base sm:text-lg text-white font-medium mb-10 leading-relaxed animate-fade-up px-2"
             style={{ animationDelay: "160ms" }}
           >
             Sur n'importe quel texte de loi, en quelques secondes. Sans étiquette politique.
@@ -183,7 +224,7 @@ function Home() {
           </div>
 
           <div className="mt-16 sm:mt-20 animate-fade-up" style={{ animationDelay: "360ms" }}>
-            <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground/80 mb-6">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-white font-semibold opacity-90 mb-6">
               Données & technologies de confiance
             </p>
             <TrustLogos />
@@ -607,16 +648,31 @@ function TrustLogos() {
   ];
   return (
     <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-4 sm:gap-x-10">
-      {logos.map((l) => (
-        <a key={l.name} href={l.href} target="_blank" rel="noopener noreferrer"
-          aria-label={l.name} title={l.name}
-          className="trust-logo group inline-flex items-center gap-2 opacity-60 hover:opacity-100 transition-all duration-200">
-          <span className="shrink-0 transition-transform duration-200 group-hover:scale-110">{l.icon}</span>
-          <span className="text-sm font-semibold tracking-tight text-foreground/70 group-hover:text-foreground transition-colors duration-200" style={{ fontFamily: "system-ui, sans-serif" }}>
-            {l.name}
-          </span>
-        </a>
-      ))}
+      {logos.map((l) => {
+        const isWhite = l.name === "Turso" || l.name === "GitHub";
+        return (
+          <a key={l.name} href={l.href} target="_blank" rel="noopener noreferrer"
+            aria-label={l.name} title={l.name}
+            className={[
+              "group inline-flex items-center gap-2 transition-all duration-200",
+              isWhite
+                ? "text-white opacity-95 hover:opacity-100 scale-105"
+                : "trust-logo opacity-60 hover:opacity-100"
+            ].join(" ")}
+          >
+            <span className="shrink-0 transition-transform duration-200 group-hover:scale-110">{l.icon}</span>
+            <span
+              className={[
+                "text-sm font-semibold tracking-tight transition-colors duration-200",
+                isWhite ? "text-white" : "text-foreground/70 group-hover:text-foreground"
+              ].join(" ")}
+              style={{ fontFamily: "system-ui, sans-serif" }}
+            >
+              {l.name}
+            </span>
+          </a>
+        );
+      })}
     </div>
   );
 }

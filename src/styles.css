@@ -949,3 +949,20 @@
   content-visibility: auto;
   contain-intrinsic-size: 1px 500px;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   AIR DISPERSION TITLE ANIMATION
+   ═══════════════════════════════════════════════════════════ */
+.hover-disperse-char {
+  transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  opacity: 1;
+  filter: blur(0px);
+  will-change: transform, opacity, filter;
+}
+
+/* Hover disperses letters of the title into "air" */
+.group-disperse:hover .hover-disperse-char {
+  transform: translate3d(var(--rx), var(--ry), 0) rotate(var(--rdeg)) scale(var(--rscale));
+  opacity: 0.15;
+  filter: blur(4px);
+}
