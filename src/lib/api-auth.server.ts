@@ -54,9 +54,11 @@ export function extractApiKey(request: Request): string | null {
   return null;
 }
 
+// Valide une clé UNIQUEMENT via MANDAT_API_KEYS (env var CSV).
+// Les clés mk_test_* ne sont plus acceptées en fallback local —
+// elles passent toujours par Unkey pour être vérifiées strictement.
 export function validateApiKeyLocal(key: string | null): boolean {
   if (!key) return false;
-  if (key.startsWith("mk_test_")) return true;
   const raw = process.env.MANDAT_API_KEYS ?? "";
   if (!raw) return false;
   const valid = raw.split(",").map((k) => k.trim()).filter(Boolean);
@@ -116,7 +118,7 @@ export function checkRateLimitLocal(key: string) {
   return { ok: entry.count <= LOCAL_RATE_LIMIT, limit: LOCAL_RATE_LIMIT, remaining, reset: entry.reset };
 }
 
-export function rateLimitHeaders(limit: number, remaining: number, reset: number): Record<string, string> {
+export function rateLimitHeaders(remaining: number, reset: number, limit = LOCAL_RATE_LIMIT): Record<string, string> {
   return {
     "X-RateLimit-Limit": String(limit),
     "X-RateLimit-Remaining": String(remaining),
@@ -125,6 +127,11 @@ export function rateLimitHeaders(limit: number, remaining: number, reset: number
 }
 
 // ─── Guard complet : auth + rate limit ──────────────────────────────────────
+// Stratégie :
+//   1. Si UNKEY_API_ID est configuré → TOUTES les clés (y compris mk_test_*)
+//      sont vérifiées strictement via Unkey. Aucun bypass local.
+//   2. Sinon → fallback sur MANDAT_API_KEYS (liste CSV d'env var).
+//      Les clés mk_test_* ne sont PAS acceptées automatiquement.
 
 export async function apiGuard(
   request: Request,
@@ -141,24 +148,22 @@ export async function apiGuard(
     };
   }
 
-  // 1. Unkey si configuré (et non une clé de test locale)
-  const useUnkey = !!process.env.UNKEY_API_ID && !key.startsWith("mk_test_");
-
-  if (useUnkey) {
+  // 1. Unkey si configuré — TOUTES les clés passent par Unkey, sans exception
+  if (process.env.UNKEY_API_ID) {
     const unkey = await verifyWithUnkey(key);
     if (!unkey.valid) {
-      return { error: jsonError("Clé API invalide (Unkey).", 401, "UNAUTHORIZED") };
+      return { error: jsonError("Clé API invalide ou révoquée.", 401, "UNAUTHORIZED") };
     }
-    const rl = unkey.ratelimit ?? { limit: 60, remaining: 59, reset: Date.now() + 60000 };
+    const rl = unkey.ratelimit ?? { limit: LOCAL_RATE_LIMIT, remaining: 59, reset: Date.now() + WINDOW_MS };
     if (rl.remaining < 0) {
-       return {
+      return {
         error: new Response(
           JSON.stringify({ error: { message: "Trop de requêtes (Unkey).", code: "RATE_LIMITED", status: 429 } }),
           {
             status: 429,
             headers: {
               ...NO_CACHE_HEADERS,
-              ...rateLimitHeaders(rl.limit, 0, rl.reset),
+              ...rateLimitHeaders(0, rl.reset, rl.limit),
               "Retry-After": String(Math.ceil((rl.reset - Date.now()) / 1000)),
             },
           },
@@ -168,7 +173,7 @@ export async function apiGuard(
     return { key, rl };
   }
 
-  // 2. Fallback local (MANDAT_API_KEYS ou mk_test_)
+  // 2. Fallback local — MANDAT_API_KEYS uniquement
   if (!validateApiKeyLocal(key)) {
     return { error: jsonError("Clé API invalide.", 401, "UNAUTHORIZED") };
   }
@@ -182,7 +187,7 @@ export async function apiGuard(
           status: 429,
           headers: {
             ...NO_CACHE_HEADERS,
-            ...rateLimitHeaders(rl.limit, rl.remaining, rl.reset),
+            ...rateLimitHeaders(rl.remaining, rl.reset, rl.limit),
             "Retry-After": String(Math.ceil((rl.reset - Date.now()) / 1000)),
           },
         },
