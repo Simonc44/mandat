@@ -91,7 +91,7 @@ function HeroShaderGradient() {
   return (
     <div
       aria-hidden="true"
-      style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", zIndex: 0, pointerEvents: "none", opacity: 0.75 }}
+      style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", zIndex: 0, pointerEvents: "none", opacity: 0.9 }}
     >
       <ShaderCanvas
         pointerEvents="none"
@@ -101,8 +101,8 @@ function HeroShaderGradient() {
         <ShaderComp
           type="plane"
           animate="on"
-          uSpeed={0.3}
-          uStrength={2.5}
+          uSpeed={0.35}
+          uStrength={3.0}
           uDensity={1.2}
           uFrequency={5.5}
           uAmplitude={5}
@@ -112,14 +112,14 @@ function HeroShaderGradient() {
           rotationX={0}
           rotationY={0}
           rotationZ={235}
-          color1="#3730a3"
+          color1="#2e0854"
           color2="#7c3aed"
-          color3="#0f0e1a"
+          color3="#0b0813"
           grain="on"
           lightType="3d"
           envPreset="city"
-          reflection={0.1}
-          brightness={1.1}
+          reflection={0.15}
+          brightness={1.2}
           cAzimuthAngle={180}
           cPolarAngle={90}
           cDistance={3.5}
@@ -130,50 +130,18 @@ function HeroShaderGradient() {
   );
 }
 
-// Composant pour séparer les lettres et assigner des coordonnées aléatoires pour l'effet de dispersion
-function DispersingTitle() {
-  const text1 = "Cherchez comment";
-  const text2 = "votre député a voté.";
-
-  const splitToSpans = (text: string) => {
-    return text.split("").map((char, index) => {
-      if (char === " ") return <span key={index}>&nbsp;</span>;
-
-      // Translations 3D, rotations et échelles aléatoires pour la dispersion en "air"
-      const rx = (Math.random() * 140 - 70).toFixed(1); // -70px à +70px
-      const ry = (Math.random() * 140 - 70).toFixed(1); // -70px à +70px
-      const rdeg = (Math.random() * 180 - 90).toFixed(1); // -90deg à +90deg
-      const rscale = (Math.random() * 0.5 + 0.3).toFixed(2); // scale down de 0.3 à 0.8
-      const delay = (Math.random() * 0.08).toFixed(3); // Petit délai aléatoire pour un mouvement fluide
-
-      return (
-        <span
-          key={index}
-          className="inline-block transition-all duration-[750ms] ease-out hover-disperse-char"
-          style={{
-            "--rx": `${rx}px`,
-            "--ry": `${ry}px`,
-            "--rdeg": `${rdeg}deg`,
-            "--rscale": rscale,
-            transitionDelay: `${delay}s`,
-          } as React.CSSProperties}
-        >
-          {char}
-        </span>
-      );
-    });
-  };
-
+// Composant de titre simple sans effet de dispersion
+function HeroTitle() {
   return (
     <h1
-      className="font-display mx-auto max-w-4xl text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.15] mb-6 animate-fade-up tracking-tight select-none group-disperse"
+      className="font-display mx-auto max-w-4xl text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.15] mb-6 animate-fade-up tracking-tight select-none"
       style={{ animationDelay: "80ms" }}
     >
       <span className="block mb-2 text-white">
-        {splitToSpans(text1)}
+        Cherchez comment
       </span>
-      <span className="text-gradient italic block">
-        {splitToSpans(text2)}
+      <span className="text-gradient-bright italic block">
+        votre député a voté.
       </span>
     </h1>
   );
@@ -210,7 +178,7 @@ function Home() {
             17e législature · Mis à jour quotidiennement
           </div>
 
-          <DispersingTitle />
+          <HeroTitle />
 
           <p
             className="mx-auto max-w-2xl text-base sm:text-lg text-white font-medium mb-10 leading-relaxed animate-fade-up px-2"
