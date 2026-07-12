@@ -2,7 +2,7 @@
 // Section ApiSection ajoutée après SimulatorCTASection
 
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import {
   normalize,
   sanitizeSearchInput,
@@ -10,6 +10,77 @@ import {
   type Scrutin,
   photoUrl,
 } from "@/lib/api";
+
+// Client-only component wrapper for ShaderGradient
+const ShaderGradientBackground = () => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return (
+    <Suspense fallback={null}>
+      <LazyShaderGradient />
+    </Suspense>
+  );
+};
+
+const LazyShaderGradient = lazy(async () => {
+  const { ShaderGradientCanvas, ShaderGradient } = await import("@shadergradient/react");
+  return {
+    default: () => (
+      <ShaderGradientCanvas
+        style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+        pixelDensity={1}
+        fov={45}
+      >
+        <ShaderGradient
+          animate="on"
+          axesHelper="on"
+          brightness={1.1}
+          cAzimuthAngle={180}
+          cDistance={3.9}
+          cPolarAngle={115}
+          cameraZoom={1}
+          color1="#5606ff"
+          color2="#fe8989"
+          color3="#000000"
+          destination="onCanvas"
+          embedMode="off"
+          envPreset="city"
+          format="gif"
+          fov={45}
+          frameRate={10}
+          gizmoHelper="hide"
+          grain="off"
+          lightType="3d"
+          pixelDensity={1}
+          positionX={-0.5}
+          positionY={0.1}
+          positionZ={0}
+          range="disabled"
+          rangeEnd={40}
+          rangeStart={0}
+          reflection={0.1}
+          rotationX={0}
+          rotationY={0}
+          rotationZ={235}
+          shader="defaults"
+          type="waterPlane"
+          uAmplitude={0}
+          uDensity={1.1}
+          uFrequency={5.5}
+          uSpeed={0.1}
+          uStrength={2.4}
+          uTime={0.2}
+          wireframe={false}
+        />
+      </ShaderGradientCanvas>
+    )
+  };
+});
 import {
   getHomeStats,
   getLatestScrutins,
@@ -34,10 +105,18 @@ export const Route = createFileRoute("/")({
     }),
   }),
   loader: async () => {
-    const [stats, latest] = await Promise.all([
-      getHomeStats(),
-      getLatestScrutins(),
-    ]);
+    let stats = { deputesCount: 577, scrutinsCount: 124, groupesCount: 11 };
+    let latest = [];
+    try {
+      const [dbStats, dbLatest] = await Promise.all([
+        getHomeStats().catch(() => ({ deputesCount: 577, scrutinsCount: 124, groupesCount: 11 })),
+        getLatestScrutins().catch(() => []),
+      ]);
+      stats = dbStats;
+      latest = dbLatest;
+    } catch (e) {
+      console.warn("Database stats load failed:", e);
+    }
     const posts = getAllPosts();
     return { stats, latest, latestPost: posts[0] || null };
   },
@@ -100,27 +179,8 @@ function Home() {
           </div>
         </div>
 
-        <div className="hero-wave" aria-hidden="true">
-          <svg viewBox="0 0 1600 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="wave1" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%"   stopColor="oklch(0.72 0.16 285 / 65%)" />
-                <stop offset="50%"  stopColor="oklch(0.60 0.22 275 / 70%)" />
-                <stop offset="100%" stopColor="oklch(0.68 0.16 305 / 60%)" />
-              </linearGradient>
-              <linearGradient id="wave2" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%"   stopColor="oklch(0.78 0.12 290 / 50%)" />
-                <stop offset="100%" stopColor="oklch(0.66 0.18 265 / 60%)" />
-              </linearGradient>
-              <linearGradient id="wave3" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%"   stopColor="oklch(0.86 0.08 295 / 45%)" />
-                <stop offset="100%" stopColor="oklch(0.72 0.14 285 / 50%)" />
-              </linearGradient>
-            </defs>
-            <path className="hero-wave-path p3" fill="url(#wave3)" d="M-80,260 C240,340 560,180 880,220 C1200,260 1440,360 1680,290 L1680,400 L-80,400 Z" />
-            <path className="hero-wave-path p2" fill="url(#wave2)" d="M-80,300 C240,220 560,340 880,280 C1200,220 1440,300 1680,260 L1680,400 L-80,400 Z" />
-            <path className="hero-wave-path"  fill="url(#wave1)" d="M-80,340 C240,280 560,380 880,320 C1200,260 1440,340 1680,320 L1680,400 L-80,400 Z" />
-          </svg>
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }} aria-hidden="true">
+          <ShaderGradientBackground />
         </div>
         <div className="hero-fade-out" aria-hidden="true" />
       </section>

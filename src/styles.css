@@ -409,6 +409,25 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
+   LIQUID GLASS WRAPPER STYLE
+   ═══════════════════════════════════════════════════════════ */
+[data-liquid-processed="true"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+.liquid-button-root {
+  transition: transform 150ms ease;
+}
+
+.liquid-button-root:active {
+  transform: scale(0.97);
+}
+
+/* ═══════════════════════════════════════════════════════════
    SKELETONS — Shimmer élégant
    ═══════════════════════════════════════════════════════════ */
 
