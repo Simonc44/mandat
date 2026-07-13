@@ -3,7 +3,8 @@ import { Route } from "./create";
 
 describe("/api/v1/keys/create handler", () => {
   const originalEnv = process.env;
-  const postHandler = Route.options.server?.handlers?.POST;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const postHandler = (Route.options.server?.handlers as any)?.POST;
 
   beforeEach(() => {
     vi.resetModules();
