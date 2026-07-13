@@ -1,6 +1,6 @@
 // AiChatWidget.tsx
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, RefreshCw, MoreVertical, Plus, ChevronDown, Database } from "lucide-react";
+import { X, RefreshCw, MoreVertical, Database } from "lucide-react";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
 function GeminiIcon({ size = 24 }: { size?: number }) {
@@ -14,17 +14,6 @@ function GeminiIcon({ size = 24 }: { size?: number }) {
           <stop offset=".672" stopColor="#1BA1E3" />
         </radialGradient>
       </defs>
-    </svg>
-  );
-}
-
-function WaveformIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true" className="text-slate-500">
-      <rect x="4" y="6" width="2" height="12" rx="1" className="animate-[pulse_1s_infinite_alternate]" style={{ animationDelay: "0ms" }} />
-      <rect x="9" y="3" width="2" height="18" rx="1" className="animate-[pulse_1s_infinite_alternate]" style={{ animationDelay: "150ms" }} />
-      <rect x="14" y="8" width="2" height="8" rx="1" className="animate-[pulse_1s_infinite_alternate]" style={{ animationDelay: "300ms" }} />
-      <rect x="19" y="5" width="2" height="14" rx="1" className="animate-[pulse_1s_infinite_alternate]" style={{ animationDelay: "450ms" }} />
     </svg>
   );
 }
@@ -273,34 +262,37 @@ export function AiChatWidget() {
         <GeminiIcon size={28} />
       </button>
 
-      {/* Panneau */}
+      {/* Panneau (Sidebar) */}
       <div
         ref={panelRef}
         className={[
-          "fixed right-5 z-[9999]",
-          "w-[min(400px,calc(100vw-2.5rem))]",
-          "transition-all duration-300 origin-bottom-right",
-          open ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none",
+          "fixed right-0 top-0 bottom-0 h-screen z-[9999]",
+          "w-full sm:w-[450px] bg-white border-l",
+          "transition-transform duration-300 ease-in-out flex flex-col",
+          open ? "translate-x-0" : "translate-x-full",
         ].join(" ")}
-        style={{ bottom: "calc(6rem + 3.75rem + 0.75rem)" }}
+        style={{
+          borderColor: "oklch(0.92 0.01 285)",
+          boxShadow: "-4px 0 24px oklch(0.50 0.20 285 / 8%)",
+        }}
         aria-hidden={!open}
       >
-        <div
-          className="rounded-3xl overflow-hidden flex flex-col bg-white"
-          style={{
-            border: "1px solid oklch(0.92 0.01 285)",
-            boxShadow: "0 24px 64px oklch(0.50 0.20 285 / 15%), 0 4px 16px rgba(0,0,0,0.08)",
-            maxHeight: "min(680px, 85vh)",
-          }}
-        >
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
           {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3 shrink-0 bg-white"
             style={{ borderBottom: "1px solid oklch(0.95 0.01 285)" }}
           >
-            <div className="flex items-center gap-2">
-              <GeminiIcon size={20} />
-              <span className="font-semibold text-sm text-slate-800">Mandat IA</span>
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-1.5">
+                <GeminiIcon size={20} />
+                <span className="font-semibold text-sm text-slate-800">Mandat IA</span>
+              </div>
+              {/* Modèle unique bloqué */}
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-semibold border border-slate-200">
+                <span className="w-1 h-1 rounded-full bg-indigo-500"></span>
+                <span>Llama 3.3 70B</span>
+              </div>
             </div>
             <div className="flex items-center gap-1 text-slate-500">
               {hasMessages && (
@@ -429,47 +421,25 @@ export function AiChatWidget() {
               />
 
               {/* Bottom controls row inside input container */}
-              <div className="flex items-center justify-between pt-1 pb-0.5 shrink-0">
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200/50 transition-colors"
-                    title="Ajouter"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-200/50 text-slate-700 text-[10.5px] font-semibold">
-                    <span>Pro</span>
-                    <ChevronDown className="w-3 h-3 text-slate-500" />
-                  </div>
-                  <button
-                    type="button"
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200/50 transition-colors"
-                    title="Audio"
-                  >
-                    <WaveformIcon />
-                  </button>
-                  <button
-                    onClick={() => sendMessage()}
-                    disabled={!input.trim() || loading}
-                    className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
-                    style={{
-                      background: input.trim() && !loading
-                        ? "linear-gradient(135deg, #1a73e8, #1557b0)"
-                        : "transparent",
-                      color: input.trim() && !loading ? "white" : "#5f6368",
-                    }}
-                    title="Envoyer"
-                  >
-                    {loading ? (
-                      <span className="w-3.5 h-3.5 border-2 border-slate-400 border-t-slate-600 rounded-full animate-spin" />
-                    ) : (
-                      <SendIcon />
-                    )}
-                  </button>
-                </div>
+              <div className="flex items-center justify-end pt-1 pb-0.5 shrink-0">
+                <button
+                  onClick={() => sendMessage()}
+                  disabled={!input.trim() || loading}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+                  style={{
+                    background: input.trim() && !loading
+                      ? "linear-gradient(135deg, #1a73e8, #1557b0)"
+                      : "transparent",
+                    color: input.trim() && !loading ? "white" : "#5f6368",
+                  }}
+                  title="Envoyer"
+                >
+                  {loading ? (
+                    <span className="w-3.5 h-3.5 border-2 border-slate-400 border-t-slate-600 rounded-full animate-spin" />
+                  ) : (
+                    <SendIcon />
+                  )}
+                </button>
               </div>
             </div>
 
