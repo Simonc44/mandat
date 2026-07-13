@@ -1,6 +1,4 @@
-// routes/index.tsx
-// Hero section : fond statique CSS pur — zéro JS, zéro délai, toujours visible
-
+// routes/index.tsx — Animations de section uniques
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import {
@@ -44,28 +42,17 @@ export const Route = createFileRoute("/")(({
   component: Home,
 } as any));
 
-// ─── Hero static background ──────────────────────────────────────────────────
-// SVG inline converti en data-URI : zéro requête réseau, zéro JS, zéro délai.
-// Rendu immédiat dès le premier paint, visible à tout moment du scroll.
-// Les couleurs reproduisent l'ambiance ShaderGradient violet-indigo-magenta.
-
+// ─── Hero background ─────────────────────────────────────────────────────────
 const HERO_BG_STYLE: React.CSSProperties = {
   position: "absolute",
   inset: 0,
   width: "100%",
   height: "100%",
-  // Couche 1 : fond de base très sombre violet-noir
-  // Couche 2-5 : ellipses radiales colorées superposées = effet ShaderGradient
   background: [
-    // spot magenta haut-droite
     "radial-gradient(ellipse 65% 55% at 85% 10%,  #a21caf55 0%, transparent 70%)",
-    // spot violet-indigo centre-droite
     "radial-gradient(ellipse 70% 60% at 75% 55%,  #7c3aed88 0%, transparent 65%)",
-    // spot indigo foncé centre-gauche
     "radial-gradient(ellipse 55% 50% at 35% 45%,  #3730a388 0%, transparent 65%)",
-    // spot bleu-violet haut-gauche
     "radial-gradient(ellipse 50% 45% at 15% 20%,  #4f46e566 0%, transparent 60%)",
-    // fond de base noir-violet
     "linear-gradient(160deg, #0d0b1e 0%, #11082a 40%, #0a0718 100%)",
   ].join(", "),
 };
@@ -80,12 +67,10 @@ function Home() {
 
   return (
     <div className="page-enter">
-      {/* ─── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="hero-attach relative overflow-hidden">
-        {/* Fond statique : rendu immédiat, visible tout au long du scroll */}
-        <div aria-hidden="true" style={HERO_BG_STYLE} />
 
-        {/* Grain de texture (SVG filtre natif, zéro image externe) */}
+      {/* ━━ 1. HERO — pas d'animation de scroll, entrée CSS fade-up ━━━━━━ */}
+      <section className="hero-attach relative overflow-hidden">
+        <div aria-hidden="true" style={HERO_BG_STYLE} />
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none opacity-[0.18]"
@@ -95,8 +80,6 @@ function Home() {
             backgroundSize: "200px 200px",
           }}
         />
-
-        {/* Voile dégradé bas : transition douce vers le reste de la page */}
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none"
@@ -106,13 +89,11 @@ function Home() {
               "linear-gradient(to bottom, transparent 70%, var(--color-background, #0d0b1e) 100%)",
           }}
         />
-
         <div className="container-app relative z-10 pt-14 sm:pt-20 md:pt-24 pb-56 sm:pb-72 md:pb-80 text-center">
           <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-8 animate-fade-up">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
             17e législature · Mis à jour quotidiennement
           </div>
-
           <h1
             className="font-display mx-auto max-w-4xl text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.02] mb-6 animate-fade-up tracking-tight"
             style={{ animationDelay: "80ms" }}
@@ -120,18 +101,15 @@ function Home() {
             <span className="block text-white">Cherchez comment</span>
             <span className="text-gradient italic block">votre député a voté.</span>
           </h1>
-
           <p
             className="mx-auto max-w-2xl text-base sm:text-lg text-white/80 mb-10 leading-relaxed animate-fade-up px-2"
             style={{ animationDelay: "160ms" }}
           >
             Sur n'importe quel texte de loi, en quelques secondes. Sans étiquette politique.
           </p>
-
           <div className="mx-auto max-w-2xl animate-fade-up" style={{ animationDelay: "240ms" }}>
             <SearchBar />
           </div>
-
           <div className="mt-16 sm:mt-20 animate-fade-up" style={{ animationDelay: "360ms" }}>
             <p className="text-[11px] uppercase tracking-[0.22em] text-white/60 mb-6">
               Données & technologies de confiance
@@ -139,16 +117,15 @@ function Home() {
             <TrustLogos />
           </div>
         </div>
-
-        {/* Fondu bas vers le reste de la page */}
         <div className="hero-fade-out" aria-hidden="true" />
       </section>
 
       <div className="h-16 sm:h-24" aria-hidden="true" />
 
+      {/* ━━ 2. SPOTLIGHT — slideX depuis la gauche ━━━━━━━━━━━━━━━━━━━━━━ */}
       {spotlight && (
-        <StoryReveal as="section" className="container-app pb-10 relative z-10">
-          <div>
+        <ScrollScene variant="slideX" fromLeft={true} as="section" className="container-app pb-10 relative z-10">
+          <div data-slide="left">
             <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-3 font-medium">À la une</div>
             <Link
               to="/scrutin/$numero"
@@ -191,10 +168,11 @@ function Home() {
               <div className="text-primary text-sm font-medium shrink-0 group-hover:translate-x-1 transition-transform">Voir le détail →</div>
             </Link>
           </div>
-        </StoryReveal>
+        </ScrollScene>
       )}
 
-      <StoryReveal as="section" className="container-app pb-16 pt-4 relative z-10 -mt-4">
+      {/* ━━ 3. DERNIERS SCRUTINS — depth (zoom + perspective) ━━━━━━━━━━ */}
+      <ScrollScene variant="depth" className="container-app pb-16 pt-4 relative z-10 -mt-4">
         <div className="flex items-end justify-between mb-8 mt-2">
           <div>
             <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-2 font-medium">En direct de l'hémicycle</div>
@@ -212,25 +190,37 @@ function Home() {
             </StoryReveal>
           ))}
         </div>
-      </StoryReveal>
+      </ScrollScene>
 
+      {/* ━━ 4. STATS — tilt 3D ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <StatsSection stats={stats} />
+
+      {/* ━━ 5. BLOG — slideX alternance gauche/droite ━━━━━━━━━━━━━━━━━━ */}
       <LatestBlogSection post={latestPost} />
+
+      {/* ━━ 6. SIMULATEUR — rise classique ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <SimulatorCTASection />
+
+      {/* ━━ 7. ABONNEMENTS — parallax vertical ━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <AbonnementsSection />
+
+      {/* ━━ 8. API — depth zoom ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <ApiSection />
+
+      {/* ━━ 9. COMMENT ÇA MARCHE — sticky-fade (image crossfade) ━━━━━━ */}
       <HowItWorksSection />
+
+      {/* ━━ 10. CONFIANCE — tilt cartes 3D ━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <TrustSection />
     </div>
   );
 }
 
-// ─── AbonnementsSection ────────────────────────────────────────────────────────────
-
+// ─── AbonnementsSection — parallax ───────────────────────────────────────────
 function AbonnementsSection() {
   return (
-    <section className="py-24 border-t border-border/40 bg-muted/10 relative overflow-hidden">
-      <div className="container-app">
+    <ScrollScene variant="parallax" className="py-24 border-t border-border/40 bg-muted/10 relative overflow-hidden">
+      <div className="container-app" data-parallax="0.15">
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-xs font-medium text-primary mb-3">
             <Bell className="w-3.5 h-3.5" /> Alertes e-mails gratuites
@@ -253,12 +243,11 @@ function AbonnementsSection() {
           </div>
         </div>
       </div>
-    </section>
+    </ScrollScene>
   );
 }
 
-// ─── ApiSection ────────────────────────────────────────────────────────────
-
+// ─── ApiSection — depth zoom ──────────────────────────────────────────────────
 function ApiSection() {
   const features = [
     {
@@ -277,7 +266,6 @@ function ApiSection() {
       desc: "Réponses paginées, filtres puissants, CORS activé. Compatible avec n'importe quel langage ou framework.",
     },
   ];
-
   return (
     <section className="py-24 border-t border-border/40">
       <div className="container-app">
@@ -298,22 +286,24 @@ function ApiSection() {
           </div>
         </ScrollScene>
 
-        <div className="grid md:grid-cols-3 gap-5 mb-10">
-          {features.map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="card-glass rounded-[2rem] p-7">
-              <div
-                className="w-11 h-11 rounded-2xl flex items-center justify-center mb-5"
-                style={{ background: "linear-gradient(135deg, oklch(0.50 0.20 285 / 14%), oklch(0.42 0.22 260 / 22%))", color: "oklch(0.50 0.20 285)" }}
-              >
-                <Icon className="w-5 h-5" strokeWidth={1.75} />
+        {/* Cartes features — slideX alternance */}
+        <ScrollScene variant="slideX">
+          <div className="grid md:grid-cols-3 gap-5 mb-10">
+            {features.map(({ icon: Icon, title, desc }, i) => (
+              <div key={title} data-slide={i % 2 === 0 ? "left" : "right"} className="card-glass rounded-[2rem] p-7">
+                <div
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center mb-5"
+                  style={{ background: "linear-gradient(135deg, oklch(0.50 0.20 285 / 14%), oklch(0.42 0.22 260 / 22%))", color: "oklch(0.50 0.20 285)" }}
+                >
+                  <Icon className="w-5 h-5" strokeWidth={1.75} />
+                </div>
+                <h3 className="font-display text-xl text-foreground mb-2 tracking-tight">{title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
               </div>
-              <h3 className="font-display text-xl text-foreground mb-2 tracking-tight">{title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </ScrollScene>
 
-        {/* Aperçu de code */}
         <div
           className="rounded-3xl overflow-hidden mb-10"
           style={{ background: "oklch(0.14 0.04 285)", border: "1px solid oklch(0.25 0.06 285 / 60%)" }}
@@ -325,8 +315,7 @@ function ApiSection() {
             <span className="ml-2 text-[10px] font-mono uppercase tracking-widest" style={{ color: "oklch(0.55 0.08 285)" }}>exemple · javascript</span>
           </div>
           <pre className="px-6 py-5 text-xs leading-relaxed font-mono overflow-x-auto" style={{ color: "oklch(0.85 0.06 285)" }}>
-            <code>{
-`// Récupérer les 5 derniers scrutins adoptés
+            <code>{`// Récupérer les 5 derniers scrutins adoptés
 const res = await fetch(
   "https://mandat-fr.vercel.app/api/v1/scrutins?sort=adopté&limit=5",
   { headers: { "X-Api-Key": "mk_live_votre_cle" } }
@@ -335,22 +324,15 @@ const { data } = await res.json();
 
 data.forEach(s => {
   console.log(s.numero, s.titre, s.votes.pour + " pour");
-});`
-            }</code>
+});`}</code>
           </pre>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            to="/developers"
-            className="btn-primary px-8 py-4 rounded-2xl font-semibold text-sm inline-flex items-center gap-2 hover:scale-105 transition-transform"
-          >
+          <Link to="/developers" className="btn-primary px-8 py-4 rounded-2xl font-semibold text-sm inline-flex items-center gap-2 hover:scale-105 transition-transform">
             <Key className="w-4 h-4" /> Obtenir une clé API gratuite
           </Link>
-          <Link
-            to="/developers"
-            className="glass px-8 py-4 rounded-2xl font-medium text-sm border border-border/50 hover:border-primary/40 transition-colors inline-flex items-center gap-2"
-          >
+          <Link to="/developers" className="glass px-8 py-4 rounded-2xl font-medium text-sm border border-border/50 hover:border-primary/40 transition-colors inline-flex items-center gap-2">
             Voir la documentation →
           </Link>
         </div>
@@ -358,8 +340,6 @@ data.forEach(s => {
     </section>
   );
 }
-
-// ─── Reste de la page (inchangé) ───────────────────────────────────────────
 
 function Counter({ value }: { value: number }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -387,6 +367,7 @@ function Counter({ value }: { value: number }) {
   return <span ref={ref}>{displayValue.toLocaleString("fr-FR")}</span>;
 }
 
+// ─── StatsSection — tilt 3D ───────────────────────────────────────────────────
 function StatsSection({ stats }: { stats: HomeStats }) {
   return (
     <section className="relative z-10 my-20 px-4">
@@ -410,71 +391,69 @@ function StatsSection({ stats }: { stats: HomeStats }) {
   );
 }
 
+// ─── LatestBlogSection — slideX droite ───────────────────────────────────────
 function LatestBlogSection({ post }: { post: BlogPost | null }) {
   if (!post) return null;
   return (
     <section className="py-20 border-t border-border/40">
       <div className="container-app">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-          <div>
-            <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-3 font-medium">Dernier blog posté</div>
-            <h2 className="font-display text-3xl md:text-5xl leading-[1.05]">
-              Nos décryptages <span className="text-gradient italic">politiques</span>
-            </h2>
+        <ScrollScene variant="slideX" fromLeft={false}>
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6" data-slide="right">
+            <div>
+              <div className="text-xs uppercase tracking-[0.18em] text-primary/80 mb-3 font-medium">Dernier blog posté</div>
+              <h2 className="font-display text-3xl md:text-5xl leading-[1.05]">
+                Nos décryptages <span className="text-gradient italic">politiques</span>
+              </h2>
+            </div>
+            <Link to="/blog" className="text-sm font-medium text-primary hover:underline pb-1">Voir tous les articles →</Link>
           </div>
-          <Link to="/blog" className="text-sm font-medium text-primary hover:underline pb-1">Voir tous les articles →</Link>
-        </div>
-        <Link to="/blog/$slug" params={{ slug: post.slug }}
-          className="group block card-glass rounded-[2.5rem] p-8 md:p-12 hover:border-primary/40 transition-colors">
-          <div className="flex flex-col md:flex-row gap-8 md:items-center">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
-                <time dateTime={post.date}>{new Date(post.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</time>
-                <span>·</span>
-                <span>{post.readingMinutes} min de lecture</span>
+          <Link to="/blog/$slug" params={{ slug: post.slug }}
+            data-slide="left"
+            className="group block card-glass rounded-[2.5rem] p-8 md:p-12 hover:border-primary/40 transition-colors">
+            <div className="flex flex-col md:flex-row gap-8 md:items-center">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
+                  <time dateTime={post.date}>{new Date(post.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</time>
+                  <span>·</span>
+                  <span>{post.readingMinutes} min de lecture</span>
+                </div>
+                <h3 className="font-display text-2xl md:text-4xl mb-4 group-hover:text-primary transition-colors">{post.title}</h3>
+                <p className="text-muted-foreground line-clamp-2 text-lg md:text-xl leading-relaxed">{post.description}</p>
               </div>
-              <h3 className="font-display text-2xl md:text-4xl mb-4 group-hover:text-primary transition-colors">{post.title}</h3>
-              <p className="text-muted-foreground line-clamp-2 text-lg md:text-xl leading-relaxed">{post.description}</p>
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                <svg className="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+              </div>
             </div>
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-              <svg className="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-            </div>
-          </div>
-        </Link>
+          </Link>
+        </ScrollScene>
       </div>
     </section>
   );
 }
 
+// ─── SimulatorCTASection — rise ───────────────────────────────────────────────
 function SimulatorCTASection() {
   return (
     <section className="py-24 bg-primary/5 border-y border-primary/10 overflow-hidden relative">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-20 pointer-events-none"
         style={{ background: "radial-gradient(circle, var(--color-primary), transparent 70%)", filter: "blur(120px)" }} />
       <div className="container-app relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-display text-4xl md:text-6xl mb-8 leading-[1.1] tracking-tight">
-            Visualisez les <span className="text-gradient italic">coalitions</span> possibles
-          </h2>
-          <p className="text-lg md:text-xl text-muted-foreground mb-12 leading-relaxed">
-            Utilisez notre outil de Simulateur de coalition pour mieux comprendre où sont vos députés et comment se structure l'Assemblée.
-          </p>
-          <Link to="/groupes" className="btn-primary px-10 py-5 rounded-full text-lg font-semibold inline-flex items-center gap-3 shadow-2xl shadow-primary/20 hover:scale-105 transition-transform">
-            Lancer le simulateur
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-          </Link>
-        </div>
+        <ScrollScene variant="rise">
+          <div className="max-w-4xl mx-auto text-center" data-rise>
+            <h2 className="font-display text-4xl md:text-6xl mb-8 leading-[1.1] tracking-tight">
+              Visualisez les <span className="text-gradient italic">coalitions</span> possibles
+            </h2>
+            <p className="text-lg md:text-xl text-muted-foreground mb-12 leading-relaxed">
+              Utilisez notre outil de Simulateur de coalition pour mieux comprendre où sont vos députés et comment se structure l'Assemblée.
+            </p>
+            <Link to="/groupes" className="btn-primary px-10 py-5 rounded-full text-lg font-semibold inline-flex items-center gap-3 shadow-2xl shadow-primary/20 hover:scale-105 transition-transform">
+              Lancer le simulateur
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+            </Link>
+          </div>
+        </ScrollScene>
       </div>
     </section>
-  );
-}
-
-function StatPill({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="stat-box glass rounded-full px-5 py-2.5 border border-border/40 inline-flex items-center gap-2">
-      <span className="stat-value font-display text-lg text-ink">{value}</span>
-      <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</span>
-    </div>
   );
 }
 
@@ -495,86 +474,38 @@ function TursoIcon() {
     </svg>
   );
 }
-
 function StripeIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="#635BFF"/>
-      <path d="M20.5 12.5c0-1.5-1.2-2.5-3.5-2.5-2.8 0-4 1.4-4 2.8 0 1.9 1.8 2.7 3.5 3.2 1.4.4 2.5.9 2.5 2 0 1.2-1.1 1.8-2.8 1.8-1.8 0-2.9-.7-3.2-1.8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  );
+  return (<svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#635BFF"/><path d="M20.5 12.5c0-1.5-1.2-2.5-3.5-2.5-2.8 0-4 1.4-4 2.8 0 1.9 1.8 2.7 3.5 3.2 1.4.4 2.5.9 2.5 2 0 1.2-1.1 1.8-2.8 1.8-1.8 0-2.9-.7-3.2-1.8" stroke="white" strokeWidth="2" strokeLinecap="round"/></svg>);
 }
-
 function GitHubIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
-    </svg>
-  );
+  return (<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>);
 }
-
 function ANIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="#003189"/>
-      <rect x="7" y="22" width="18" height="2" rx="1" fill="white"/>
-      <rect x="7" y="9"  width="18" height="2" rx="1" fill="white"/>
-      <rect x="9"    y="11" width="2" height="11" rx="1" fill="white"/>
-      <rect x="13.5" y="11" width="2" height="11" rx="1" fill="white"/>
-      <rect x="18"   y="11" width="2" height="11" rx="1" fill="white"/>
-      <rect x="22"   y="11" width="2" height="11" rx="1" fill="white"/>
-    </svg>
-  );
+  return (<svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#003189"/><rect x="7" y="22" width="18" height="2" rx="1" fill="white"/><rect x="7" y="9" width="18" height="2" rx="1" fill="white"/><rect x="9" y="11" width="2" height="11" rx="1" fill="white"/><rect x="13.5" y="11" width="2" height="11" rx="1" fill="white"/><rect x="18" y="11" width="2" height="11" rx="1" fill="white"/><rect x="22" y="11" width="2" height="11" rx="1" fill="white"/></svg>);
 }
-
 function CivixIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="#0EA5E9"/>
-      <path d="M20 11a7 7 0 1 0 0 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-    </svg>
-  );
+  return (<svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#0EA5E9"/><path d="M20 11a7 7 0 1 0 0 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>);
 }
-
 function ClairIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="#059669"/>
-      <circle cx="16" cy="13" r="4" stroke="white" strokeWidth="2.5" fill="none"/>
-      <path d="M10 23c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-    </svg>
-  );
+  return (<svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#059669"/><circle cx="16" cy="13" r="4" stroke="white" strokeWidth="2.5" fill="none"/><path d="M10 23c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/></svg>);
 }
 
-// Tous les logos sont en blanc dans la hero (fond sombre)
 function TrustLogos() {
   const logos: { name: string; href: string; icon: React.ReactNode }[] = [
-    { name: "Turso",               href: "https://turso.tech",                         icon: <TursoIcon /> },
-    { name: "Stripe",              href: "https://stripe.com",                         icon: <StripeIcon /> },
-    { name: "GitHub",              href: "https://github.com/Simonc44/mandat",         icon: <GitHubIcon /> },
-    { name: "Assemblée nationale", href: "https://www.assemblee-nationale.fr",         icon: <ANIcon /> },
-    { name: "Civix",               href: "https://civix.fr",                            icon: <CivixIcon /> },
-    { name: "Clair",               href: "https://clair-production.up.railway.app",    icon: <ClairIcon /> },
+    { name: "Turso",               href: "https://turso.tech",                       icon: <TursoIcon /> },
+    { name: "Stripe",              href: "https://stripe.com",                       icon: <StripeIcon /> },
+    { name: "GitHub",              href: "https://github.com/Simonc44/mandat",       icon: <GitHubIcon /> },
+    { name: "Assemblée nationale", href: "https://www.assemblee-nationale.fr",       icon: <ANIcon /> },
+    { name: "Civix",               href: "https://civix.fr",                         icon: <CivixIcon /> },
+    { name: "Clair",               href: "https://clair-production.up.railway.app",  icon: <ClairIcon /> },
   ];
   return (
     <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-4 sm:gap-x-10">
       {logos.map((l) => (
-        <a
-          key={l.name}
-          href={l.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={l.name}
-          title={l.name}
-          className="group inline-flex items-center gap-2 opacity-75 hover:opacity-100 transition-all duration-200 text-white"
-        >
+        <a key={l.name} href={l.href} target="_blank" rel="noopener noreferrer" aria-label={l.name} title={l.name}
+          className="group inline-flex items-center gap-2 opacity-75 hover:opacity-100 transition-all duration-200 text-white">
           <span className="shrink-0 transition-transform duration-200 group-hover:scale-110 text-white">{l.icon}</span>
-          <span
-            className="text-sm font-semibold tracking-tight text-white transition-colors duration-200"
-            style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            {l.name}
-          </span>
+          <span className="text-sm font-semibold tracking-tight text-white transition-colors duration-200" style={{ fontFamily: "system-ui, sans-serif" }}>{l.name}</span>
         </a>
       ))}
     </div>
@@ -620,6 +551,8 @@ function ResultMiniBar({ s }: { s: Scrutin }) {
   );
 }
 
+// ─── HowItWorksSection — sticky-fade ─────────────────────────────────────────
+// Pendant que les 3 étapes de texte défilent, la zone droite change d'image
 function HowItWorksSection() {
   return (
     <section className="bg-muted/30 py-20 border-t border-border/40">
@@ -629,38 +562,53 @@ function HowItWorksSection() {
             Comment suivre les <span className="text-gradient italic">votes et lois</span> de l'Assemblée ?
           </h2>
         </ScrollScene>
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 text-muted-foreground leading-relaxed">
-            <p>Chaque jour, l'<strong>Assemblée nationale</strong> examine des textes de loi, des amendements et des motions. En tant que citoyen, il est souvent difficile de suivre précisément la position de vos <strong>députés</strong> au milieu du tumulte politique. <strong>Mandat</strong> simplifie cet accès à l'information démocratique.</p>
-            <p>Notre plateforme regroupe l'intégralité des <strong>scrutins publics</strong> de la 17e législature. Vous pouvez rechercher un élu par son nom, sa circonscription ou son groupe politique pour voir l'historique complet de ses votes : pour, contre, ou abstention.</p>
-            <p>Nous utilisons les données officielles en temps réel pour vous garantir une transparence totale. Que ce soit pour un projet de loi sur la justice, l'économie ou l'environnement, vous disposez enfin d'un outil clair pour comprendre qui vote quoi, et pourquoi.</p>
-          </div>
-          <div className="card-glass rounded-[2rem] p-8 border border-white/20 shadow-2xl">
-            <h3 className="font-display text-2xl text-foreground mb-4">Les étapes pour s'informer :</h3>
-            <ul className="space-y-4">
-              {[
-                { n: 1, title: "Recherchez", desc: "Utilisez la barre de recherche pour trouver un député ou un texte de loi spécifique." },
-                { n: 2, title: "Analysez",   desc: "Consultez le détail des votes par groupe politique et les résultats globaux du scrutin." },
-                { n: 3, title: "Partagez",   desc: "Chaque page est conçue pour être partagée facilement afin d'alimenter le débat citoyen." },
-              ].map(({ n, title, desc }) => (
-                <li key={n} className="flex gap-4">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold">{n}</span>
-                  <p><strong className="text-foreground">{title} :</strong> {desc}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
+
+        <div className="grid md:grid-cols-2 gap-12 items-start">
+          {/* Colonne texte — 3 étapes avec slideX alternance */}
+          <ScrollScene variant="slideX" fromLeft={true}>
+            <div className="space-y-6 text-muted-foreground leading-relaxed">
+              <div data-slide="left">
+                <p>Chaque jour, l'<strong>Assemblée nationale</strong> examine des textes de loi, des amendements et des motions. En tant que citoyen, il est souvent difficile de suivre précisément la position de vos <strong>députés</strong> au milieu du tumulte politique. <strong>Mandat</strong> simplifie cet accès à l'information démocratique.</p>
+              </div>
+              <div data-slide="right">
+                <p>Notre plateforme regroupe l'intégralité des <strong>scrutins publics</strong> de la 17e législature. Vous pouvez rechercher un élu par son nom, sa circonscription ou son groupe politique pour voir l'historique complet de ses votes : pour, contre, ou abstention.</p>
+              </div>
+              <div data-slide="left">
+                <p>Nous utilisons les données officielles en temps réel pour vous garantir une transparence totale. Que ce soit pour un projet de loi sur la justice, l'économie ou l'environnement, vous disposez enfin d'un outil clair pour comprendre qui vote quoi, et pourquoi.</p>
+              </div>
+            </div>
+          </ScrollScene>
+
+          {/* Colonne steps — tilt 3D */}
+          <ScrollScene variant="tilt">
+            <div className="card-glass rounded-[2rem] p-8 border border-white/20 shadow-2xl" data-tilt>
+              <h3 className="font-display text-2xl text-foreground mb-4">Les étapes pour s'informer :</h3>
+              <ul className="space-y-4">
+                {[
+                  { n: 1, title: "Recherchez", desc: "Utilisez la barre de recherche pour trouver un député ou un texte de loi spécifique." },
+                  { n: 2, title: "Analysez",   desc: "Consultez le détail des votes par groupe politique et les résultats globaux du scrutin." },
+                  { n: 3, title: "Partagez",   desc: "Chaque page est conçue pour être partagée facilement afin d'alimenter le débat citoyen." },
+                ].map(({ n, title, desc }) => (
+                  <li key={n} className="flex gap-4">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold">{n}</span>
+                    <p><strong className="text-foreground">{title} :</strong> {desc}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </ScrollScene>
         </div>
       </div>
     </section>
   );
 }
 
+// ─── TrustSection — tilt cartes ───────────────────────────────────────────────
 function TrustSection() {
   const points = [
-    { Icon: Unlock,      title: "100 % opendata",         desc: "Sources officielles AN, API CLAIR et CIVIX. Aucune donnée inventée, aucune interprétation politique." },
-    { Icon: Scale,       title: "Zéro biais politique",   desc: "Pas de score idéologique, pas de classement partisan. Les faits bruts, tels que votés dans l'hémicycle." },
-    { Icon: ShieldCheck, title: "Vie privée respectée",   desc: "Aucun cookie publicitaire. Aucun tracker tiers. Projet indépendant, sans financeur politique." },
+    { Icon: Unlock,      title: "100 % opendata",       desc: "Sources officielles AN, API CLAIR et CIVIX. Aucune donnée inventée, aucune interprétation politique." },
+    { Icon: Scale,       title: "Zéro biais politique", desc: "Pas de score idéologique, pas de classement partisan. Les faits bruts, tels que votés dans l'hémicycle." },
+    { Icon: ShieldCheck, title: "Vie privée respectée", desc: "Aucun cookie publicitaire. Aucun tracker tiers. Projet indépendant, sans financeur politique." },
   ];
   return (
     <section className="border-t border-border/40">

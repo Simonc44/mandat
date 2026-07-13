@@ -1,32 +1,41 @@
-// components/Header.tsx — Navbar qui se transforme en pilule au scroll
+// components/Header.tsx — Navbar → pilule premium au scroll
 
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Menu, X } from "lucide-react";
 
 export const GITHUB_REPO_URL = "https://github.com/Simonc44/mandat";
 
 const NAV_LINKS = [
-  { to: "/deputes",  label: "Député·es" },
-  { to: "/groupes",  label: "Groupes" },
-  { to: "/scrutins", label: "Scrutins" },
-  { to: "/blog",     label: "Blog" },
-  { to: "/recherche",label: "Recherche" },
-  { to: "/a-propos", label: "À propos" },
+  { to: "/deputes",   label: "Député·es" },
+  { to: "/groupes",   label: "Groupes" },
+  { to: "/scrutins",  label: "Scrutins" },
+  { to: "/blog",      label: "Blog" },
+  { to: "/recherche", label: "Recherche" },
+  { to: "/a-propos",  label: "À propos" },
 ] as const;
 
 export function Header() {
   const isLoading  = useRouterState({ select: s => s.isLoading });
   const location   = useRouterState({ select: s => s.location.pathname });
-  const [scrolled, setScrolled]     = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled]       = useState(false);
+  const [scrollPct, setScrollPct]     = useState(0);
+  const [mobileOpen, setMobileOpen]   = useState(false);
+  const pillRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 60);
-    h();
-    window.addEventListener("scroll", h, { passive: true });
-    return () => window.removeEventListener("scroll", h);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 70);
+      // Pourcentage de scroll de la page pour la barre de progression
+      const docH = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollPct(docH > 0 ? Math.min(100, (y / docH) * 100) : 0);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
   useEffect(() => { setMobileOpen(false); }, [location]);
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -37,51 +46,119 @@ export function Header() {
     <>
       {isLoading && <div className="nav-progress" aria-hidden="true" />}
 
-      {/* Pilule flottante (visible dès que scrolled > 60px) */}
+      {/* ══ PILULE FLOTTANTE (scroll > 70px) ══════════════════════════════ */}
       <div
-        className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none"
+        className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none"
         style={{
-          transition: "opacity 0.35s ease, transform 0.35s ease",
-          opacity: scrolled ? 1 : 0,
-          transform: scrolled ? "translateY(0)" : "translateY(-12px)",
+          paddingTop: scrolled ? "12px" : "0px",
+          transition: "padding-top 0.4s cubic-bezier(0.4,0,0.2,1)",
         }}
       >
-        <nav
-          className="pointer-events-auto hidden md:flex items-center gap-1 px-3 py-2 rounded-full text-sm border border-white/15"
+        <div
+          ref={pillRef}
+          className="pointer-events-auto hidden md:flex items-center relative overflow-hidden"
           style={{
-            background: "oklch(0.14 0.04 285 / 88%)",
-            backdropFilter: "blur(28px) saturate(180%)",
-            boxShadow: "0 8px 40px oklch(0.08 0.06 285 / 70%), inset 0 1px 0 oklch(1 0 0 / 8%)",
+            // Forme : barre pleine → pilule arrondie
+            borderRadius: scrolled ? "9999px" : "0px",
+            width: scrolled ? "auto" : "100vw",
+            maxWidth: scrolled ? "780px" : "100vw",
+            padding: scrolled ? "5px 6px" : "0px",
+            gap: scrolled ? "2px" : "0px",
+            background: scrolled
+              ? "oklch(0.13 0.05 285 / 90%)"
+              : "transparent",
+            backdropFilter: scrolled ? "blur(32px) saturate(200%)" : "none",
+            border: scrolled ? "1px solid oklch(0.35 0.08 285 / 40%)" : "none",
+            boxShadow: scrolled
+              ? "0 4px 24px oklch(0.08 0.06 285 / 55%), 0 1px 0 oklch(1 0 0 / 7%) inset"
+              : "none",
+            transition: "all 0.45s cubic-bezier(0.4,0,0.2,1)",
+            opacity: 1,
           }}
           aria-label="Navigation principale"
         >
-          <Link to="/" className="flex items-center gap-1.5 mr-1 group" aria-label="Accueil">
-            <img src="/favicon.svg" alt="" className="w-6 h-6 object-contain transition-transform duration-200 group-hover:scale-110" width={24} height={24} aria-hidden="true" />
-            <span className="font-display text-sm font-semibold text-white/90 tracking-tight">Mandat</span>
-          </Link>
-          <span className="w-px h-4 bg-white/20 mx-1" aria-hidden="true" />
-          {NAV_LINKS.map(l => (
+          {/* Logo compact — visible dans la pilule */}
+          <div
+            style={{
+              maxWidth: scrolled ? "120px" : "0px",
+              opacity: scrolled ? 1 : 0,
+              overflow: "hidden",
+              transition: "max-width 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease",
+              marginRight: scrolled ? "2px" : "0px",
+              flexShrink: 0,
+            }}
+          >
             <Link
-              key={l.to}
-              to={l.to}
-              className="px-3 py-1.5 rounded-full text-white/65 hover:text-white hover:bg-white/10 transition-all duration-200 text-xs font-medium"
-              activeProps={{ className: "px-3 py-1.5 rounded-full text-primary font-semibold bg-primary/18 text-xs" }}
+              to="/"
+              className="flex items-center gap-1.5 pl-2 pr-1 py-1.5 rounded-full hover:bg-white/8 transition-colors group"
+              aria-label="Accueil Mandat"
             >
-              {l.label}
+              <img src="/favicon.svg" alt="" width={20} height={20} className="w-5 h-5 object-contain group-hover:scale-110 transition-transform" aria-hidden="true" />
+              <span className="text-[13px] font-semibold text-white/90 tracking-tight whitespace-nowrap font-display">Mandat</span>
             </Link>
-          ))}
-        </nav>
+          </div>
+
+          {/* Séparateur */}
+          {scrolled && (
+            <span className="w-px h-4 shrink-0 mx-1" style={{ background: "oklch(0.45 0.08 285 / 60%)" }} aria-hidden="true" />
+          )}
+
+          {/* Liens nav */}
+          {NAV_LINKS.map((l) => {
+            const active = location === l.to || (l.to !== "/" && location.startsWith(l.to));
+            return (
+              <Link
+                key={l.to}
+                to={l.to}
+                className="relative flex items-center px-3 py-1.5 rounded-full text-[13px] font-medium transition-all duration-200 whitespace-nowrap"
+                style={{
+                  color: active ? "white" : "oklch(0.70 0.05 285)",
+                  background: active
+                    ? "oklch(0.50 0.20 285 / 35%)"
+                    : "transparent",
+                }}
+                onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.background = "oklch(0.30 0.06 285 / 40%)"; (e.currentTarget as HTMLElement).style.color = "white"; }}
+                onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "oklch(0.70 0.05 285)"; } }}
+                aria-current={active ? "page" : undefined}
+              >
+                {l.label}
+                {/* Point indicateur actif */}
+                {active && (
+                  <span
+                    className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                    style={{ background: "oklch(0.72 0.16 285)" }}
+                    aria-hidden="true"
+                  />
+                )}
+              </Link>
+            );
+          })}
+
+          {/* Barre de progression de scroll — base de la pilule */}
+          {scrolled && (
+            <div
+              className="absolute bottom-0 left-0 h-[2px] rounded-full pointer-events-none"
+              style={{
+                width: `${scrollPct}%`,
+                background: "linear-gradient(90deg, oklch(0.50 0.20 285), oklch(0.72 0.16 285))",
+                transition: "width 0.1s linear",
+              }}
+              aria-hidden="true"
+            />
+          )}
+        </div>
       </div>
 
-      {/* Barre classique en haut de page — se cache quand la pilule arrive */}
+      {/* ══ BARRE CLASSIQUE (haut de page) ═══════════════════════════════ */}
       <header
         className="sticky top-0 z-40 glass-navbar border-b border-border/30"
         style={{
-          transition: "opacity 0.3s ease, transform 0.3s ease",
+          transition: "opacity 0.35s ease, transform 0.35s ease",
           opacity: scrolled ? 0 : 1,
           pointerEvents: scrolled ? "none" : "auto",
-          transform: scrolled ? "translateY(-4px)" : "translateY(0)",
+          transform: scrolled ? "translateY(-6px)" : "translateY(0)",
         }}
+        aria-hidden={scrolled}
       >
         <div className="container-app flex items-center justify-between h-16 gap-3">
           <Link to="/" className="flex items-center gap-2.5 group shrink-0" aria-label="Mandat — Accueil">
@@ -104,7 +181,10 @@ export function Header() {
 
           <button type="button" onClick={() => setMobileOpen(v => !v)}
             className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl text-foreground/80 hover:bg-white/30 transition-colors shrink-0"
-            aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"} aria-expanded={mobileOpen} aria-controls="mobile-nav-panel">
+            aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-nav-panel"
+          >
             {mobileOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
           </button>
         </div>
@@ -124,34 +204,48 @@ export function Header() {
         )}
       </header>
 
-      {/* Bouton hamburger flottant mobile quand la barre est cachée */}
+      {/* ══ HAMBURGER FLOTTANT MOBILE ════════════════════════════════════ */}
       {scrolled && (
         <button
           type="button"
           onClick={() => setMobileOpen(v => !v)}
-          className="md:hidden fixed top-4 right-4 z-50 w-11 h-11 rounded-full flex items-center justify-center border border-white/20 transition-all"
-          style={{ background: "oklch(0.14 0.04 285 / 88%)", backdropFilter: "blur(16px)", boxShadow: "0 4px 20px oklch(0.08 0.06 285 / 60%)" }}
+          className="md:hidden fixed top-3 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center border transition-all"
+          style={{
+            background: "oklch(0.13 0.05 285 / 90%)",
+            backdropFilter: "blur(20px)",
+            borderColor: "oklch(0.35 0.08 285 / 40%)",
+            boxShadow: "0 4px 16px oklch(0.08 0.06 285 / 50%)",
+          }}
           aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
         >
-          {mobileOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
+          {mobileOpen ? <X className="w-4.5 h-4.5 text-white" /> : <Menu className="w-4.5 h-4.5 text-white" />}
         </button>
       )}
 
-      {/* Overlay mobile quand pilule active */}
+      {/* ══ OVERLAY MOBILE (pilule active) ══════════════════════════════ */}
       {scrolled && mobileOpen && (
         <div
           className="md:hidden fixed inset-0 z-40 flex flex-col pt-20 px-5"
-          style={{ background: "oklch(0.10 0.04 285 / 96%)", backdropFilter: "blur(20px)" }}
+          style={{ background: "oklch(0.10 0.04 285 / 97%)", backdropFilter: "blur(24px)" }}
         >
           <nav className="flex flex-col gap-2" aria-label="Navigation mobile">
-            {NAV_LINKS.map(l => (
-              <Link key={l.to} to={l.to}
-                className="px-5 py-4 rounded-2xl text-lg text-white/75 hover:text-white hover:bg-white/10 transition-colors font-medium"
-                activeProps={{ className: "px-5 py-4 rounded-2xl text-lg text-primary font-semibold bg-primary/15" }}
-                onClick={() => setMobileOpen(false)}>
-                {l.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map(l => {
+              const active = location === l.to || (l.to !== "/" && location.startsWith(l.to));
+              return (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  className="flex items-center px-5 py-4 rounded-2xl text-lg font-medium transition-all"
+                  style={{
+                    color: active ? "white" : "oklch(0.65 0.08 285)",
+                    background: active ? "oklch(0.50 0.20 285 / 25%)" : "transparent",
+                  }}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
       )}
