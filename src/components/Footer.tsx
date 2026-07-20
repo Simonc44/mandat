@@ -22,11 +22,7 @@ function VisitCounter() {
 
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-      <span
-        className="w-1.5 h-1.5 rounded-full bg-green-500"
-        style={{ animation: "pulse-glow 2s ease-in-out infinite" }}
-        aria-hidden="true"
-      />
+      <span className="w-1.5 h-1.5 rounded-full bg-green-500" style={{ animation: "pulse-glow 2s ease-in-out infinite" }} aria-hidden="true" />
       {count.toLocaleString("fr-FR")} {count > 1 ? "visiteurs" : "visiteur"}
     </span>
   );
@@ -58,15 +54,18 @@ export function Footer() {
           </div>
 
           <nav className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm self-start" aria-label="Navigation secondaire">
-            <Link to="/deputes"       className="text-muted-foreground hover:text-primary transition-colors py-1">Les député·es</Link>
-            <Link to="/groupes"       className="text-muted-foreground hover:text-primary transition-colors py-1">Les groupes</Link>
-            <Link to="/scrutins"      className="text-muted-foreground hover:text-primary transition-colors py-1">Les scrutins</Link>
-            <Link to="/blog"          className="text-muted-foreground hover:text-primary transition-colors py-1">Blog</Link>
-            <Link to="/recherche"     className="text-muted-foreground hover:text-primary transition-colors py-1">Recherche</Link>
-            <Link to="/developers"    className="text-muted-foreground hover:text-primary transition-colors py-1">API développeurs</Link>
-            <Link to="/confidentialite" className="text-muted-foreground hover:text-primary transition-colors py-1">Confidentialité</Link>
-            <Link to="/statut"        className="text-muted-foreground hover:text-primary transition-colors py-1">Statut du service</Link>
-            <Link to="/desabonnement"  className="text-muted-foreground hover:text-primary transition-colors py-1">Désabonnement</Link>
+            <Link to="/deputes"           className="text-muted-foreground hover:text-primary transition-colors py-1">Les député·es</Link>
+            <Link to="/groupes"           className="text-muted-foreground hover:text-primary transition-colors py-1">Les groupes</Link>
+            <Link to="/scrutins"          className="text-muted-foreground hover:text-primary transition-colors py-1">Les scrutins</Link>
+            <Link to="/scrutins-semaine"  className="text-muted-foreground hover:text-primary transition-colors py-1">📅 Scrutins de la semaine</Link>
+            <Link to="/problemes-france"  className="text-muted-foreground hover:text-primary transition-colors py-1">🇫🇷 Problèmes de la France</Link>
+            <Link to="/defis-france"      className="text-muted-foreground hover:text-primary transition-colors py-1">🎯 Défis à relever</Link>
+            <Link to="/blog"              className="text-muted-foreground hover:text-primary transition-colors py-1">Blog</Link>
+            <Link to="/recherche"         className="text-muted-foreground hover:text-primary transition-colors py-1">Recherche</Link>
+            <Link to="/developers"        className="text-muted-foreground hover:text-primary transition-colors py-1">API développeurs</Link>
+            <Link to="/confidentialite"   className="text-muted-foreground hover:text-primary transition-colors py-1">Confidentialité</Link>
+            <Link to="/statut"            className="text-muted-foreground hover:text-primary transition-colors py-1">Statut du service</Link>
+            <Link to="/desabonnement"     className="text-muted-foreground hover:text-primary transition-colors py-1">Désabonnement</Link>
             <a href="https://data.assemblee-nationale.fr" target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-primary transition-colors py-1">Données AN ↗</a>
             <a href="https://clair-production.up.railway.app/docs" target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-primary transition-colors py-1">API CLAIR ↗</a>
             <a href="https://www.civix.fr" target="_blank" rel="noreferrer noopener" className="text-muted-foreground hover:text-primary transition-colors py-1">API CIVIX ↗</a>
