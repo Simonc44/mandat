@@ -8,7 +8,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square)](https://www.typescriptlang.org)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 
-**🌐 Site en production :** [mandat-fr.vercel.app](https://mandat-fr.vercel.app)
+** Site en production :** [mandat-fr.vercel.app](https://mandat-fr.vercel.app)
 
 ---
 
@@ -16,21 +16,21 @@
 
 ---
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
 | Fonctionnalité | Description |
 |---|---|
-| 🔍 **Recherche instantanée** | Filtres croisés par groupe politique, département, circonscription et nom |
-| 🗳️ **Détail des scrutins** | Résultat nominatif complet de chaque vote, recalculé en temps réel |
-| ⚖️ **Zéro biais** | Aucun score idéologique ni classement — uniquement les faits officiels |
-| 🔒 **RGPD** | Aucun cookie publicitaire, aucun tracker intrusif |
-| 📱 **PWA** | Installable sur mobile/tablette comme une app native |
-| 🗃️ **Archive 16e législature** | Accès historique aux votes 2022–2024 |
-| 🗺️ **Cartogramme hexagonal** | Visualisation géographique interactive par département |
+|  **Recherche instantanée** | Filtres croisés par groupe politique, département, circonscription et nom |
+|  **Détail des scrutins** | Résultat nominatif complet de chaque vote, recalculé en temps réel |
+|  **Zéro biais** | Aucun score idéologique ni classement — uniquement les faits officiels |
+|  **RGPD** | Aucun cookie publicitaire, aucun tracker intrusif |
+|  **PWA** | Installable sur mobile/tablette comme une app native |
+|  **Archive 16e législature** | Accès historique aux votes 2022–2024 |
+|  **Cartogramme hexagonal** | Visualisation géographique interactive par département |
 
 ---
 
-## 🚀 Installation & développement local
+##  Installation & développement local
 
 ### Prérequis
 
@@ -82,7 +82,7 @@ pnpm start
 
 ---
 
-## 🧪 Tests & qualité
+##  Tests & qualité
 
 ```bash
 # Linter ESLint
@@ -97,7 +97,7 @@ pnpm format
 
 ---
 
-## 📁 Structure du projet
+##  Structure du projet
 
 ```
 mandat/
@@ -121,7 +121,7 @@ mandat/
 
 ---
 
-## ⚙️ Architecture & logique interne
+##  Architecture & logique interne
 
 ### Synchronisation automatique (Cron Job)
 
@@ -150,7 +150,7 @@ Chaque hexagone = une circonscription réelle, colorée selon le groupe politiqu
 
 ---
 
-## 🛠️ Stack technique
+##  Stack technique
 
 | Couche | Technologie |
 |---|---|
@@ -165,19 +165,19 @@ Chaque hexagone = une circonscription réelle, colorée selon le groupe politiqu
 
 ---
 
-## 🤝 Contribuer
+##  Contribuer
 
 Les contributions sont les bienvenues ! Consultez le guide [CONTRIBUTING.md](CONTRIBUTING.md) pour démarrer.
 
 ---
 
-## 🔒 Sécurité
+##  Sécurité
 
 Pour signaler une vulnérabilité, consultez [SECURITY.md](SECURITY.md). Ne créez pas d'issue publique pour les failles de sécurité.
 
 ---
 
-## 📄 Licence
+##  Licence
 
 Distribué sous la licence **Mandat** — voir [LICENCE](LICENCE).
 
