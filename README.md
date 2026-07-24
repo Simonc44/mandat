@@ -8,7 +8,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square)](https://www.typescriptlang.org)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 
-** Site en production :** [mandat-fr.vercel.app](https://mandat-fr.vercel.app)
+**Site en production :** [mandat-fr.vercel.app](https://mandat-fr.vercel.app)
 
 ---
 
